@@ -38,8 +38,7 @@ function JGONode(type, parent) {
     this.ko = false; // no ko by default
     this.comment = '';
 
-    this.applyList = [];
-    this.revertList = [];
+    this.changes = [];
 
     if(!parent) {
         this.captures = {};
@@ -49,28 +48,41 @@ function JGONode(type, parent) {
 }
 
 /**
- * Helper method to easily make apply and revert objects to a node. Also
- * calls setType() and setMark() on the jboard object.
+ * Helper method to make changes to a board while saving them in the node.
+ *
  * @param {JGOBoard} jboard Board.
  * @param {Object} c JGOCoordinate or array of them.
- * @param {int} t Type.
- * @param {string} m Mark.
+ * @param {int} val Type.
  */
-JGONode.prototype.set = function(jboard, c, t, m) {
+JGONode.prototype.setType = function(jboard, c, val) {
     if(c instanceof Array) {
         for(var i=0, len=c.length; i<len; ++i)
-            this.set(jboard, c[i], t, m); // avoid repeating ourselves
+            this.setType(jboard, c[i], val); // avoid repeating ourselves
         return;
     }
 
-    var oldType = jboard.getType(c),
-        oldMark = jboard.getMark(c);
+    // Store both change and previous value to enable reversion
+    this.changes.push({c: c.copy(), type: val, old: jboard.getType(c)});
+    jboard.setType(c, val);
+};
 
-    this.revertList.unshift({c: c.copy(), t: oldType, m: oldMark});
-    this.applyList.push({c: c.copy(), t: t, m: m});
+/**
+ * Helper method to make changes to a board while saving them in the node.
+ *
+ * @param {JGOBoard} jboard Board.
+ * @param {Object} c JGOCoordinate or array of them.
+ * @param {int} val Mark.
+ */
+JGONode.prototype.setMark = function(jboard, c, val) {
+    if(c instanceof Array) {
+        for(var i=0, len=c.length; i<len; ++i)
+            this.setMark(jboard, c[i], val); // avoid repeating ourselves
+        return;
+    }
 
-    jboard.setType(c, t);
-    jboard.setMark(c, m);
+    // Store both change and previous value to enable reversion
+    this.changes.push({c: c.copy(), mark: val, old: jboard.getMark(c)});
+    jboard.setMark(c, val);
 };
 
 /**
@@ -79,10 +91,13 @@ JGONode.prototype.set = function(jboard, c, t, m) {
  * @param {JGOBoard} jboard Board.
  */
 JGONode.prototype.apply = function(jboard) {
-    for(var i=0; i<this.applyList.length; i++) {
-        var item = this.applyList[i];
-        if(item.t) jboard.setType(item.c, item.t);
-        if(item.m) jboard.setMark(item.c, item.m);
+    for(var i=0; i<this.changes.length; i++) {
+        var item = this.changes[i];
+
+        if('type' in item)
+            jboard.setType(item.c, item.type);
+        else
+            jboard.setMark(item.c, item.mark);
     }
 };
 
@@ -92,10 +107,13 @@ JGONode.prototype.apply = function(jboard) {
  * @param {JGOBoard} jboard Board.
  */
 JGONode.prototype.revert = function(jboard) {
-    for(var i=0; i<this.revertList.length; i++) {
-        var item = this.revertList[i];
-        if(item.t) jboard.setType(item.c, item.t);
-        if(item.m) jboard.setMark(item.c, item.m);
+    for(var i=this.changes.length-1; i>=0; i--) {
+        var item = this.changes[i];
+
+        if('type' in item)
+            jboard.setType(item.c, item.old);
+        else
+            jboard.setMark(item.c, item.old);
     }
 };
 
@@ -118,7 +136,7 @@ JGORecord.prototype.setHandicap = function(coords) {
     if(this.current != this.root || this.root.children.length)
         return;
 
-    this.root.set(this.jboard, coords, JGO.BLACK, JGO.NONE);
+    this.root.setType(this.jboard, coords, JGO.BLACK);
     this.nextMove = JGO.WHITE;
 };
 
@@ -147,10 +165,10 @@ JGORecord.prototype.play = function(coord, stone) {
         if(coord.equals(this.current.ko))
             return false;
         else // clear ko
-            node.set(this.jboard, this.current.ko, JGO.CLEAR, JGO.NONE);
+            node.setMark(this.jboard, this.current.ko, JGO.NONE);
     }
 
-    node.set(this.jboard, coord, stone, JGO.NONE);
+    node.setType(this.jboard, coord, stone);
 
     adj = this.jboard.getAdjacent(coord); // find adjacent coordinates
 
@@ -161,7 +179,7 @@ JGORecord.prototype.play = function(coord, stone) {
             var g = this.jboard.getGroup(c);
 
             if(!this.jboard.hasType(g.neighbors, JGO.CLEAR)) {
-                node.set(this.jboard, g.group, JGO.CLEAR, JGO.NONE);
+                node.setType(this.jboard, g.group, JGO.CLEAR);
                 captures += g.group.length;
                 if(captures == 1) // store potential coordinate for ko
                     ko = g.group[0];
@@ -177,7 +195,7 @@ JGORecord.prototype.play = function(coord, stone) {
 
     if(captures == 1 && this.jboard.filter(adj, JGO.CLEAR).length == 1) {
         node.ko = ko.copy(); // Ko detected
-        node.set(this.jboard, ko, JGO.CLEAR, JGO.CIRCLE); // mark ko
+        node.setMark(this.jboard, ko, JGO.CIRCLE); // mark ko
     }
 
     node.captures[stone] += captures;

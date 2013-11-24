@@ -13,18 +13,20 @@
 <body>
 
 <div id="board"></div>
-<div id="messages"></div>
 
 <p>
-<a onclick="jrec.first(); return false;">First</a>
-<a onclick="jrec.previous(); return false;">Previous</a>
-<a onclick="jrec.next(); return false;">Next</a>
+<a href="#" onclick="jrec.first(); return false;">First</a>
+<a href="#" onclick="jrec.previous(); return false;">Previous</a>
+<a href="#" onclick="jrec.next(); return false;">Next</a>
 </p>
+
+<div id="messages"></div>
 
 <script type="text/javascript" src="jgoboard.js"></script>
 <script type="text/javascript" src="jgocanvas.js"></script>
 <script type="text/javascript" src="jgoinit.js"></script>
 <script type="text/javascript" src="jgorecord.js"></script>
+<script type="text/javascript" src="jgosgf.js"></script>
 <script type="text/javascript" src="large/board.js"></script>
 
 <script type="text/javascript">
@@ -53,21 +55,33 @@ function clickHandler(coord, ev) {
     alert('Illegal move!');
 }
 
-var jboard = new JGOBoard(13),
-    jsetup = new JGOSetup(jboard, JGO.BOARD.largeWalnut),
-    jrec = new JGORecord(jboard);
+var jboard = new JGOBoard(19);
+var jsetup = new JGOSetup(jboard, JGO.BOARD.largeWalnut);
 
+jsetup.create('board', function(canvas) {
+  // Do something
+});
+
+$.ajax('test.sgf', {
+  complete: function(resp) {
+    var gameTree = jgo_parseSGF(resp.responseText);
+    alert(gameTree);
+  }
+});
+//var jrec = new JGORecord(jboard);
+//jrec.setHandicap(JGO_GenerateHandicap(jboard.width, 5));
+//randomBoard(jboard);
+
+/*
 jboard.addListener(function(c, t, old) {
   $('#messages').append('Type from ' + old + ' to ' + t + '<br/>');
 }, function(c, m, old) {
   $('#messages').append('Mark from ' + old + ' to ' + m + '<br/>');
 });
+*/
 
-//randomBoard(jboard);
-jrec.setHandicap(JGO_GenerateHandicap(jboard.width, 5));
-
-jsetup.setOptions({stars: {points:9}});
-jsetup.create('board', initCanvas);
+//jsetup.setOptions({stars: {points:9}});
+//jsetup.create('board', initCanvas);
 </script>
 
 </body>
