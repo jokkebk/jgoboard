@@ -55,6 +55,12 @@ function clickHandler(coord, ev) {
     alert('Illegal move!');
 }
 
+function parseSGF(resp) {
+    var gameTree = jgo_parseSGF(resp.responseText);
+
+    return 1;
+}
+
 var jboard = new JGOBoard(19);
 var jsetup = new JGOSetup(jboard, JGO.BOARD.largeWalnut);
 
@@ -62,12 +68,8 @@ jsetup.create('board', function(canvas) {
   // Do something
 });
 
-$.ajax('test.sgf', {
-  complete: function(resp) {
-    var gameTree = jgo_parseSGF(resp.responseText);
-    alert(gameTree);
-  }
-});
+$.ajax('test.sgf', { complete: parseSGF });
+
 //var jrec = new JGORecord(jboard);
 //jrec.setHandicap(JGO_GenerateHandicap(jboard.width, 5));
 //randomBoard(jboard);

@@ -144,7 +144,7 @@ JGORecord.prototype.setHandicap = function(coords) {
  * Make a move on the board and capture stones if necessary. Creates a new
  * node to game tree.
  *
- * @param {JGOCoordinate} coord Coordinate to play
+ * @param {JGOCoordinate} coord Coordinate to play or null for pass.
  * @param {int} stone Stone to play - JGO.BLACK or JGO.WHITE (optional).
  * @returns {boolean} True if move was successful, false if not.
  */
@@ -162,43 +162,45 @@ JGORecord.prototype.play = function(coord, stone) {
     node = new JGONode(stone, this.current);
 
     if(this.current.ko) {
-        if(coord.equals(this.current.ko))
+        if(coord && coord.equals(this.current.ko))
             return false;
         else // clear ko
             node.setMark(this.jboard, this.current.ko, JGO.NONE);
     }
 
-    node.setType(this.jboard, coord, stone);
+    if(coord) { // not a pass
+        node.setType(this.jboard, coord, stone);
 
-    adj = this.jboard.getAdjacent(coord); // find adjacent coordinates
+        adj = this.jboard.getAdjacent(coord); // find adjacent coordinates
 
-    for(var i=0; i<adj.length; i++) {
-        var c = adj[i];
+        for(var i=0; i<adj.length; i++) {
+            var c = adj[i];
 
-        if(this.jboard.getType(c) == oppType) {
-            var g = this.jboard.getGroup(c);
+            if(this.jboard.getType(c) == oppType) {
+                var g = this.jboard.getGroup(c);
 
-            if(!this.jboard.hasType(g.neighbors, JGO.CLEAR)) {
-                node.setType(this.jboard, g.group, JGO.CLEAR);
-                captures += g.group.length;
-                if(captures == 1) // store potential coordinate for ko
-                    ko = g.group[0];
+                if(!this.jboard.hasType(g.neighbors, JGO.CLEAR)) {
+                    node.setType(this.jboard, g.group, JGO.CLEAR);
+                    captures += g.group.length;
+                    if(captures == 1) // store potential coordinate for ko
+                        ko = g.group[0];
+                }
             }
         }
-    }
 
-    // Suicide not allowed
-    if(!captures && !this.jboard.hasType(this.jboard.getGroup(coord).neighbors, JGO.CLEAR)) {
-        node.revert(this.jboard);
-        return false;
-    }
+        // Suicide not allowed
+        if(!captures && !this.jboard.hasType(this.jboard.getGroup(coord).neighbors, JGO.CLEAR)) {
+            node.revert(this.jboard);
+            return false;
+        }
 
-    if(captures == 1 && this.jboard.filter(adj, JGO.CLEAR).length == 1) {
-        node.ko = ko.copy(); // Ko detected
-        node.setMark(this.jboard, ko, JGO.CIRCLE); // mark ko
-    }
+        if(captures == 1 && this.jboard.filter(adj, JGO.CLEAR).length == 1) {
+            node.ko = ko.copy(); // Ko detected
+            node.setMark(this.jboard, ko, JGO.CIRCLE); // mark ko
+        }
 
-    node.captures[stone] += captures;
+        node.captures[stone] += captures;
+    }
 
     // Record new node
     this.current.children.push(node);
