@@ -1,312 +1,230 @@
-// Telephone dial style numbering
-var JGO_HandicapPlaces = [[], [], [3,7], [3,7,9], [1,3,7,9], [1,3,5,7,9],
+var JGO = JGO || {};
+
+JGO.util = JGO.util || {};
+
+(function() {
+    // Telephone dial style numbering
+    var handicapPlaces = [[], [], [3,7], [3,7,9], [1,3,7,9], [1,3,5,7,9],
     [1,3,4,6,7,9], [1,3,4,5,6,7,9], [1,2,3,4,6,7,8,9], [1,2,3,4,5,6,7,8,9]];
 
-/**
- * Helper function to create coordinates for standard handicap placement.
- *
- * @param {int} size Board size (9, 13, 19 supported).
- * @param {itn} num Number of handicap stones.
- * @returns {Array} Array of JGOCoordinate objects.
- */
-function JGO_GenerateHandicap(size, num) {
-    var places = JGO_HandicapPlaces[num],
+    /**
+    * Helper function to create coordinates for standard handicap placement.
+    *
+    * @param {int} size Board size (9, 13, 19 supported).
+    * @param {itn} num Number of handicap stones.
+    * @returns {Array} Array of JGO.Coordinate objects.
+    */
+    JGO.util.getHandicapCoordinates = function(size, num) {
+        var places = handicapPlaces[num],
         offset = (size <= 9 ? 2 : 3),
         step = (size - 1) / 2 - offset, coords = [];
 
-    if(places) for(var n=0; n<places.length; n++) {
-        var i = (places[n]-1) % 3, j = Math.floor((places[n]-1) / 3);
-        coords.push(new JGOCoordinate(offset+i*step, offset+j*step));
-    }
-
-    return coords;
-}
-
-/**
- * Helper class to store node information, apply and revert changes easily.
- * Should not be accessed directly from user code!
- *
- * @param {JGOBoard} Board object to make changes on.
- * @param {JGONode} parent Parent node (or null if none)
- */
-function JGONode(jboard, parent) {
-    this.jboard = jboard;
-    this.type = JGO.NONE; // default for edits
-
-    if(parent) {
-        this.parent = parent;
-        parent.children.push(this);
-    } else
-        this.parent = null;
-
-    this.children = [];
-
-    this.ko = false; // no ko by default
-    this.comment = '';
-    this.info = {}; // for root nodes mainly
-
-    this.changes = [];
-
-    if(!parent) {
-        this.captures = {};
-        this.captures[JGO.WHITE] = this.captures[JGO.BLACK] = 0;
-    } else
-        this.captures = JGO_extend({}, parent.captures); // copy
-}
-
-/**
- * Helper method to make changes to a board while saving them in the node.
- *
- * @param {Object} c JGOCoordinate or array of them.
- * @param {int} val Type.
- */
-JGONode.prototype.setType = function(c, val) {
-    if(c instanceof Array) {
-        for(var i=0, len=c.length; i<len; ++i)
-            this.setType(c[i], val); // avoid repeating ourselves
-        return;
-    }
-
-    // Store both change and previous value to enable reversion
-    this.changes.push({c: c.copy(), type: val, old: this.jboard.getType(c)});
-    this.jboard.setType(c, val);
-};
-
-/**
- * Helper method to make changes to a board while saving them in the node.
- *
- * @param {Object} c JGOCoordinate or array of them.
- * @param {int} val Mark.
- */
-JGONode.prototype.setMark = function(c, val) {
-    if(c instanceof Array) {
-        for(var i=0, len=c.length; i<len; ++i)
-            this.setMark(c[i], val); // avoid repeating ourselves
-        return;
-    }
-
-    // Store both change and previous value to enable reversion
-    this.changes.push({c: c.copy(), mark: val, old: this.jboard.getMark(c)});
-    this.jboard.setMark(c, val);
-};
-
-/**
- * Helper method to set handicap stones. Should only be called for root node!
- *
- * @param {int} handi Amount of handicap stones (0-9).
- */
-JGONode.prototype.setHandicap = function(handi) {
-    var coords = JGO_GenerateHandicap(this.jboard.width, handi);
-    this.setType(coords, JGO.BLACK);
-};
-
-/**
- * Make a move on the board and capture stones if necessary. Understands ko.
- *
- * @param {JGOCoordinate} coord Coordinate to play or null for pass.
- * @param {int} stone Stone to play - JGO.BLACK or JGO.WHITE.
- * @returns {boolean} True if move was successful, false if not.
- */
-JGONode.prototype.play = function(coord, stone) {
-    var oppType = (stone == JGO.BLACK ? JGO.WHITE : JGO.BLACK),
-        captures = 0, adj, ko;
-
-    if(this.changes.length) // cannot play after edits in the same node!
-        return false;
-
-    this.type = stone; // alter node type automatically
-
-    if(!coord) // pass
-        return true;
-
-    if(this.jboard.getType(coord) != JGO.CLEAR)
-        return false; // cannot play on existing stone
-
-    if(this.parent && this.parent.ko && coord.equals(this.parent.ko))
-        return false; // cannot retake ko immediately
-
-    // First change in node is the stone played
-    this.setType(coord, stone);
-    this.setMark(coord, JGO.CIRCLE); // mark move
-
-    if(this.parent) {
-        // clear move marker if exists
-        if(this.parent.changes.length && this.parent.type == oppType)
-            this.setMark(this.parent.changes[0].c, JGO.NONE);
-
-        if(this.parent.ko) // clear ko mark
-            this.setMark(this.parent.ko, JGO.NONE);
-    }
-
-    adj = this.jboard.getAdjacent(coord); // find adjacent coordinates
-
-    for(var i=0; i<adj.length; i++) {
-        var c = adj[i];
-
-        if(this.jboard.getType(c) == oppType) {
-            var g = this.jboard.getGroup(c);
-
-            if(!this.jboard.hasType(g.neighbors, JGO.CLEAR)) {
-                this.setType(g.group, JGO.CLEAR);
-                captures += g.group.length;
-                if(captures == 1) // store potential coordinate for ko
-                    ko = g.group[0];
-            }
+        if(places) for(var n=0; n<places.length; n++) {
+            var i = (places[n]-1) % 3, j = Math.floor((places[n]-1) / 3);
+            coords.push(new JGO.Coordinate(offset+i*step, offset+j*step));
         }
-    }
 
-    // Suicide not allowed
-    if(!captures && !this.jboard.hasType(this.jboard.getGroup(coord).neighbors, JGO.CLEAR)) {
-        this.revert(this.jboard);
-        this.changes = []; // clear node
-        return false;
-    }
+        return coords;
+    };
 
-    if(captures == 1 && this.jboard.filter(adj, JGO.CLEAR).length == 1) {
-        this.ko = ko.copy(); // Ko detected
-        this.setMark(ko, JGO.CIRCLE); // mark ko
-    }
+    /**
+    * Helper class to store node information, apply and revert changes easily.
+    *
+    * @param {JGO.Board} jboard Board object to make changes on.
+    * @param {JGO.Node} parent Parent node or null if no parent.
+    * @param {Object} info Node information - ko coordinate, comment, etc.
+    */
+    JGO.Node = function(jboard, parent, info) {
+        this.jboard = jboard;
+        this.parent = parent;
+        this.info = info ? JGO.extend({}, info) : {};
+        this.children = [];
+        this.changes = [];
 
-    this.captures[stone] += captures;
+        if(parent) {
+            parent.children.push(this); // register child
+            this.captures = JGO.extend({}, parent.captures); // inherit
+        } else {
+            this.captures = {};
+            this.captures[JGO.WHITE] = this.captures[JGO.BLACK] = 0;
+        }
+    };
 
-    return true;
-};
+    /**
+    * Helper method to make changes to a board while saving them in the node.
+    *
+    * @param {Object} c JGO.Coordinate or array of them.
+    * @param {int} val Type.
+    */
+    JGO.Node.prototype.setType = function(c, val) {
+        if(c instanceof Array) {
+            for(var i=0, len=c.length; i<len; ++i)
+                this.setType(c[i], val); // avoid repeating ourselves
+            return;
+        }
 
-/**
- * Apply changes of this node to board.
- */
-JGONode.prototype.apply = function() {
-    for(var i=0; i<this.changes.length; i++) {
-        var item = this.changes[i];
+        // Store both change and previous value to enable reversion
+        this.changes.push({c: c.copy(), type: val, old: this.jboard.getType(c)});
+        this.jboard.setType(c, val);
+    };
 
-        if('type' in item)
-            this.jboard.setType(item.c, item.type);
-        else
-            this.jboard.setMark(item.c, item.mark);
-    }
-};
+    /**
+    * Helper method to make changes to a board while saving them in the node.
+    *
+    * @param {Object} c JGO.Coordinate or array of them.
+    * @param {int} val Mark.
+    */
+    JGO.Node.prototype.setMark = function(c, val) {
+        if(c instanceof Array) {
+            for(var i=0, len=c.length; i<len; ++i)
+                this.setMark(c[i], val); // avoid repeating ourselves
+            return;
+        }
 
-/**
- * Revert changes of this node to board.
- */
-JGONode.prototype.revert = function() {
-    for(var i=this.changes.length-1; i>=0; i--) {
-        var item = this.changes[i];
-
-        if('type' in item)
-            this.jboard.setType(item.c, item.old);
-        else
-            this.jboard.setMark(item.c, item.old);
-    }
-};
-
-/**
- * Create a go game record that can handle plays and variations. A JGOBoard
- * object is created that will reflect the current position in game record.
- *
- * @param {int} width Board width.
- * @param {int} height Board height.
- */
-function JGORecord(width, height) {
-    this.jboard = new JGOBoard(width, height ? height : width);
-    this.root = this.current = null;
-    this.info = {}; // game information
-}
-
-/**
- * Get current node.
- *
- * @returns {JGONode} Current node.
- */
-JGORecord.prototype.getCurrentNode = function() {
-    return this.current;
-}
-
-/**
- * Create new empty node under current one.
- *
- * @returns {JGONode} New, current node.
- */
-JGORecord.prototype.createNode = function() {
-    var node = new JGONode(this.jboard, this.current);
-
-    if(this.root == null)
-        this.root = node;
-
-    return this.current = node;
-}
-
-/**
- * Advance to the next node in the game tree.
- *
- * @param {int} variation (Optional) parameter to specify which variation to select, if there are several branches
- * @returns {JGONode} New current node or null if at the end of game tree.
- */
-JGORecord.prototype.next = function(variation) {
-    if(this.current == null)
-        return null;
-
-    if(!variation)
-        variation = 0
-
-    if(variation >= this.current.children.length)
-        return null;
-
-    this.current = this.current.children[variation];
-    this.current.apply(this.jboard);
-
-    return this.current;
-};
-
-/**
- * Back up a node in the game tree.
- *
- * @returns {JGONode} New current node or null if at the beginning of game tree.
- */
-JGORecord.prototype.previous = function() {
-    if(this.current == null || this.current.parent === null)
-        return null; // empty or no parent
-
-    this.current.revert(this.jboard);
-    this.current = this.current.parent;
-
-    return this.current;
-}
+        // Store both change and previous value to enable reversion
+        this.changes.push({c: c.copy(), mark: val, old: this.jboard.getMark(c)});
+        this.jboard.setMark(c, val);
+    };
 
 
-/**
- * Go to the beginning of the game tree.
- *
- * @returns {JGONode} New current node.
- */
-JGORecord.prototype.first = function() {
-    this.current = this.root;
-    this.jboard.clear();
+    /**
+    * Apply changes of this node to board.
+    */
+    JGO.Node.prototype.apply = function() {
+        for(var i=0; i<this.changes.length; i++) {
+            var item = this.changes[i];
 
-    if(this.current != null)
+            if('type' in item)
+                this.jboard.setType(item.c, item.type);
+            else
+                this.jboard.setMark(item.c, item.mark);
+        }
+    };
+
+    /**
+    * Revert changes of this node to board.
+    */
+    JGO.Node.prototype.revert = function() {
+        for(var i=this.changes.length-1; i>=0; i--) {
+            var item = this.changes[i];
+
+            if('type' in item)
+                this.jboard.setType(item.c, item.old);
+            else
+                this.jboard.setMark(item.c, item.old);
+        }
+    };
+
+    /**
+    * Create a go game record that can handle plays and variations. A JGO.Board
+    * object is created that will reflect the current position in game record.
+    *
+    * @param {int} width Board width.
+    * @param {int} height Board height.
+    */
+    JGO.Record = function(width, height) {
+        this.jboard = new JGO.Board(width, height ? height : width);
+        this.root = this.current = null;
+        this.info = {}; // game information
+    };
+
+    /**
+    * Get current node.
+    *
+    * @returns {JGO.Node} Current node.
+    */
+    JGO.Record.prototype.getCurrentNode = function() {
+        return this.current;
+    };
+
+    /**
+    * Create new empty node under current one.
+    *
+    * @param {Object} info Node information - ko coordinate, comment, etc.
+    * @returns {JGO.Node} New, current node.
+    */
+    JGO.Record.prototype.createNode = function(options) {
+        var node = new JGO.Node(this.jboard, this.current, options);
+
+        if(this.root == null)
+            this.root = node;
+
+        return this.current = node;
+    };
+
+    /**
+    * Advance to the next node in the game tree.
+    *
+    * @param {int} variation (Optional) parameter to specify which variation to select, if there are several branches
+    * @returns {JGO.Node} New current node or null if at the end of game tree.
+    */
+    JGO.Record.prototype.next = function(variation) {
+        if(this.current == null)
+            return null;
+
+        if(!variation)
+            variation = 0
+
+        if(variation >= this.current.children.length)
+            return null;
+
+        this.current = this.current.children[variation];
         this.current.apply(this.jboard);
 
-    return this.current;
-}
+        return this.current;
+    };
 
-/**
- * Create a snapshot of current JGORecord state. Will contain board state and
- * current node.
- *
- * @returns Snapshot to be used with restoreSnapshot().
- */
-JGORecord.prototype.createSnapshot = function() {
-    return {jboard: this.jboard.getRaw(), current: this.current};
-}
+    /**
+    * Back up a node in the game tree.
+    *
+    * @returns {JGO.Node} New current node or null if at the beginning of game tree.
+    */
+    JGO.Record.prototype.previous = function() {
+        if(this.current == null || this.current.parent === null)
+            return null; // empty or no parent
 
-/**
- * Restore the JGORecord to the state contained in snapshot. Use only if you
- * REALLY * know what you are doing, this is mainly for creating JGORecord
- * quickly from SGF.
- *
- * @param {Object} Snapshot created with createSnapshot().
- */
-JGORecord.prototype.restoreSnapshot = function(raw) {
-    this.jboard.setRaw(raw.jboard);
-    this.current = raw.current;
-}
+        this.current.revert(this.jboard);
+        this.current = this.current.parent;
+
+        return this.current;
+    };
+
+
+    /**
+    * Go to the beginning of the game tree.
+    *
+    * @returns {JGO.Node} New current node.
+    */
+    JGO.Record.prototype.first = function() {
+        this.current = this.root;
+        this.jboard.clear();
+
+        if(this.current != null)
+            this.current.apply(this.jboard);
+
+        return this.current;
+    };
+
+    /**
+    * Create a snapshot of current JGO.Record state. Will contain board state and
+    * current node.
+    *
+    * @returns Snapshot to be used with restoreSnapshot().
+    */
+    JGO.Record.prototype.createSnapshot = function() {
+        return {jboard: this.jboard.getRaw(), current: this.current};
+    }
+
+    /**
+    * Restore the JGO.Record to the state contained in snapshot. Use only if you
+    * REALLY * know what you are doing, this is mainly for creating JGO.Record
+    * quickly from SGF.
+    *
+    * @param {Object} Snapshot created with createSnapshot().
+    */
+    JGO.Record.prototype.restoreSnapshot = function(raw) {
+        this.jboard.setRaw(raw.jboard);
+        this.current = raw.current;
+    };
+
+})();

@@ -14,48 +14,63 @@
 
 <div id="board"></div>
 
+<script type="text/javascript" src="jgoinit.js"></script>
 <script type="text/javascript" src="jgoboard.js"></script>
 <script type="text/javascript" src="jgocanvas.js"></script>
-<script type="text/javascript" src="jgoinit.js"></script>
 <script type="text/javascript" src="jgorecord.js"></script>
 <script type="text/javascript" src="jgosgf.js"></script>
 <script type="text/javascript" src="large/board.js"></script>
 
 <script type="text/javascript">
-function initCanvas(canvas) {
-  canvas.addListener('click', clickHandler);
-}
-
-function clickHandler(coord, ev) {
-  var node = jrecord.getCurrentNode();
-
-  if(ev.shiftKey) { // on shift do edit
-    var type = jboard.getType(coord);
-
-    if(node.type != JGO.NONE)
-      node = jrecord.createNode(); // new node
-
-    node.setType(coord, type == JGO.WHITE ? JGO.CLEAR : type + 1);
-  } else {
-    if(node.type != player || node.changes.length)
-      node = jrecord.createNode(); // new node
-
-    if(!node.play(coord, player)) // default to making a move
-      alert('Illegal move!');
-    else
-      player = (player == JGO.WHITE) ? JGO.BLACK : JGO.WHITE;
-  }
-}
-
-var jrecord = new JGORecord(13);
+var jrecord = new JGO.Record(13);
 var jboard = jrecord.jboard;
-var jsetup = new JGOSetup(jboard, JGO.BOARD.largeWalnut);
+var jsetup = new JGO.Setup(jboard, JGO.BOARD.largeWalnut);
 var player = JGO.WHITE; // next player
+var handi = JGO.util.getHandicapCoordinates(jboard.width, 2);
+var ko = false, lastMove = false;
 
-jrecord.getCurrentNode().setHandicap(4);
+jrecord.createNode();
+jrecord.getCurrentNode().setType(handi, JGO.BLACK);
+
 jsetup.setOptions({stars: {points:5}});
 jsetup.create('board', function(canvas) {
-  initCanvas(canvas);
+  canvas.addListener('click', function(coord, ev) {
+    var node = jrecord.getCurrentNode();
+    var opponent = (player == JGO.BLACK) ? JGO.WHITE : JGO.BLACK;
+
+    //if(ev.shiftKey) { // on shift do edit
+    //  var type = jboard.getType(coord);
+
+    //  if(node.type != JGO.NONE)
+    //    node = jrecord.createNode(); // new node
+
+    //  node.setType(coord, type == JGO.WHITE ? JGO.CLEAR : type + 1);
+    //  return;
+    //}
+
+    var play = jboard.playMove(coord, player, ko);
+
+    if(play.success) {
+      node = jrecord.createNode({type: player});
+
+      node.setType(coord, player); // play stone
+      node.setType(play.captures, JGO.CLEAR); // clear opponent's stones
+
+      if(lastMove)
+        node.setMark(lastMove, JGO.NONE); // clear previous mark
+      if(ko)
+        node.setMark(coord, JGO.NONE); // clear previous ko mark
+
+      node.setMark(coord, JGO.CIRCLE); // mark move
+      lastMove = coord;
+
+      if(play.ko)
+        node.setMark(play.ko, JGO.CIRCLE); // mark ko, too
+      ko = play.ko;
+
+      player = opponent;
+    } else alert('Illegal move: ' + play.errorMsg);
+  });
 });
 </script>
 

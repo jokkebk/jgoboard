@@ -14,9 +14,9 @@
 
 <div id="board"></div>
 
+<script type="text/javascript" src="jgoinit.js"></script>
 <script type="text/javascript" src="jgoboard.js"></script>
 <script type="text/javascript" src="jgocanvas.js"></script>
-<script type="text/javascript" src="jgoinit.js"></script>
 <script type="text/javascript" src="jgorecord.js"></script>
 <script type="text/javascript" src="jgosgf.js"></script>
 <script type="text/javascript" src="large/board.js"></script>
@@ -33,8 +33,8 @@ function randomBoard(jboard) {
   });
 }
 
-var jboard = new JGOBoard(19);
-var jsetup = new JGOSetup(jboard, JGO.BOARD.largeWalnut);
+var jboard = new JGO.Board(9);
+var jsetup = new JGO.Setup(jboard, JGO.BOARD.largeWalnut);
 
 randomBoard(jboard);
 

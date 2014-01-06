@@ -1,3 +1,7 @@
+var JGO = JGO || {};
+
+JGO.BOARD = JGO.BOARD || {};
+
 JGO.BOARD.large = {
     textures: {
         black: 'large/black.png',
@@ -38,7 +42,7 @@ JGO.BOARD.large = {
         clearColor: 'black', font: 'normal 24px sanf-serif'}
 };
 
-JGO.BOARD.largeWalnut = JGO_extend(JGO_extend({}, JGO.BOARD.large), {
+JGO.BOARD.largeWalnut = JGO.extend(JGO.extend({}, JGO.BOARD.large), {
     textures: {board: 'large/walnut.jpg', shadow: 'large/shadow_dark.png'},
     boardShadow: {color: '#e2baa0'},
     grid: {color: '#101010', borderWidth: 1.8, lineWidth: 1.5}

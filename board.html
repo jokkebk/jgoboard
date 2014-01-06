@@ -15,16 +15,17 @@
 <div id="board"></div>
 
 <p>
-<a href="#" onclick="jrecord.first(); return false;">First</a>
-<a href="#" onclick="jrecord.previous(); return false;">Previous</a>
-<a href="#" onclick="jrecord.next(); return false;">Next</a>
+<a href="#" onclick="move(-2); return false;">First</a>
+<a href="#" onclick="move(-1); return false;">Previous</a>
+<a href="#" onclick="move(1); return false;">Next</a>
+<a href="#" onclick="move(2); return false;">Last</a>
 </p>
 
-<div id="messages"></div>
+<pre id="messages"></pre>
 
+<script type="text/javascript" src="jgoinit.js"></script>
 <script type="text/javascript" src="jgoboard.js"></script>
 <script type="text/javascript" src="jgocanvas.js"></script>
-<script type="text/javascript" src="jgoinit.js"></script>
 <script type="text/javascript" src="jgorecord.js"></script>
 <script type="text/javascript" src="jgosgf.js"></script>
 <script type="text/javascript" src="large/board.js"></script>
@@ -32,18 +33,42 @@
 <script type="text/javascript">
 var jrecord;
 
-$.ajax('TP2014A.sgf', { 
+function move(dir) {
+  var node;
+
+  switch(dir) {
+    case -1:
+      jrecord.previous();
+      break;
+    case 1:
+      jrecord.next();
+      break;
+    case 2:
+      while(jrecord.next() != null) {}
+      break;
+    default:
+      jrecord.first();
+      break;
+  }
+
+  $('#messages').html(jrecord.getCurrentNode().comment);
+}
+
+$.ajax('TP2014A.sgf', {
+//$.ajax('test.sgf', {
   complete: function(resp) {
     var jsetup;
 
-    jrecord = JGO_LoadSGF(resp.responseText);
+    jrecord = JGO.util.loadSGF(resp.responseText);
 
-    if(!(jrecord instanceof JGORecord)) {
+    $('#messages').html(jrecord.getCurrentNode().comment);
+
+    if(!(jrecord instanceof JGO.Record)) {
       alert('Empty SGF or multiple games in one SGF not supported!');
       return;
     }
 
-    jsetup = new JGOSetup(jrecord.jboard, JGO.BOARD.largeWalnut);
+    jsetup = new JGO.Setup(jrecord.jboard, JGO.BOARD.largeWalnut);
     jsetup.create('board', function(canvas) {
       // Do something
     });
