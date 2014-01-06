@@ -365,3 +365,28 @@ JGOBoard.prototype.getGroup = function(coord) {
 
     return {group: group, neighbors: neighbors};
 };
+
+/**
+ * Get a raw copy of board contents. Will not include any listeners!
+ *
+ * @returns {Object} Board contents.
+ */
+JGOBoard.prototype.getRaw = function() {
+    return {
+        width: this.width,
+        height: this.height,
+        stones: JGO_extend({}, this.stones),
+        marks: JGO_extend({}, this.marks)
+    };
+}
+/**
+ * Set a raw copy of board contents. Will not change or call any listeners!
+ *
+ * @param {Object} raw Board contents.
+ */
+JGOBoard.prototype.setRaw = function(raw) {
+    this.width = raw.width;
+    this.height = raw.height;
+    this.stones = raw.stones;
+    this.marks = raw.marks;
+}

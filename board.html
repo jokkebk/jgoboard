@@ -30,17 +30,6 @@
 <script type="text/javascript" src="large/board.js"></script>
 
 <script type="text/javascript">
-function randomBoard(jboard) {
-  var types = [JGO.CLEAR, JGO.BLACK, JGO.WHITE],//, JGO.DIM_BLACK, JGO.DIM_WHITE],
-      marks = [JGO.NONE]; //, JGO.SQUARE, JGO.TRIANGLE, JGO.CIRCLE, JGO.CROSS,
-        //JGO.BLACK_TERRITORY, JGO.WHITE_TERRITORY, '104', 'A'];
-
-  jboard.each(function(coord) {
-    this.setType(coord, types[Math.floor(Math.random()*types.length)])
-    this.setMark(coord, marks[Math.floor(Math.random()*marks.length)])
-  });
-}
-
 function initCanvas(canvas) {
   canvas.addListener('click', clickHandler);
 }
@@ -56,21 +45,22 @@ function clickHandler(coord, ev) {
 }
 
 function parseSGF(resp) {
-    var gameTree = jgo_parseSGF(resp.responseText);
+    var jrecord = JGO_LoadSGF(resp.responseText);
 
     return 1;
 }
 
 var jboard = new JGOBoard(19);
 var jsetup = new JGOSetup(jboard, JGO.BOARD.largeWalnut);
+//var jrec = new JGORecord(jboard);
 
 jsetup.create('board', function(canvas) {
   // Do something
+  //initCanvas(canvas);
 });
 
 $.ajax('test.sgf', { complete: parseSGF });
 
-//var jrec = new JGORecord(jboard);
 //jrec.setHandicap(JGO_GenerateHandicap(jboard.width, 5));
 //randomBoard(jboard);
 

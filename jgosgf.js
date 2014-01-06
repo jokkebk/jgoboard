@@ -310,3 +310,54 @@ function jgo_parseSGF(sgf) {
 
     return currentRoot;
 }
+
+function jgo_gameTreeToRecord(gameTree) {
+    var jrecord, root = gameTree.sequence[0];
+
+    if("SZ" in root) {
+        var size = root.SZ[0];
+
+        if(size.indexOf(':') != -1) {
+            width = parseInt(size.substring(0, size.indexOf(':')));
+            height = parseInt(size.substr(size.indexOf(':')+1));
+        } else width = height = parseInt(size);
+    } else
+        width = height = 19;
+
+    alert(width + ' x ' + height);
+}
+
+// Apply SGF nodes recursively to create a game tree
+function jgo_recurseRecord(jrecord, gameTree) {
+    for(var i=0; i<gameTree.sequence.length; i++) {
+        var node = gameTree.sequence[i];
+        for(var key in node) {
+            if(!node.hasOwnProperty(key))
+                continue;
+            jgo_sgfProperties[key].call(me, name, values);
+        }
+    }
+}
+
+/**
+ * Parse SGF and return JGORecord object(s).
+ *
+ * @returns {Object} JGORecord object, array of them, or null on error.
+ */
+function JGO_LoadSGF(sgf) {
+    var gameTree = jgo_parseSGF(sgf);
+
+    if(gameTree.sequence.length == 0) { // potentially multiple game records
+        var ret = [];
+
+        if(gameTree.leaves.length == 0)
+            return null;
+
+        for(var i=0; i<gameTree.leaves.length; i++)
+            ret.push(jgo_gameTreeToRecord(gameTree)); // return each leaf as separate record
+
+        return ret;
+    }
+
+    return jgo_gameTreeToRecord(gameTree);
+}

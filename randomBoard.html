@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Board</title>
+  <style type="text/css">
+    /*body {
+      background-color: #eeeeee;
+    }*/
+  </style>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+</head>
+<body>
+
+<div id="board"></div>
+
+<script type="text/javascript" src="jgoboard.js"></script>
+<script type="text/javascript" src="jgocanvas.js"></script>
+<script type="text/javascript" src="jgoinit.js"></script>
+<script type="text/javascript" src="jgorecord.js"></script>
+<script type="text/javascript" src="jgosgf.js"></script>
+<script type="text/javascript" src="large/board.js"></script>
+
+<script type="text/javascript">
+function randomBoard(jboard) {
+  var types = [JGO.CLEAR, JGO.BLACK, JGO.WHITE],//, JGO.DIM_BLACK, JGO.DIM_WHITE],
+      marks = [JGO.NONE, JGO.SQUARE, JGO.TRIANGLE, JGO.CIRCLE, JGO.CROSS,
+        JGO.BLACK_TERRITORY, JGO.WHITE_TERRITORY, '104', 'A'];
+
+  jboard.each(function(coord) {
+    this.setType(coord, types[Math.floor(Math.random()*types.length)])
+    this.setMark(coord, marks[Math.floor(Math.random()*marks.length)])
+  });
+}
+
+var jboard = new JGOBoard(19);
+var jsetup = new JGOSetup(jboard, JGO.BOARD.largeWalnut);
+
+randomBoard(jboard);
+
+jsetup.create('board');
+</script>
+
+</body>
+</html>
