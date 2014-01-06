@@ -15,9 +15,9 @@
 <div id="board"></div>
 
 <p>
-<a href="#" onclick="jrec.first(); return false;">First</a>
-<a href="#" onclick="jrec.previous(); return false;">Previous</a>
-<a href="#" onclick="jrec.next(); return false;">Next</a>
+<a href="#" onclick="jrecord.first(); return false;">First</a>
+<a href="#" onclick="jrecord.previous(); return false;">Previous</a>
+<a href="#" onclick="jrecord.next(); return false;">Next</a>
 </p>
 
 <div id="messages"></div>
@@ -30,50 +30,26 @@
 <script type="text/javascript" src="large/board.js"></script>
 
 <script type="text/javascript">
-function initCanvas(canvas) {
-  canvas.addListener('click', clickHandler);
-}
+var jrecord;
 
-function clickHandler(coord, ev) {
-  if(ev.shiftKey) { // on shift do edit
-    jboard.setMark(coord, '/'); // mark
-    return;
-    var type = jboard.getType(coord);
-    jboard.setType(coord, type == JGO.WHITE ? JGO.CLEAR : type + 1);
-  } else if(jrec.play(coord) == -1) // default to making a move
-    alert('Illegal move!');
-}
+$.ajax('TP2014A.sgf', { 
+  complete: function(resp) {
+    var jsetup;
 
-function parseSGF(resp) {
-    var jrecord = JGO_LoadSGF(resp.responseText);
+    jrecord = JGO_LoadSGF(resp.responseText);
 
+    if(!(jrecord instanceof JGORecord)) {
+      alert('Empty SGF or multiple games in one SGF not supported!');
+      return;
+    }
+
+    jsetup = new JGOSetup(jrecord.jboard, JGO.BOARD.largeWalnut);
+    jsetup.create('board', function(canvas) {
+      // Do something
+    });
     return 1;
-}
-
-var jboard = new JGOBoard(19);
-var jsetup = new JGOSetup(jboard, JGO.BOARD.largeWalnut);
-//var jrec = new JGORecord(jboard);
-
-jsetup.create('board', function(canvas) {
-  // Do something
-  //initCanvas(canvas);
+  }
 });
-
-$.ajax('test.sgf', { complete: parseSGF });
-
-//jrec.setHandicap(JGO_GenerateHandicap(jboard.width, 5));
-//randomBoard(jboard);
-
-/*
-jboard.addListener(function(c, t, old) {
-  $('#messages').append('Type from ' + old + ' to ' + t + '<br/>');
-}, function(c, m, old) {
-  $('#messages').append('Mark from ' + old + ' to ' + m + '<br/>');
-});
-*/
-
-//jsetup.setOptions({stars: {points:9}});
-//jsetup.create('board', initCanvas);
 </script>
 
 </body>

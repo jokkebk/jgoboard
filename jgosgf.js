@@ -32,73 +32,50 @@ var jgo_sgfProperties = {
     'WT': jgo_sgfInfo
 };
 
-function jgo_sgfComment(name, values) {
-    this.state["comment"] = values[0];
-}
-
 function jgo_sgfMove(name, values) {
-    var coord, own, enemy;
+    var coord, own, enemy, node;
 
     if(name == "B") {
-        own = JGO_BLACK;
-        enemy = JGO_WHITE;
+        own = JGO.BLACK;
+        enemy = JGO.WHITE;
     } else if("W") {
-        own = JGO_WHITE;
-        enemy = JGO_BLACK;
+        own = JGO.WHITE;
+        enemy = JGO.BLACK;
     }
 
-    this.state["move"] = own;
-
     if(values[0].length != 2) { // assume a pass
-        return;
+        return this.play(null, own);
     }
 
     coord = new JGOCoordinate(values[0]);
-    this.state["moveCoordinate"] = coord;
 
-    var captures = this.board.play(coord, own);
-
-    if(captures == -1) {
-        this.state["error"] = "SGF move contained suicide!";
-        return;
-    }
-
-    this.captures[own == JGO_BLACK ? 0 : 1] += captures;
-    this.state["captures"] = captures;
-}
-
-function jgo_sgfMarker(name, values) {
-    var markerMap = {"TW": ',', "TB": '.', "CR": '0', "TR": '/', "MA": '*', "SQ": '#'}, marker = markerMap[name];
-
-    if(!("markers" in this.state))
-        this.state["markers"] = {};
-
-    this.state["markers"][marker] = jgo_explodeSGFList(values);
-}
-
-function jgo_sgfLabel(name, values) {
-    var markers;
-
-    if("markers" in this.state)
-        markers = this.state["markers"];
-    else
-        markers = this.state["markers"] = {};
-
-    $.each(values, function(i, v) {
-        var tuple = v.split(":");
-
-        if(!(tuple[1] in markers))
-            markers[tuple[1]] = [];
-
-        markers[tuple[1]].push(new JGOCoordinate(tuple[0]));
-    });
+    return this.play(coord, own);
 }
 
 function jgo_sgfSetup(name, values) {
-    var setupMap = {"AB": JGO_BLACK, "AW": JGO_WHITE, "AE": JGO_CLEAR};
+    var setupMap = {"AB": JGO.BLACK, "AW": JGO.WHITE, "AE": JGO.CLEAR};
 
-    this.board.set(jgo_explodeSGFList(values), setupMap[name]);
-    this.state["setup"] = true;
+    this.setType(jgo_explodeSGFList(values), setupMap[name]);
+}
+
+function jgo_sgfMarker(name, values) {
+    var markerMap = {
+        "TW": ',', "TB": '.', "CR": '0', "TR": '/', "MA": '*', "SQ": '#'
+    };
+
+    this.mark(jgo_explodeSGFList(values), markerMap[name]);
+}
+
+function jgo_sgfComment(name, values) {
+    this.comment = values[0];
+}
+
+function jgo_sgfLabel(name, values) {
+    for(var i=0; i<values.length; i++) {
+        var v = values[i], tuple = v.split(":");
+
+        this.setMark(new JGOCoordinate(tuple[0]), tuple[1]);
+    }
 }
 
 function jgo_sgfInfo(name, values) {
@@ -108,11 +85,6 @@ function jgo_sgfInfo(name, values) {
         field = fieldMap[name];
 
     this.info[field] = values[0];
-
-    if(!("info" in this.state))
-        this.state["info"] = {};
-
-    this.state["info"][field] = values[0];
 }
 
 /**
@@ -324,18 +296,33 @@ function jgo_gameTreeToRecord(gameTree) {
     } else
         width = height = 19;
 
-    alert(width + ' x ' + height);
+    jrecord = new JGORecord(width, height);
+
+    jgo_recurseRecord(jrecord, gameTree);
+
+    jrecord.first(); // rewind to start
+
+    return jrecord;
 }
 
 // Apply SGF nodes recursively to create a game tree
 function jgo_recurseRecord(jrecord, gameTree) {
     for(var i=0; i<gameTree.sequence.length; i++) {
-        var node = gameTree.sequence[i];
+        var node = gameTree.sequence[i], jnode = jrecord.createNode();
+
         for(var key in node) {
-            if(!node.hasOwnProperty(key))
+            if(!node.hasOwnProperty(key) || !(key in jgo_sgfProperties))
                 continue;
-            jgo_sgfProperties[key].call(me, name, values);
+            jgo_sgfProperties[key].call(jnode, key, node[key]);
         }
+    }
+
+    for(var i=0; i<gameTree.leaves.length; i++) {
+        var subTree = gameTree.leaves[i], snapshot;
+
+        snapshot = jrecord.createSnapshot();
+        jgo_recurseRecord(jrecord, subTree);
+        jrecord.restoreSnapshot(snapshot);
     }
 }
 

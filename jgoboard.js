@@ -250,6 +250,7 @@ JGOBoard.prototype.setMark = function(c, m) {
  */
 JGOBoard.prototype.getType = function(c) {
     var ret;
+
     if(c instanceof JGOCoordinate) {
         ret = this.stones[c.i][c.j];
     } else if(c instanceof Array) {
@@ -269,6 +270,7 @@ JGOBoard.prototype.getType = function(c) {
  */
 JGOBoard.prototype.getMark = function(c) {
     var ret;
+
     if(c instanceof JGOCoordinate) {
         ret = this.marks[c.i][c.j];
     } else if(c instanceof Array) {

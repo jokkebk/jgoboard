@@ -130,7 +130,8 @@ JGOSetup.prototype.setOptions = function(options) {
  * @param {function} ready Function to call with canvas once it is ready.
  */
 JGOSetup.prototype.create = function(elemId, ready) {
-    var self = this, options = JGO_extend({}, this.options);
+    var self = this, jboard = this.jboard,
+        options = JGO_extend({}, this.options);
 
     JGO_loadImages(this.options.textures, function(images) {
         var jcanvas = new JGOCanvas(elemId, options, images);

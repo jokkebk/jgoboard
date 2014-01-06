@@ -33,11 +33,17 @@ function JGONode(jboard, parent) {
     this.jboard = jboard;
     this.type = JGO.NONE; // default for edits
 
-    this.parent = parent ? parent : null;
+    if(parent) {
+        this.parent = parent;
+        parent.children.push(this);
+    } else
+        this.parent = null;
+
     this.children = [];
 
     this.ko = false; // no ko by default
     this.comment = '';
+    this.info = {}; // for root nodes mainly
 
     this.changes = [];
 
@@ -121,9 +127,16 @@ JGONode.prototype.play = function(coord, stone) {
 
     // First change in node is the stone played
     this.setType(coord, stone);
+    this.setMark(coord, JGO.CIRCLE); // mark move
 
-    if(this.parent && this.parent.ko) // clear ko mark
-        this.setMark(this.current.ko, JGO.NONE);
+    if(this.parent) {
+        // clear move marker if exists
+        if(this.parent.changes.length && this.parent.type == oppType)
+            this.setMark(this.parent.changes[0].c, JGO.NONE);
+
+        if(this.parent.ko) // clear ko mark
+            this.setMark(this.parent.ko, JGO.NONE);
+    }
 
     adj = this.jboard.getAdjacent(coord); // find adjacent coordinates
 
@@ -196,7 +209,7 @@ JGONode.prototype.revert = function() {
  */
 function JGORecord(width, height) {
     this.jboard = new JGOBoard(width, height ? height : width);
-    this.root = this.current = new JGONode(this.jboard);
+    this.root = this.current = null;
     this.info = {}; // game information
 }
 
@@ -217,6 +230,9 @@ JGORecord.prototype.getCurrentNode = function() {
 JGORecord.prototype.createNode = function() {
     var node = new JGONode(this.jboard, this.current);
 
+    if(this.root == null)
+        this.root = node;
+
     return this.current = node;
 }
 
@@ -227,6 +243,9 @@ JGORecord.prototype.createNode = function() {
  * @returns {JGONode} New current node or null if at the end of game tree.
  */
 JGORecord.prototype.next = function(variation) {
+    if(this.current == null)
+        return null;
+
     if(!variation)
         variation = 0
 
@@ -245,8 +264,8 @@ JGORecord.prototype.next = function(variation) {
  * @returns {JGONode} New current node or null if at the beginning of game tree.
  */
 JGORecord.prototype.previous = function() {
-    if(this.current.parent === null) // no parent
-        return null;
+    if(this.current == null || this.current.parent === null)
+        return null; // empty or no parent
 
     this.current.revert(this.jboard);
     this.current = this.current.parent;
@@ -263,29 +282,31 @@ JGORecord.prototype.previous = function() {
 JGORecord.prototype.first = function() {
     this.current = this.root;
     this.jboard.clear();
-    this.current.apply(this.jboard);
+
+    if(this.current != null)
+        this.current.apply(this.jboard);
 
     return this.current;
 }
 
 /**
- * Get a snapshot of current JGORecord state. Will contain board state and
+ * Create a snapshot of current JGORecord state. Will contain board state and
  * current node.
  *
  * @returns Snapshot to be used with restoreSnapshot().
  */
-JGORecord.prototype.getSnapshot = function() {
+JGORecord.prototype.createSnapshot = function() {
     return {jboard: this.jboard.getRaw(), current: this.current};
 }
 
 /**
- * Set a JGORecord to the state contained in snapshot. Use only if you REALLY
- * know what you are doing, this is mainly for creating JGORecord quickly
- * from SGF.
+ * Restore the JGORecord to the state contained in snapshot. Use only if you
+ * REALLY * know what you are doing, this is mainly for creating JGORecord
+ * quickly from SGF.
  *
- * @param {Object} Snapshot created with getSnapshot().
+ * @param {Object} Snapshot created with createSnapshot().
  */
-JGORecord.prototype.setSnapshot = function(raw) {
+JGORecord.prototype.restoreSnapshot = function(raw) {
     this.jboard.setRaw(raw.jboard);
     this.current = raw.current;
 }
