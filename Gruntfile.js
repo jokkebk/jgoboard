@@ -15,21 +15,24 @@ module.exports = function(grunt) {
                 dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.js',
             },
         },
-        //uglify: {
-            //  options: {
-                //    banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
-                //  },
-                //  build: {
-                    //    src: 'src/<%= pkg.name %>.js',
-                    //    dest: 'build/<%= pkg.name %>.min.js'
-                    //  }
-                    //}
+        uglify: {
+            options: {
+                // the banner is inserted at the top of the output
+                banner: '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n'
+            },
+            dist: {
+                files: {
+                    'dist/<%= pkg.name %>-<%= pkg.version %>.min.js': ['<%= concat.dist.dest %>']
+                }
+            }
+        }
     });
 
     // Load the plugin that provides the "uglify" task.
     grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
 
     // Default task(s).
-    grunt.registerTask('default', ['concat']);
+    grunt.registerTask('default', ['concat', 'uglify']);
 
 };
