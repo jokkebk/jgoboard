@@ -2,7 +2,7 @@
   "name": "jgoboard",
   "version": "3.0.0",
   "description": "jGoBoard javascript go board library",
-  "main": "jgoinit.js",
+  "main": "src/jgoinit.js",
   "directories": {
     "doc": "doc"
   },
@@ -25,6 +25,7 @@
   "author": "Joonas Pihlajamaa",
   "license": "CC-BY-NC-3.0",
   "devDependencies": {
-    "grunt": "~0.4.2"
+    "grunt": "~0.4.2",
+    "grunt-contrib-concat": "~0.3.0"
   }
 }
