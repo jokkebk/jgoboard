@@ -21,9 +21,16 @@ if(!Array.prototype.indexOf) {
     };
 }
 
-// Create / import jGoBoard
+/**
+ * Namespace for jGoBoard.
+ * @namespace JGO
+ */
 var JGO = JGO || {};
 
+/**
+ * Namespace for jGoBoard utility functions.
+ * @namespace JGO.util
+ */
 JGO.util = JGO.util || {};
 
 (function() {
@@ -31,6 +38,8 @@ JGO.util = JGO.util || {};
      * Deep extend an object. Part of main JGO namespace for brevity, it feels
      * such a fundamental construct cannot be called JGO.util.extend.
      *
+     * @function extend
+     * @memberof JGO
      * @param {Object} dest Destination object to extend.
      * @param {Object} src Source object which properties will be copied.
      * @returns {Object} Extended destination object.
@@ -53,6 +62,8 @@ JGO.util = JGO.util || {};
      * Load images and defined by object and invoke callback when completed.
      * http://www.html5canvastutorials.com/tutorials/html5-canvas-image-loader/
      *
+     * @function loadImages
+     * @memberof JGO.util
      * @param {Object} sources A dictionary of sources to load.
      * @param {function} callback A callback function to call with image dict.
      */
