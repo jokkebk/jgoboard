@@ -1,3 +1,4 @@
+// Import or create JGO namespace
 var JGO = JGO || {};
 
 JGO.BOARD = JGO.BOARD || {};

@@ -1,8 +1,12 @@
+// Import or create JGO namespace
 var JGO = JGO || {};
 
-JGO.ERROR = false;
+// Import or create JGO.util namespace
+JGO.util = JGO.util || {};
 
 (function() {
+    JGO.ERROR = false;
+
     var SGFProperties = {
         'B': sgfMove, 'W': sgfMove,
         'AB': sgfSetup, 'AW': sgfSetup, 'AE': sgfSetup,
@@ -26,23 +30,26 @@ JGO.ERROR = false;
     };
 
     function sgfMove(name, values) {
-        var coord, own, enemy, node;
+        var coord, player, opponent, node, play;
 
         if(name == "B") {
-            own = JGO.BLACK;
-            enemy = JGO.WHITE;
+            player = JGO.BLACK;
+            opponent = JGO.WHITE;
         } else if("W") {
-            own = JGO.WHITE;
-            enemy = JGO.BLACK;
+            player = JGO.WHITE;
+            opponent = JGO.BLACK;
         }
 
-        if(values[0].length != 2) { // assume a pass
-            return this.play(null, own);
+        coord = (values[0].length == 2) ? new JGO.Coordinate(values[0]) : null;
+
+        play = this.jboard.playMove(coord, player); // Just ignore ko
+
+        if(play.success && coord != null) {
+            this.setType(coord, player); // play stone
+            this.setType(play.captures, JGO.CLEAR); // clear opponent's stones
         }
 
-        coord = new JGO.Coordinate(values[0]);
-
-        return this.play(coord, own);
+        return play.success;
     }
 
     function sgfSetup(name, values) {
