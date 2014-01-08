@@ -1,4 +1,31 @@
-// Import or create JGO namespace
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: jgocanvas.js</title>
+    
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+    
+    <h1 class="page-title">Source: jgocanvas.js</h1>
+    
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// Import or create JGO namespace
 var JGO = JGO || {};
 
 (function() {
@@ -44,7 +71,7 @@ var JGO = JGO || {};
          * @returns {number} The row.
          */
         this.getRow = function(y) {
-            return Math.floor((y-canvas.offsetTop-self.marginTop-padTop)/opt.grid.y) + opt.view.yOffset;
+            return Math.floor((y-canvas.offsetTop-marginTop-padTop)/opt.grid.y) + opt.view.yOffset;
         }
 
         /**
@@ -53,7 +80,7 @@ var JGO = JGO || {};
          * @returns {number} The column.
          */
         this.getColumn = function(x) {
-            return Math.floor((x-canvas.offsetLeft-self.marginLeft-padLeft)/opt.grid.x) + opt.view.xOffset;
+            return Math.floor((x-canvas.offsetLeft-marginLeft-padLeft)/opt.grid.x) + opt.view.xOffset;
         }
 
         // Click handler will call all listeners passing the coordinate of click
@@ -63,7 +90,7 @@ var JGO = JGO || {};
                 c = new JGO.Coordinate(x,y),
                 listeners = self.listeners['click'];
 
-            for(var l=0; l<listeners.length; l++)
+            for(var l=0; l&lt;listeners.length; l++)
                 listeners[l].call(self, c.copy(), ev);
         };
 
@@ -119,8 +146,8 @@ var JGO = JGO || {};
         this.ctx.strokeStyle = opt.grid.color;
 
         // Draw vertical gridlines
-        for(var i=0; i<opt.view.width; i++) {
-            if((i == 0 && opt.edge.left) || (i+1 == opt.view.width && opt.edge.right))
+        for(var i=0; i&lt;opt.view.width; i++) {
+            if((i == 0 &amp;&amp; opt.edge.left) || (i+1 == opt.view.width &amp;&amp; opt.edge.right))
                 this.ctx.lineWidth = opt.grid.borderWidth;
             else
                 this.ctx.lineWidth = opt.grid.lineWidth;
@@ -136,8 +163,8 @@ var JGO = JGO || {};
         }
 
         // Draw horizontal gridlines
-        for(var i=0; i<opt.view.height; i++) {
-            if((i == 0 && opt.edge.top) || (i+1 == opt.view.height && opt.edge.bottom))
+        for(var i=0; i&lt;opt.view.height; i++) {
+            if((i == 0 &amp;&amp; opt.edge.top) || (i+1 == opt.view.height &amp;&amp; opt.edge.bottom))
                 this.ctx.lineWidth = opt.grid.borderWidth;
             else
                 this.ctx.lineWidth = opt.grid.lineWidth;
@@ -155,23 +182,23 @@ var JGO = JGO || {};
         if(opt.stars.points) { // If star points
             var step = (opt.board.width - 1) / 2 - opt.stars.offset;
             // 1, 4, 5, 8 and 9 points are supported, rest will result in randomness
-            for(var j=0; j<3; j++) {
-                for(var i=0; i<3; i++) {
-                    if(j == 1 && i == 1) { // center
-                        if(!(opt.stars.points & 1))
+            for(var j=0; j&lt;3; j++) {
+                for(var i=0; i&lt;3; i++) {
+                    if(j == 1 &amp;&amp; i == 1) { // center
+                        if(!(opt.stars.points &amp; 1))
                             continue; // skip center
                     } else if(i == 1 || j == 1) { // non-corners
-                        if(opt.stars.points < 8)
+                        if(opt.stars.points &lt; 8)
                             continue; // skip non-corners
                     } else { // corners
-                        if(opt.stars.points < 4)
+                        if(opt.stars.points &lt; 4)
                             continue; // skip corners
                     }
 
                     var x = (opt.stars.offset + i * step) - opt.view.xOffset,
                     y = (opt.stars.offset + j * step) - opt.view.yOffset;
 
-                    if(x < 0 || y < 0 || x >= opt.view.width || y >= opt.view.height)
+                    if(x &lt; 0 || y &lt; 0 || x >= opt.view.width || y >= opt.view.height)
                         continue; // invisible
 
                     this.ctx.beginPath();
@@ -190,7 +217,7 @@ var JGO = JGO || {};
         this.ctx.textBaseline = 'middle';
 
         // Draw horizontal coordinates
-        for(var i=0; i<opt.view.width; i++) {
+        for(var i=0; i&lt;opt.view.width; i++) {
             if(opt.coordinates.top)
                 this.ctx.fillText(JGO.COORDINATES[i + opt.view.xOffset],
                     this.gridLeft + opt.grid.x * i,
@@ -202,7 +229,7 @@ var JGO = JGO || {};
         }
 
         // Draw vertical coordinates
-        for(var i=0; i<opt.view.height; i++) {
+        for(var i=0; i&lt;opt.view.height; i++) {
             if(opt.coordinates.left)
                 this.ctx.fillText(''+(opt.board.height-opt.view.yOffset-i),
             this.marginLeft / 2,
@@ -263,7 +290,7 @@ var JGO = JGO || {};
         var i2 = Math.min(i2, this.opt.view.xOffset + this.opt.view.width - 1);
         var j2 = Math.min(j2, this.opt.view.yOffset + this.opt.view.height - 1);
 
-        if(i2 < i1 || j2 < j1)
+        if(i2 &lt; i1 || j2 &lt; j1)
             return; // nothing to do here
 
         var x = this.getX(i1 - this.opt.view.xOffset) - this.opt.grid.x,
@@ -299,7 +326,7 @@ var JGO = JGO || {};
             var ox = 0.5 + self.getX(c.i - self.opt.view.xOffset),
             oy = 0.5 + self.getY(c.j - self.opt.view.yOffset);
 
-            if(type == JGO.CLEAR && mark && isLabel.test(mark))
+            if(type == JGO.CLEAR &amp;&amp; mark &amp;&amp; isLabel.test(mark))
                 self.ctx.drawImage(self.img.board,
                     ox - self.marginLeft - clearW / 2,
                     oy - self.marginTop - clearH / 2,
@@ -386,7 +413,7 @@ var JGO = JGO || {};
 
                 case JGO.MARK.TRIANGLE:
                     self.ctx.beginPath();
-                    for(r=0; r<3; r++) {
+                    for(r=0; r&lt;3; r++) {
                         self.ctx.moveTo(ox + triangleR * Math.cos(Math.PI * (0.5 + 2*r/3)),
                         oy - triangleR * Math.sin(Math.PI * (0.5 + 2*r/3)));
                         self.ctx.lineTo(ox + triangleR * Math.cos(Math.PI * (0.5 + 2*(r+1)/3)),
@@ -442,3 +469,26 @@ var JGO = JGO || {};
     };
 
 })();
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="JGO.Board.html">Board</a></li><li><a href="JGO.Canvas.html">Canvas</a></li><li><a href="JGO.Coordinate.html">Coordinate</a></li><li><a href="JGO.Node.html">Node</a></li><li><a href="JGO.Notifier.html">Notifier</a></li><li><a href="JGO.Record.html">Record</a></li><li><a href="JGO.Setup.html">Setup</a></li></ul><h3>Namespaces</h3><ul><li><a href="JGO.html">JGO</a></li><li><a href="JGO.util.html">util</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha3</a> on Wed Jan 08 2014 22:59:02 GMT+0200 (FLE Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

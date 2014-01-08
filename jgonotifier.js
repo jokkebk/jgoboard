@@ -8,6 +8,8 @@ var JGO = JGO || {};
     * multiple JGO.Canvas board views up to date.
     *
     * @param {JGO.Board} jboard The board to listen to.
+    * @constructor
+    * @memberof JGO
     */
     JGO.Notifier = function(jboard) {
         var self = this;

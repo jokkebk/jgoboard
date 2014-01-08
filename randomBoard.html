@@ -15,6 +15,7 @@
 <div id="board"></div>
 
 <script type="text/javascript" src="jgoinit.js"></script>
+<script type="text/javascript" src="jgoconstants.js"></script>
 <script type="text/javascript" src="jgocoordinate.js"></script>
 <script type="text/javascript" src="jgoboard.js"></script>
 <script type="text/javascript" src="jgocanvas.js"></script>
@@ -29,8 +30,8 @@
 <script type="text/javascript">
 function randomBoard(jboard) {
   var types = [JGO.CLEAR, JGO.BLACK, JGO.WHITE],//, JGO.DIM_BLACK, JGO.DIM_WHITE],
-      marks = [JGO.NONE, JGO.SQUARE, JGO.TRIANGLE, JGO.CIRCLE, JGO.CROSS,
-        JGO.BLACK_TERRITORY, JGO.WHITE_TERRITORY, '104', 'A'];
+      marks = [JGO.MARK.NONE, JGO.MARK.SQUARE, JGO.MARK.TRIANGLE, JGO.MARK.CIRCLE, JGO.MARK.CROSS,
+        JGO.MARK.BLACK_TERRITORY, JGO.MARK.WHITE_TERRITORY, '104', 'A'];
 
   jboard.each(function(coord) {
     this.setType(coord, types[Math.floor(Math.random()*types.length)])

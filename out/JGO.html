@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Namespace: JGO</title>
+    
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+    
+    <h1 class="page-title">Namespace: JGO</h1>
+    
+    
+
+
+
+<section>
+    
+<header>
+    <h2>
+    JGO
+    </h2>
+    
+</header>  
+
+<article>
+    <div class="container-overview">
+    
+    
+    
+        
+            <div class="description">Namespace for jGoBoard.</div>
+        
+        
+        
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="jgoinit.js.html">jgoinit.js</a>, <a href="jgoinit.js.html#line36">line 36</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+        
+        
+    
+    </div>
+    
+    
+    
+    
+    
+    
+    
+    
+        <h3 class="subsection-title">Classes</h3>
+        
+        <dl>
+            <dt><a href="JGO.Board.html">Board</a></dt>
+            <dd></dd>
+        
+            <dt><a href="JGO.Canvas.html">Canvas</a></dt>
+            <dd></dd>
+        
+            <dt><a href="JGO.Coordinate.html">Coordinate</a></dt>
+            <dd></dd>
+        
+            <dt><a href="JGO.Node.html">Node</a></dt>
+            <dd></dd>
+        
+            <dt><a href="JGO.Notifier.html">Notifier</a></dt>
+            <dd></dd>
+        
+            <dt><a href="JGO.Record.html">Record</a></dt>
+            <dd></dd>
+        
+            <dt><a href="JGO.Setup.html">Setup</a></dt>
+            <dd></dd>
+        </dl>
+    
+    
+    
+        <h3 class="subsection-title">Namespaces</h3>
+        
+        <dl>
+            <dt><a href="namespaces.html#JGO.util"><a href="JGO.util.html">util</a></a></dt>
+            <dd></dd>
+        </dl>
+    
+    
+    
+        <h3 class="subsection-title">Members</h3>
+        
+        <dl>
+            
+<dt>
+    <h4 class="name" id="COORDINATES"><span class="type-signature">&lt;static, constant> </span>COORDINATES<span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Board coordinate array.
+    </div>
+    
+    
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="jgoconstants.js.html">jgoconstants.js</a>, <a href="jgoconstants.js.html#line51">line 51</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="INTERSECTION"><span class="type-signature">&lt;static, readonly> </span>INTERSECTION<span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Enum for intersection types. Aliased in JGO namespace, e.g. JGO.BLACK.
+    </div>
+    
+    
+    
+
+    
+<dl class="details">
+    
+        
+        <h5 class="subsection-title">Properties:</h5>
+        
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		<th>Default</th>
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>CLEAR</code></td>
+            
+            
+            <td class="type">
+            
+            </td>
+            
+            
+            
+            
+                <td class="default">
+                
+                    0
+                
+                </td>
+            
+            
+            <td class="description last"></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>BLACK</code></td>
+            
+            
+            <td class="type">
+            
+            </td>
+            
+            
+            
+            
+                <td class="default">
+                
+                    1
+                
+                </td>
+            
+            
+            <td class="description last">Black stone</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>WHITE</code></td>
+            
+            
+            <td class="type">
+            
+            </td>
+            
+            
+            
+            
+                <td class="default">
+                
+                    2
+                
+                </td>
+            
+            
+            <td class="description last">White stone</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>DIM_BLACK</code></td>
+            
+            
+            <td class="type">
+            
+            </td>
+            
+            
+            
+            
+                <td class="default">
+                
+                    3
+                
+                </td>
+            
+            
+            <td class="description last">Semi-transparent black stone</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>DIM_WHITE</code></td>
+            
+            
+            <td class="type">
+            
+            </td>
+            
+            
+            
+            
+                <td class="default">
+                
+                    4
+                
+                </td>
+            
+            
+            <td class="description last">Semi-transparent white stone</td>
+        </tr>
+	
+	
+	</tbody>
+</table></dl>
+        
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="jgoconstants.js.html">jgoconstants.js</a>, <a href="jgoconstants.js.html#line11">line 11</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="MARK"><span class="type-signature">&lt;static, readonly> </span>MARK<span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Enum for marker types.
+    </div>
+    
+    
+    
+
+    
+<dl class="details">
+    
+        
+        <h5 class="subsection-title">Properties:</h5>
+        
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		<th>Default</th>
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>NONE</code></td>
+            
+            
+            <td class="type">
+            
+            </td>
+            
+            
+            
+            
+                <td class="default">
+                
+                </td>
+            
+            
+            <td class="description last">No marker ('')</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>SQUARE</code></td>
+            
+            
+            <td class="type">
+            
+            </td>
+            
+            
+            
+            
+                <td class="default">
+                
+                    #
+                
+                </td>
+            
+            
+            <td class="description last">Square</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>TRIANGLE</code></td>
+            
+            
+            <td class="type">
+            
+            </td>
+            
+            
+            
+            
+                <td class="default">
+                
+                    /
+                
+                </td>
+            
+            
+            <td class="description last">Triangle</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>CIRCLE</code></td>
+            
+            
+            <td class="type">
+            
+            </td>
+            
+            
+            
+            
+                <td class="default">
+                
+                    0
+                
+                </td>
+            
+            
+            <td class="description last">Circle</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>CROSS</code></td>
+            
+            
+            <td class="type">
+            
+            </td>
+            
+            
+            
+            
+                <td class="default">
+                
+                    *
+                
+                </td>
+            
+            
+            <td class="description last">Cross</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>BLACK_TERRITORY</code></td>
+            
+            
+            <td class="type">
+            
+            </td>
+            
+            
+            
+            
+                <td class="default">
+                
+                    ,
+                
+                </td>
+            
+            
+            <td class="description last">Black territory</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>WHITE_TERRITORY</code></td>
+            
+            
+            <td class="type">
+            
+            </td>
+            
+            
+            
+            
+                <td class="default">
+                
+                    .
+                
+                </td>
+            
+            
+            <td class="description last">White territory</td>
+        </tr>
+	
+	
+	</tbody>
+</table></dl>
+        
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="jgoconstants.js.html">jgoconstants.js</a>, <a href="jgoconstants.js.html#line30">line 30</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+</dd>
+
+        </dl>
+    
+    
+    
+        <h3 class="subsection-title">Methods</h3>
+        
+        <dl>
+            
+<dt>
+    <h4 class="name" id="extend"><span class="type-signature">&lt;static> </span>extend<span class="signature">(dest, src)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Deep extend an object. Part of main JGO namespace for brevity, it feelssuch a fundamental construct cannot be called JGO.util.extend.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>dest</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">Destination object to extend.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>src</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">Source object which properties will be copied.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="jgoinit.js.html">jgoinit.js</a>, <a href="jgoinit.js.html#line40">line 40</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    Extended destination object.
+</div>
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">Object</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        </dl>
+    
+    
+    
+    
+    
+</article>
+
+</section>  
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="JGO.Board.html">Board</a></li><li><a href="JGO.Canvas.html">Canvas</a></li><li><a href="JGO.Coordinate.html">Coordinate</a></li><li><a href="JGO.Node.html">Node</a></li><li><a href="JGO.Notifier.html">Notifier</a></li><li><a href="JGO.Record.html">Record</a></li><li><a href="JGO.Setup.html">Setup</a></li></ul><h3>Namespaces</h3><ul><li><a href="JGO.html">JGO</a></li><li><a href="JGO.util.html">util</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha3</a> on Wed Jan 08 2014 22:59:02 GMT+0200 (FLE Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

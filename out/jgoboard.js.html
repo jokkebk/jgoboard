@@ -1,4 +1,31 @@
-// Import or create JGO namespace
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: jgoboard.js</title>
+    
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+    
+    <h1 class="page-title">Source: jgoboard.js</h1>
+    
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// Import or create JGO namespace
 var JGO = JGO || {};
 
 (function() {
@@ -26,10 +53,10 @@ var JGO = JGO || {};
         this.marks = [];
 
         // Initialize stones and marks
-        for(var i=0; i<this.width; ++i) {
+        for(var i=0; i&lt;this.width; ++i) {
             var stoneArr = [], markArr = [];
 
-            for(var j=0; j<this.height; ++j) {
+            for(var j=0; j&lt;this.height; ++j) {
                 stoneArr.push(JGO.CLEAR);
                 markArr.push(JGO.MARK.NONE);
             }
@@ -90,8 +117,8 @@ var JGO = JGO || {};
         if(!i2) i2 = this.width-1;
         if(!j2) j2 = this.height-1;
 
-        for(c.j=j1; c.j<=j2; c.j++)
-            for(c.i=i1; c.i<=i2; c.i++)
+        for(c.j=j1; c.j&lt;=j2; c.j++)
+            for(c.i=i1; c.i&lt;=i2; c.i++)
                 func.call(this, c.copy(),
                 this.stones[c.i][c.j], this.marks[c.i][c.j]);
     };
@@ -120,10 +147,10 @@ var JGO = JGO || {};
 
             this.stones[c.i][c.j] = t;
 
-            for(var l=0; l<this.listeners.length; ++l) // notify listeners
+            for(var l=0; l&lt;this.listeners.length; ++l) // notify listeners
                 this.listeners[l].type.call(this, c, t, old);
         } else if(c instanceof Array) {
-            for(var i=0, len=c.length; i<len; ++i)
+            for(var i=0, len=c.length; i&lt;len; ++i)
                 this.setType(c[i], t); // use ourself to avoid duplicate code
         }
     };
@@ -143,10 +170,10 @@ var JGO = JGO || {};
 
             this.marks[c.i][c.j] = m;
 
-            for(var l=0; l<this.listeners.length; ++l) // notify listeners
+            for(var l=0; l&lt;this.listeners.length; ++l) // notify listeners
                 this.listeners[l].mark.call(this, c, m, old);
         } else if(c instanceof Array) {
-            for(var i=0, len=c.length; i<len; ++i)
+            for(var i=0, len=c.length; i&lt;len; ++i)
                 this.setMark(c[i], m); // use ourself to avoid duplicate code
         }
     };
@@ -164,7 +191,7 @@ var JGO = JGO || {};
             ret = this.stones[c.i][c.j];
         } else if(c instanceof Array) {
             ret = [];
-            for(var i=0, len=c.length; i<len; ++i)
+            for(var i=0, len=c.length; i&lt;len; ++i)
                 ret.push(this.stones[c[i].i][c[i].j]);
         }
 
@@ -184,7 +211,7 @@ var JGO = JGO || {};
             ret = this.marks[c.i][c.j];
         } else if(c instanceof Array) {
             ret = [];
-            for(var i=0, len=c.length; i<len; ++i)
+            for(var i=0, len=c.length; i&lt;len; ++i)
                 ret.push(this.marks[c[i].i][c[i].j]);
         }
 
@@ -202,11 +229,11 @@ var JGO = JGO || {};
 
         if(i>0)
             coordinates.push(new JGO.Coordinate(i-1, j));
-        if(i+1<this.width)
+        if(i+1&lt;this.width)
             coordinates.push(new JGO.Coordinate(i+1, j));
         if(j>0)
             coordinates.push(new JGO.Coordinate(i, j-1));
-        if(j+1<this.height)
+        if(j+1&lt;this.height)
             coordinates.push(new JGO.Coordinate(i, j+1));
 
         return coordinates;
@@ -221,7 +248,7 @@ var JGO = JGO || {};
     */
     JGO.Board.prototype.filter = function(c, t) {
         var ret = [];
-        for(var i=0, len=c.length; i<len; ++i)
+        for(var i=0, len=c.length; i&lt;len; ++i)
             if(this.stones[c[i].i][c[i].j] == t)
                 ret.push(c);
             return ret;
@@ -235,7 +262,7 @@ var JGO = JGO || {};
     * @returns {bool} True or false.
     */
     JGO.Board.prototype.hasType = function(c, t) {
-        for(var i=0, len=c.length; i<len; ++i)
+        for(var i=0, len=c.length; i&lt;len; ++i)
             if(this.stones[c[i].i][c[i].j] == t)
                 return true;
             return false;
@@ -301,7 +328,7 @@ var JGO = JGO || {};
 
     /**
     * Calculate impact of a move on board. Returns a data structure outlining
-    * validness of move (success & errorMsg) and possible captures and ko
+    * validness of move (success &amp; errorMsg) and possible captures and ko
     * coordinate.
     *
     * @param {JGO.Board} jboard Board to play the move on (stays unchanged).
@@ -321,13 +348,13 @@ var JGO = JGO || {};
             return { success: false,
                 errorMsg: 'Cannot play on existing stone!' };
 
-        if(ko && coord.equals(ko))
+        if(ko &amp;&amp; coord.equals(ko))
             return { success: false,
                 errorMsg: 'Cannot retake ko immediately!' };
 
         adjacent = this.getAdjacent(coord); // find adjacent coordinates
 
-        for(var i=0; i<adjacent.length; i++) {
+        for(var i=0; i&lt;adjacent.length; i++) {
             var c = adjacent[i];
 
             if(this.getType(c) == oppType) { // potential capture
@@ -339,16 +366,39 @@ var JGO = JGO || {};
         }
 
         // Suicide not allowed
-        if(captures.length == 0 &&
+        if(captures.length == 0 &amp;&amp;
             !this.hasType(this.getGroup(coord, stone).neighbors, JGO.CLEAR))
             return { success: false,
                 errorMsg: 'Suicide is not allowed!' };
 
         // Check for ko. Note that captures were not removed so there should
         // be zero liberties around this stone in case of a ko.
-        if(captures.length == 1 && !this.filter(adjacent, JGO.CLEAR).length)
+        if(captures.length == 1 &amp;&amp; !this.filter(adjacent, JGO.CLEAR).length)
             return { success: true, captures: captures, ko: captures[0].copy() };
 
         return { success: true, captures: captures, ko: false };
     };
 })();
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="JGO.Board.html">Board</a></li><li><a href="JGO.Canvas.html">Canvas</a></li><li><a href="JGO.Coordinate.html">Coordinate</a></li><li><a href="JGO.Node.html">Node</a></li><li><a href="JGO.Notifier.html">Notifier</a></li><li><a href="JGO.Record.html">Record</a></li><li><a href="JGO.Setup.html">Setup</a></li></ul><h3>Namespaces</h3><ul><li><a href="JGO.html">JGO</a></li><li><a href="JGO.util.html">util</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha3</a> on Wed Jan 08 2014 22:59:02 GMT+0200 (FLE Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

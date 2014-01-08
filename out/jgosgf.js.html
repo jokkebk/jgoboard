@@ -1,4 +1,31 @@
-// Import or create JGO namespace
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: jgosgf.js</title>
+    
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+    
+    <h1 class="page-title">Source: jgosgf.js</h1>
+    
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// Import or create JGO namespace
 var JGO = JGO || {};
 
 // Import or create JGO.util namespace
@@ -44,7 +71,7 @@ JGO.util = JGO.util || {};
 
         play = this.jboard.playMove(coord, player); // Just ignore ko
 
-        if(play.success && coord != null) {
+        if(play.success &amp;&amp; coord != null) {
             this.setType(coord, player); // play stone
             this.setType(play.captures, JGO.CLEAR); // clear opponent's stones
         } else ERROR = play.error;
@@ -79,7 +106,7 @@ JGO.util = JGO.util || {};
     }
 
     function sgfLabel(name, values) {
-        for(var i=0; i<values.length; i++) {
+        for(var i=0; i&lt;values.length; i++) {
             var v = values[i], tuple = v.split(":");
 
             this.setMark(new JGO.Coordinate(tuple[0]), tuple[1]);
@@ -113,8 +140,8 @@ JGO.util = JGO.util || {};
                 c2 = new JGO.Coordinate(tuple[1]);
                 coord = new JGO.Coordinate();
 
-                for(coord.i=c1.i; coord.i<=c2.i; ++coord.i)
-                    for(coord.j=c1.j; coord.j<=c2.j; ++coord.j)
+                for(coord.i=c1.i; coord.i&lt;=c2.i; ++coord.i)
+                    for(coord.j=c1.j; coord.j&lt;=c2.j; ++coord.j)
                         coords.push(coord.copy());
             }
         });
@@ -125,7 +152,7 @@ JGO.util = JGO.util || {};
     /**
     * Parse SGF string into object tree representation:
     *
-    * tree = { sequence: [ <node(s)> ], leaves: [ <subtree(s), if any> ] }
+    * tree = { sequence: [ &lt;node(s)> ], leaves: [ &lt;subtree(s), if any> ] }
     *
     * Each node is an object containing property identifiers and associated values in array:
     *
@@ -147,16 +174,16 @@ JGO.util = JGO.util || {};
 
             tokens = [];
 
-            for(i=0, len=sgf.length; i<len; ++i) {
+            for(i=0, len=sgf.length; i&lt;len; ++i) {
                 if(delimiters.indexOf(sgf.charAt(i)) !== -1) {
-                    if(blockStart < i)
+                    if(blockStart &lt; i)
                         tokens.push(sgf.substring(blockStart, i));
                     tokens.push(sgf.charAt(i));
                     blockStart = i+1;
                 }
             }
 
-            if(blockStart < i) // leftovers
+            if(blockStart &lt; i) // leftovers
                 tokens.push(sgf.substr(blockStart, i));
         }
 
@@ -164,7 +191,7 @@ JGO.util = JGO.util || {};
         // i.e. ["(", ";", "C", "[", "this is a comment containing brackets ", "[", "\\", "]", "]"] becomes:
         // ["(", ";", "C", "[", "this is a comment containing brackets []]"]
         // after this transformation, it's just "(", ")", ";", "ID", and "[bracket stuff]" elements in the processed array
-        for(i=0, len=tokens.length; i<len; ++i) {
+        for(i=0, len=tokens.length; i&lt;len; ++i) {
             token = tokens[i];
 
             if(bracketOpen == -1) { // handling elements outside property values (i.e. square brackets)
@@ -206,12 +233,12 @@ JGO.util = JGO.util || {};
         var node, propertyId = ""; // node under construction, and current property identifier
 
         // the following code is not strict on format, so let's hope it's well formed
-        for(i=0, len=tokens.length; i<len; ++i) {
+        for(i=0, len=tokens.length; i&lt;len; ++i) {
             token = tokens[i];
 
             if(token == "(" || token == ")") {
                 if(node) { // flush and reset node if necessary
-                    if(propertyId != "" && node[propertyId].length == 0) { // last property was missing value
+                    if(propertyId != "" &amp;&amp; node[propertyId].length == 0) { // last property was missing value
                         ERROR = "Missing property value at " + token + "!";
                         return false;
                     }
@@ -222,7 +249,7 @@ JGO.util = JGO.util || {};
                 processed.push(token); // push this token also
             } else if(token == ";") { // new node
                 if(node) { // flush if necessary
-                    if(propertyId != "" && node[propertyId].length == 0) { // last property was missing value
+                    if(propertyId != "" &amp;&amp; node[propertyId].length == 0) { // last property was missing value
                         ERROR = "Missing property value at " + token + "!";
                         return false;
                     }
@@ -232,7 +259,7 @@ JGO.util = JGO.util || {};
                 node = {}; propertyId = ""; // initialize the new node
             } else { // it's either a property identifier or a property value
                 if(token.indexOf("[") != 0) { // it's property identifier
-                    if(propertyId != "" && node[propertyId].length == 0) { // last property was missing value
+                    if(propertyId != "" &amp;&amp; node[propertyId].length == 0) { // last property was missing value
                         ERROR = "Missing property value at " + token + "!";
                         return false;
                     }
@@ -257,10 +284,10 @@ JGO.util = JGO.util || {};
 
         tokens = processed;
 
-        // finally, construct a game tree from "(", ")", and sequence arrays - each leaf is {sequence: [ <list of nodes> ], leaves: [ <list of leaves> ]}
+        // finally, construct a game tree from "(", ")", and sequence arrays - each leaf is {sequence: [ &lt;list of nodes> ], leaves: [ &lt;list of leaves> ]}
         var stack = [], currentRoot = {sequence: [], leaves: []}, lastRoot; // we know first element already: "("
 
-        for(i=1, len=tokens.length; i<len-1; ++i) {
+        for(i=1, len=tokens.length; i&lt;len-1; ++i) {
             token = tokens[i];
 
             if(token == "(") { // enter a subleaf
@@ -323,7 +350,7 @@ JGO.util = JGO.util || {};
      * @returns true on success, false on error. Error message in ERROR.
      */
     function recurseRecord(jrecord, gameTree) {
-        for(var i=0; i<gameTree.sequence.length; i++) {
+        for(var i=0; i&lt;gameTree.sequence.length; i++) {
             var node = gameTree.sequence[i], jnode = jrecord.createNode();
 
             for(var key in node) {
@@ -337,7 +364,7 @@ JGO.util = JGO.util || {};
             }
         }
 
-        for(var i=0; i<gameTree.leaves.length; i++) {
+        for(var i=0; i&lt;gameTree.leaves.length; i++) {
             var subTree = gameTree.leaves[i], snapshot;
 
             snapshot = jrecord.createSnapshot();
@@ -366,7 +393,7 @@ JGO.util = JGO.util || {};
             if(gameTree.leaves.length == 0)
                 return 'Empty game tree!';
 
-            for(var i=0; i<gameTree.leaves.length; i++) {
+            for(var i=0; i&lt;gameTree.leaves.length; i++) {
                 var rec = gameTreeToRecord(gameTree);
 
                 if(!rec)
@@ -382,3 +409,26 @@ JGO.util = JGO.util || {};
     }
 
 })();
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="JGO.Board.html">Board</a></li><li><a href="JGO.Canvas.html">Canvas</a></li><li><a href="JGO.Coordinate.html">Coordinate</a></li><li><a href="JGO.Node.html">Node</a></li><li><a href="JGO.Notifier.html">Notifier</a></li><li><a href="JGO.Record.html">Record</a></li><li><a href="JGO.Setup.html">Setup</a></li></ul><h3>Namespaces</h3><ul><li><a href="JGO.html">JGO</a></li><li><a href="JGO.util.html">util</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha3</a> on Wed Jan 08 2014 22:59:02 GMT+0200 (FLE Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -15,6 +15,7 @@
 <div id="board"></div>
 
 <script type="text/javascript" src="jgoinit.js"></script>
+<script type="text/javascript" src="jgoconstants.js"></script>
 <script type="text/javascript" src="jgocoordinate.js"></script>
 <script type="text/javascript" src="jgoboard.js"></script>
 <script type="text/javascript" src="jgocanvas.js"></script>
@@ -62,15 +63,15 @@ jsetup.create('board', function(canvas) {
       node.setType(play.captures, JGO.CLEAR); // clear opponent's stones
 
       if(lastMove)
-        node.setMark(lastMove, JGO.NONE); // clear previous mark
+        node.setMark(lastMove, JGO.MARK.NONE); // clear previous mark
       if(ko)
-        node.setMark(coord, JGO.NONE); // clear previous ko mark
+        node.setMark(coord, JGO.MARK.NONE); // clear previous ko mark
 
-      node.setMark(coord, JGO.CIRCLE); // mark move
+      node.setMark(coord, JGO.MARK.CIRCLE); // mark move
       lastMove = coord;
 
       if(play.ko)
-        node.setMark(play.ko, JGO.CIRCLE); // mark ko, too
+        node.setMark(play.ko, JGO.MARK.CIRCLE); // mark ko, too
       ko = play.ko;
 
       player = opponent;
