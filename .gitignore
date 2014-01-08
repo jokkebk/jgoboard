@@ -1,0 +1,4 @@
+*.psd
+*.sgf
+node_modules
+dist
