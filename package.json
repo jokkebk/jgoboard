@@ -1,0 +1,30 @@
+{
+  "name": "jgoboard",
+  "version": "3.0.0",
+  "description": "jGoBoard javascript go board library",
+  "main": "jgoinit.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://joonas@win.dy.fi:80/home/joonas/git/jgoboard.git"
+  },
+  "keywords": [
+    "go",
+    "baduk",
+    "go",
+    "board",
+    "goban",
+    "weiqi",
+    "javascript"
+  ],
+  "author": "Joonas Pihlajamaa",
+  "license": "CC-BY-NC-3.0",
+  "devDependencies": {
+    "grunt": "~0.4.2"
+  }
+}
