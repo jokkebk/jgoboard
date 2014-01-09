@@ -10,16 +10,24 @@ module.exports = function(grunt) {
                 }
             }
         },
+        //jsdoc: {
+        //    dist: {
+        //        src: ['src/*.js', 'test/*.js'],
+        //        options: {
+        //            destination: 'doc'
+        //        }
+        //    }
+        //},
         concat: {
             options: {
                 separator: '\n'
             },
             dist: {
                 //src: [ 'src/jgoinit.js', 'src/jgoconstants.js', 'src/jgocoordinate.js',
-                //    'src/jgoboard.js', 'src/jgocanvas.js', 'src/jgonotifier.js',
-                //    'src/jgosetup.js', 'src/jgonode.js', 'src/jgorecord.js', 'src/jgoutil.js',
-                src: [ 'src/jgoinit.js', 'src/*.js' ],
-                dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.js',
+                    //    'src/jgoboard.js', 'src/jgocanvas.js', 'src/jgonotifier.js',
+                    //    'src/jgosetup.js', 'src/jgonode.js', 'src/jgorecord.js', 'src/jgoutil.js',
+                    src: [ 'src/jgoinit.js', 'src/*.js' ],
+                    dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.js',
             },
         },
         uglify: {
@@ -39,8 +47,9 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-jsdoc');
 
     // Default task(s).
-    grunt.registerTask('default', ['jshint', 'concat', 'uglify']);
+    grunt.registerTask('default', ['jshint', /*'jsdoc',*/ 'concat', 'uglify']);
 
 };
