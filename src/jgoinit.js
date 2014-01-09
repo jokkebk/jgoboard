@@ -51,7 +51,7 @@ var JGO = JGO || {};
         for(var key in src) {
             if(src.hasOwnProperty(key)) {
                 if(typeof src[key] === "object") {
-                    if(!dest[key] || !(typeof dest[key] === 'object'))
+                    if(!dest[key] || (typeof dest[key] !== 'object'))
                         dest[key] = {}; // create/overwrite if necessary
                     JGO.extend(dest[key], src[key]);
                 } else dest[key] = src[key];
@@ -59,6 +59,6 @@ var JGO = JGO || {};
         }
 
         return dest;
-    }
+    };
 
 })();

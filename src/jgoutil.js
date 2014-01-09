@@ -10,31 +10,31 @@ JGO.util = JGO.util || {};
 (function() {
     /**
      * Load images and defined by object and invoke callback when completed.
-     * http://www.html5canvastutorials.com/tutorials/html5-canvas-image-loader/
      *
      * @param {Object} sources A dictionary of sources to load.
      * @param {function} callback A callback function to call with image dict.
      * @memberof JGO.util
      */
     JGO.util.loadImages = function(sources, callback) {
-        var images = {};
-        var loadedImages = 0;
-        var numImages = 0;
-        // get num of sources
-        for(var src in sources) {
+        var images = {}, imagesLeft = 0;
+
+        for(var src in sources)
             if(sources.hasOwnProperty(src))
-                numImages++;
-        }
-        for(var src in sources) {
+                imagesLeft++;
+
+        alert('Images left: ' + imagesLeft);
+        var countdown = function() {
+            alert('Loaded image, ' + imagesLeft + ' to go!');
+            if(--imagesLeft <= 0)
+                callback(images);
+        };
+
+        for(src in sources) {
             if(!sources.hasOwnProperty(src))
                 continue;
 
             images[src] = new Image();
-            images[src].onload = function() {
-                if(++loadedImages >= numImages) {
-                    callback(images);
-                }
-            };
+            images[src].onload = countdown;
             images[src].src = sources[src];
         }
     };

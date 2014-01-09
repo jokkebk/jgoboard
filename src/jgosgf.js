@@ -44,7 +44,7 @@ JGO.util = JGO.util || {};
 
         play = this.jboard.playMove(coord, player); // Just ignore ko
 
-        if(play.success && coord != null) {
+        if(play.success && coord !== null) {
             this.setType(coord, player); // play stone
             this.setType(play.captures, JGO.CLEAR); // clear opponent's stones
         } else ERROR = play.error;
@@ -74,7 +74,7 @@ JGO.util = JGO.util || {};
     }
 
     function sgfHandicap(name, values) {
-        this.info['handicap'] = values[0];
+        this.info.handicap = values[0];
         return true;
     }
 
@@ -171,7 +171,7 @@ JGO.util = JGO.util || {};
                 token = jQuery.trim(token); // trim whitespace, it is irrelevant here
             if(token == "[") // found one
                 bracketOpen = i;
-            else if(token != "") // we are outside brackets, so just push everything nonempty as it is into 'processed'
+            else if(token !== "") // we are outside brackets, so just push everything nonempty as it is into 'processed'
                 processed.push(token);
             } else { // bracket is open, we're now looking for a ] without preceding \
                 if(token != "]") { // a text segment
@@ -188,7 +188,7 @@ JGO.util = JGO.util || {};
         }
 
         // basic error checking
-        if(processed.length == 0) {
+        if(processed.length === 0) {
             ERROR = "SGF was empty!";
             return false;
         } else if(processed[0] != "(" || processed[1] != ";" || processed[processed.length-1] != ")") {
@@ -211,7 +211,7 @@ JGO.util = JGO.util || {};
 
             if(token == "(" || token == ")") {
                 if(node) { // flush and reset node if necessary
-                    if(propertyId != "" && node[propertyId].length == 0) { // last property was missing value
+                    if(propertyId !== "" && node[propertyId].length === 0) { // last property was missing value
                         ERROR = "Missing property value at " + token + "!";
                         return false;
                     }
@@ -222,7 +222,7 @@ JGO.util = JGO.util || {};
                 processed.push(token); // push this token also
             } else if(token == ";") { // new node
                 if(node) { // flush if necessary
-                    if(propertyId != "" && node[propertyId].length == 0) { // last property was missing value
+                    if(propertyId !== "" && node[propertyId].length === 0) { // last property was missing value
                         ERROR = "Missing property value at " + token + "!";
                         return false;
                     }
@@ -231,8 +231,8 @@ JGO.util = JGO.util || {};
 
                 node = {}; propertyId = ""; // initialize the new node
             } else { // it's either a property identifier or a property value
-                if(token.indexOf("[") != 0) { // it's property identifier
-                    if(propertyId != "" && node[propertyId].length == 0) { // last property was missing value
+                if(token.indexOf("[") !== 0) { // it's property identifier
+                    if(propertyId !== "" && node[propertyId].length === 0) { // last property was missing value
                         ERROR = "Missing property value at " + token + "!";
                         return false;
                     }
@@ -245,7 +245,7 @@ JGO.util = JGO.util || {};
                     propertyId = token;
                     node[propertyId] = []; // initialize new property with empty value array
                 } else { // it's property value
-                    if(propertyId == "") { // we're missing the identifier
+                    if(propertyId === "") { // we're missing the identifier
                         ERROR = "Missing property identifier at " + token + "!";
                         return false;
                     }
@@ -264,14 +264,14 @@ JGO.util = JGO.util || {};
             token = tokens[i];
 
             if(token == "(") { // enter a subleaf
-                if(currentRoot.sequence.length == 0) { // consecutive parenthesis without node sequence in between will throw an error
+                if(currentRoot.sequence.length === 0) { // consecutive parenthesis without node sequence in between will throw an error
                     ERROR = "SGF contains a game tree without a sequence!";
                     return false;
                 }
                 stack.push(currentRoot); // save current leaf for when we return
                 currentRoot = {sequence: [], leaves: []};
             } else if(token == ")") { // return from subleaf
-                if(currentRoot.sequence.length == 0) { // consecutive parenthesis without node sequence in between will throw an error
+                if(currentRoot.sequence.length === 0) { // consecutive parenthesis without node sequence in between will throw an error
                     ERROR = "SGF contains a game tree without a sequence!";
                     return false;
                 }
@@ -337,7 +337,7 @@ JGO.util = JGO.util || {};
             }
         }
 
-        for(var i=0; i<gameTree.leaves.length; i++) {
+        for(i=0; i<gameTree.leaves.length; i++) {
             var subTree = gameTree.leaves[i], snapshot;
 
             snapshot = jrecord.createSnapshot();
@@ -360,10 +360,10 @@ JGO.util = JGO.util || {};
     JGO.util.loadSGF = function(sgf) {
         var gameTree = parseSGF(sgf);
 
-        if(gameTree.sequence.length == 0) { // potentially multiple game records
+        if(gameTree.sequence.length === 0) { // potentially multiple records
             var ret = [];
 
-            if(gameTree.leaves.length == 0)
+            if(gameTree.leaves.length === 0)
                 return 'Empty game tree!';
 
             for(var i=0; i<gameTree.leaves.length; i++) {
@@ -379,6 +379,6 @@ JGO.util = JGO.util || {};
         }
 
         return gameTreeToRecord(gameTree);
-    }
+    };
 
 })();

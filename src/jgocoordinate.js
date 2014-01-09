@@ -19,8 +19,8 @@ var JGO = JGO || {};
     * @constructor
     */
     JGO.Coordinate = function(i, j) {
-        if(i != undefined) {
-            if(j != undefined) {
+        if(i !== undefined) {
+            if(j !== undefined) {
                 this.i = i;
                 this.j = j;
             } else { // try to parse coordinates from first parameter

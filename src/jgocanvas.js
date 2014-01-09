@@ -14,16 +14,16 @@ var JGO = JGO || {};
     JGO.Canvas = function(elem, opt, img) {
         var container = document.getElementById(elem),
             canvas = document.createElement('canvas'),
-            self = this;
+            self = this, i, j;
 
         var padLeft = opt.edge.left ? opt.padding.normal : opt.padding.clipped,
             padRight = opt.edge.right ? opt.padding.normal : opt.padding.clipped,
             padTop = opt.edge.top ? opt.padding.normal : opt.padding.clipped,
             padBottom = opt.edge.bottom ? opt.padding.normal : opt.padding.clipped;
 
-        this.marginLeft = opt.edge.left ? opt.margin.normal : opt.margin.clipped,
-        this.marginRight = opt.edge.right ? opt.margin.normal : opt.margin.clipped,
-        this.marginTop = opt.edge.top ? opt.margin.normal : opt.margin.clipped,
+        this.marginLeft = opt.edge.left ? opt.margin.normal : opt.margin.clipped;
+        this.marginRight = opt.edge.right ? opt.margin.normal : opt.margin.clipped;
+        this.marginTop = opt.edge.top ? opt.margin.normal : opt.margin.clipped;
         this.marginBottom = opt.edge.bottom ? opt.margin.normal : opt.margin.clipped;
 
         this.boardWidth = padLeft + padRight +
@@ -45,7 +45,7 @@ var JGO = JGO || {};
          */
         this.getRow = function(y) {
             return Math.floor((y-canvas.offsetTop-self.marginTop-padTop)/opt.grid.y) + opt.view.yOffset;
-        }
+        };
 
         /**
          * Get board column based on x coordinate.
@@ -54,15 +54,15 @@ var JGO = JGO || {};
          */
         this.getColumn = function(x) {
             return Math.floor((x-canvas.offsetLeft-self.marginLeft-padLeft)/opt.grid.x) + opt.view.xOffset;
-        }
+        };
 
         // Click handler will call all listeners passing the coordinate of click
         // and the click event
         canvas.onclick = function(ev) {
             var x = self.getRow(ev.pageX), y = self.getColumn(ev.pageY),
                 c = new JGO.Coordinate(x,y),
-                listeners = self.listeners['click'];
 
+                listeners = self.listeners.click;
             for(var l=0; l<listeners.length; l++)
                 listeners[l].call(self, c.copy(), ev);
         };
@@ -119,8 +119,8 @@ var JGO = JGO || {};
         this.ctx.strokeStyle = opt.grid.color;
 
         // Draw vertical gridlines
-        for(var i=0; i<opt.view.width; i++) {
-            if((i == 0 && opt.edge.left) || (i+1 == opt.view.width && opt.edge.right))
+        for(i=0; i<opt.view.width; i++) {
+            if((i === 0 && opt.edge.left) || (i+1 == opt.view.width && opt.edge.right))
                 this.ctx.lineWidth = opt.grid.borderWidth;
             else
                 this.ctx.lineWidth = opt.grid.lineWidth;
@@ -136,8 +136,8 @@ var JGO = JGO || {};
         }
 
         // Draw horizontal gridlines
-        for(var i=0; i<opt.view.height; i++) {
-            if((i == 0 && opt.edge.top) || (i+1 == opt.view.height && opt.edge.bottom))
+        for(i=0; i<opt.view.height; i++) {
+            if((i === 0 && opt.edge.top) || (i+1 == opt.view.height && opt.edge.bottom))
                 this.ctx.lineWidth = opt.grid.borderWidth;
             else
                 this.ctx.lineWidth = opt.grid.lineWidth;
@@ -155,8 +155,8 @@ var JGO = JGO || {};
         if(opt.stars.points) { // If star points
             var step = (opt.board.width - 1) / 2 - opt.stars.offset;
             // 1, 4, 5, 8 and 9 points are supported, rest will result in randomness
-            for(var j=0; j<3; j++) {
-                for(var i=0; i<3; i++) {
+            for(j=0; j<3; j++) {
+                for(i=0; i<3; i++) {
                     if(j == 1 && i == 1) { // center
                         if(!(opt.stars.points & 1))
                             continue; // skip center
@@ -190,7 +190,7 @@ var JGO = JGO || {};
         this.ctx.textBaseline = 'middle';
 
         // Draw horizontal coordinates
-        for(var i=0; i<opt.view.width; i++) {
+        for(i=0; i<opt.view.width; i++) {
             if(opt.coordinates.top)
                 this.ctx.fillText(JGO.COORDINATES[i + opt.view.xOffset],
                     this.gridLeft + opt.grid.x * i,
@@ -202,7 +202,7 @@ var JGO = JGO || {};
         }
 
         // Draw vertical coordinates
-        for(var i=0; i<opt.view.height; i++) {
+        for(i=0; i<opt.view.height; i++) {
             if(opt.coordinates.left)
                 this.ctx.fillText(''+(opt.board.height-opt.view.yOffset-i),
             this.marginLeft / 2,
@@ -223,7 +223,7 @@ var JGO = JGO || {};
 
         this.restore = function(x, y, w, h) {
             this.ctx.drawImage(this.backup, x, y, w, h, x, y, w, h);
-        }
+        };
 
         // Clip further drawing to board only
         this.ctx.beginPath();
@@ -258,10 +258,10 @@ var JGO = JGO || {};
      */
     JGO.Canvas.prototype.draw = function(jboard, i1, j1, i2, j2) {
         var self = this;
-        var i1 = Math.max(i1, this.opt.view.xOffset);
-        var j1 = Math.max(j1, this.opt.view.yOffset);
-        var i2 = Math.min(i2, this.opt.view.xOffset + this.opt.view.width - 1);
-        var j2 = Math.min(j2, this.opt.view.yOffset + this.opt.view.height - 1);
+        i1 = Math.max(i1, this.opt.view.xOffset);
+        j1 = Math.max(j1, this.opt.view.yOffset);
+        i2 = Math.min(i2, this.opt.view.xOffset + this.opt.view.width - 1);
+        j2 = Math.min(j2, this.opt.view.yOffset + this.opt.view.height - 1);
 
         if(i2 < i1 || j2 < j1)
             return; // nothing to do here

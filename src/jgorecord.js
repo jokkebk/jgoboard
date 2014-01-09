@@ -36,10 +36,10 @@ var JGO = JGO || {};
     JGO.Record.prototype.createNode = function(options) {
         var node = new JGO.Node(this.jboard, this.current, options);
 
-        if(this.root == null)
+        if(this.root === null)
             this.root = node;
 
-        return this.current = node;
+        return (this.current = node);
     };
 
     /**
@@ -49,11 +49,11 @@ var JGO = JGO || {};
     * @returns {JGO.Node} New current node or null if at the end of game tree.
     */
     JGO.Record.prototype.next = function(variation) {
-        if(this.current == null)
+        if(this.current === null)
             return null;
 
         if(!variation)
-            variation = 0
+            variation = 0;
 
         if(variation >= this.current.children.length)
             return null;
@@ -70,7 +70,7 @@ var JGO = JGO || {};
     * @returns {JGO.Node} New current node or null if at the beginning of game tree.
     */
     JGO.Record.prototype.previous = function() {
-        if(this.current == null || this.current.parent === null)
+        if(this.current === null || this.current.parent === null)
             return null; // empty or no parent
 
         this.current.revert(this.jboard);
@@ -89,7 +89,7 @@ var JGO = JGO || {};
         this.current = this.root;
         this.jboard.clear();
 
-        if(this.current != null)
+        if(this.current !== null)
             this.current.apply(this.jboard);
 
         return this.current;
@@ -103,7 +103,7 @@ var JGO = JGO || {};
     */
     JGO.Record.prototype.createSnapshot = function() {
         return {jboard: this.jboard.getRaw(), current: this.current};
-    }
+    };
 
     /**
     * Restore the JGO.Record to the state contained in snapshot. Use only if you

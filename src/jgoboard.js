@@ -15,7 +15,7 @@ var JGO = JGO || {};
     JGO.Board = function(width, height) {
         this.width = width;
 
-        if(height != undefined)
+        if(height !== undefined)
             this.height = height;
         else
             this.height = this.width;
@@ -339,7 +339,7 @@ var JGO = JGO || {};
         }
 
         // Suicide not allowed
-        if(captures.length == 0 &&
+        if(captures.length === 0 &&
             !this.hasType(this.getGroup(coord, stone).neighbors, JGO.CLEAR))
             return { success: false,
                 errorMsg: 'Suicide is not allowed!' };

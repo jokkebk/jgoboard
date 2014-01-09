@@ -36,7 +36,7 @@ var JGO = JGO || {};
         this.jboard = jboard;
         this.jnotifier = new JGO.Notifier(jboard);
         this.options = JGO.extend(defaults, boardOptions); // clone
-    }
+    };
 
     /**
     * View only a portion of the whole board.
@@ -52,10 +52,10 @@ var JGO = JGO || {};
         this.options.view.width = width;
         this.options.view.height = height;
 
-        this.options.edge.left = (xOff == 0);
+        this.options.edge.left = (xOff === 0);
         this.options.edge.right = (xOff+width == this.options.board.width);
 
-        this.options.edge.top = (yOff == 0);
+        this.options.edge.top = (yOff === 0);
         this.options.edge.bottom = (yOff+height == this.options.board.height);
     };
 
