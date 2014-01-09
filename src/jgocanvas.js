@@ -2,6 +2,8 @@
 var JGO = JGO || {};
 
 (function() {
+    'use strict';
+
     /**
      * Create a jGoBoard canvas object.
      *
@@ -129,10 +131,10 @@ var JGO = JGO || {};
 
             this.ctx.moveTo(0.5 + this.gridLeft + opt.grid.x * i,
                 0.5 + this.gridTop - (opt.edge.top ? 0 : opt.grid.y / 2 + padTop/2));
-                this.ctx.lineTo(0.5 + this.gridLeft + opt.grid.x * i,
-                    0.5 + this.gridTop + opt.grid.y * (opt.view.height - 1) +
-                        (opt.edge.bottom ? 0 : opt.grid.y / 2 + padBottom/2));
-                    this.ctx.stroke();
+            this.ctx.lineTo(0.5 + this.gridLeft + opt.grid.x * i,
+                0.5 + this.gridTop + opt.grid.y * (opt.view.height - 1) +
+                (opt.edge.bottom ? 0 : opt.grid.y / 2 + padBottom/2));
+            this.ctx.stroke();
         }
 
         // Draw horizontal gridlines
@@ -158,7 +160,7 @@ var JGO = JGO || {};
             for(j=0; j<3; j++) {
                 for(i=0; i<3; i++) {
                     if(j == 1 && i == 1) { // center
-                        if(!(opt.stars.points & 1))
+                        if(opt.stars.points % 2 === 0)
                             continue; // skip center
                     } else if(i == 1 || j == 1) { // non-corners
                         if(opt.stars.points < 8)
@@ -195,9 +197,9 @@ var JGO = JGO || {};
                 this.ctx.fillText(JGO.COORDINATES[i + opt.view.xOffset],
                     this.gridLeft + opt.grid.x * i,
                 this.marginTop / 2);
-                if(opt.coordinates.bottom)
-                    this.ctx.fillText(JGO.COORDINATES[i + opt.view.xOffset],
-                        this.gridLeft + opt.grid.x * i,
+            if(opt.coordinates.bottom)
+                this.ctx.fillText(JGO.COORDINATES[i + opt.view.xOffset],
+                    this.gridLeft + opt.grid.x * i,
                     canvas.height - this.marginBottom / 2);
         }
 
@@ -207,8 +209,8 @@ var JGO = JGO || {};
                 this.ctx.fillText(''+(opt.board.height-opt.view.yOffset-i),
             this.marginLeft / 2,
                 this.gridTop + opt.grid.y * i);
-                if(opt.coordinates.right)
-                    this.ctx.fillText(''+(opt.board.height-opt.view.yOffset-i),
+            if(opt.coordinates.right)
+                this.ctx.fillText(''+(opt.board.height-opt.view.yOffset-i),
                 canvas.width - this.marginRight / 2,
                     this.gridTop + opt.grid.y * i);
         }
@@ -317,7 +319,7 @@ var JGO = JGO || {};
                     self.ctx.drawImage(self.img.shadow,
                         self.opt.shadow.xOff + self.getX(c.i - self.opt.view.xOffset) - self.img.shadow.width / 2,
                         self.opt.shadow.yOff + self.getY(c.j - self.opt.view.yOffset) - self.img.shadow.height / 2);
-                        break;
+                    break;
             }
         }, i1, j1, i2, j2); // provide iteration limits
 
@@ -367,62 +369,64 @@ var JGO = JGO || {};
             var ox = 0.5 + self.getX(c.i - self.opt.view.xOffset),
             oy = 0.5 + self.getY(c.j - self.opt.view.yOffset);
 
-            if(mark) switch(mark) {
-                case JGO.MARK.SQUARE:
-                    self.ctx.beginPath();
-                    self.ctx.rect(ox - markX / 2, oy - markY / 2,
-                    markX, markY);
-                    self.ctx.stroke();
-                    break;
+            if(mark) {
+                switch(mark) {
+                    case JGO.MARK.SQUARE:
+                        self.ctx.beginPath();
+                        self.ctx.rect(ox - markX / 2, oy - markY / 2,
+                        markX, markY);
+                        self.ctx.stroke();
+                        break;
 
-                case JGO.MARK.CROSS:
-                    self.ctx.beginPath();
-                    self.ctx.moveTo(ox - markX / 2, oy + markY / 2);
-                    self.ctx.lineTo(ox + markX / 2, oy - markY / 2);
-                    self.ctx.moveTo(ox - markX / 2, oy - markY / 2);
-                    self.ctx.lineTo(ox + markX / 2, oy + markY / 2);
-                    self.ctx.stroke();
-                    break;
+                    case JGO.MARK.CROSS:
+                        self.ctx.beginPath();
+                        self.ctx.moveTo(ox - markX / 2, oy + markY / 2);
+                        self.ctx.lineTo(ox + markX / 2, oy - markY / 2);
+                        self.ctx.moveTo(ox - markX / 2, oy - markY / 2);
+                        self.ctx.lineTo(ox + markX / 2, oy + markY / 2);
+                        self.ctx.stroke();
+                        break;
 
-                case JGO.MARK.TRIANGLE:
-                    self.ctx.beginPath();
-                    for(r=0; r<3; r++) {
-                        self.ctx.moveTo(ox + triangleR * Math.cos(Math.PI * (0.5 + 2*r/3)),
-                        oy - triangleR * Math.sin(Math.PI * (0.5 + 2*r/3)));
-                        self.ctx.lineTo(ox + triangleR * Math.cos(Math.PI * (0.5 + 2*(r+1)/3)),
-                        oy - triangleR * Math.sin(Math.PI * (0.5 + 2*(r+1)/3)));
-                    }
-                    self.ctx.stroke();
-                    break;
+                    case JGO.MARK.TRIANGLE:
+                        self.ctx.beginPath();
+                        for(r=0; r<3; r++) {
+                            self.ctx.moveTo(ox + triangleR * Math.cos(Math.PI * (0.5 + 2*r/3)),
+                            oy - triangleR * Math.sin(Math.PI * (0.5 + 2*r/3)));
+                            self.ctx.lineTo(ox + triangleR * Math.cos(Math.PI * (0.5 + 2*(r+1)/3)),
+                            oy - triangleR * Math.sin(Math.PI * (0.5 + 2*(r+1)/3)));
+                        }
+                        self.ctx.stroke();
+                        break;
 
-                case JGO.MARK.CIRCLE:
-                    self.ctx.beginPath();
-                    self.ctx.arc(ox, oy, circleR, 2*Math.PI, false);
-                    self.ctx.stroke();
-                    break;
+                    case JGO.MARK.CIRCLE:
+                        self.ctx.beginPath();
+                        self.ctx.arc(ox, oy, circleR, 2*Math.PI, false);
+                        self.ctx.stroke();
+                        break;
 
-                case JGO.MARK.BLACK_TERRITORY:
-                    self.ctx.globalAlpha=1;
-                    self.ctx.drawImage(self.img.black, 0, 0,
-                        self.img.black.width, self.img.black.height,
-                        self.getX(c.i - self.opt.view.xOffset) - self.img.black.width / 4,
-                        self.getY(c.j - self.opt.view.yOffset) - self.img.black.height / 4,
-                    self.img.black.width / 2, self.img.black.height / 2);
-                    break;
+                    case JGO.MARK.BLACK_TERRITORY:
+                        self.ctx.globalAlpha=1;
+                        self.ctx.drawImage(self.img.black, 0, 0,
+                            self.img.black.width, self.img.black.height,
+                            self.getX(c.i - self.opt.view.xOffset) - self.img.black.width / 4,
+                            self.getY(c.j - self.opt.view.yOffset) - self.img.black.height / 4,
+                        self.img.black.width / 2, self.img.black.height / 2);
+                        break;
 
-                case JGO.MARK.WHITE_TERRITORY:
-                    self.ctx.globalAlpha=1;
-                    self.ctx.drawImage(self.img.white, 0, 0,
-                        self.img.white.width, self.img.white.height,
-                        self.getX(c.i - self.opt.view.xOffset) - self.img.white.width / 4,
-                        self.getY(c.j - self.opt.view.yOffset) - self.img.white.height / 4,
-                    self.img.white.width / 2, self.img.white.height / 2);
-                    break;
+                    case JGO.MARK.WHITE_TERRITORY:
+                        self.ctx.globalAlpha=1;
+                        self.ctx.drawImage(self.img.white, 0, 0,
+                            self.img.white.width, self.img.white.height,
+                            self.getX(c.i - self.opt.view.xOffset) - self.img.white.width / 4,
+                            self.getY(c.j - self.opt.view.yOffset) - self.img.white.height / 4,
+                        self.img.white.width / 2, self.img.white.height / 2);
+                        break;
 
-                default: // Label
-                    // For clear intersections, grid is cleared before shadow cast
-                    self.ctx.fillText(mark, ox, oy);
-                    break;
+                    default: // Label
+                        // For clear intersections, grid is cleared before shadow cast
+                        self.ctx.fillText(mark, ox, oy);
+                        break;
+                }
             }
         }, i1, j1, i2, j2); // provide iteration limits
 

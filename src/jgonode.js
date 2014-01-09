@@ -2,6 +2,7 @@
 var JGO = JGO || {};
 
 (function() {
+    'use strict';
 
     /**
     * Helper class to store node information, apply and revert changes easily.

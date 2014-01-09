@@ -1,4 +1,5 @@
 module.exports = function(grunt) {
+    'use strict';
 
     // Project configuration.
     grunt.initConfig({
@@ -6,21 +7,13 @@ module.exports = function(grunt) {
         jshint: {
             files: ['gruntfile.js', 'src/**/*.js', 'test/**/*.js'],
             options: {
-                globals: {
-                }
+                jshintrc: true
             }
         },
-        //jsdoc: {
-        //    dist: {
-        //        src: ['src/*.js', 'test/*.js'],
-        //        options: {
-        //            destination: 'doc'
-        //        }
-        //    }
-        //},
         // Use shell command until jsdoc support gets to 3.3.0 (without Java)
         shell: {
             makeDocs: {
+                //command: 'echo <%= grunt.file.expand("src/*.js").join(" ") %>',
                 command: 'jsdoc -d doc src', // JSDoc doesn't support expansion
                 options: {
                     stdout: true,
@@ -33,12 +26,9 @@ module.exports = function(grunt) {
                 separator: '\n'
             },
             dist: {
-                //src: [ 'src/jgoinit.js', 'src/jgoconstants.js', 'src/jgocoordinate.js',
-                    //    'src/jgoboard.js', 'src/jgocanvas.js', 'src/jgonotifier.js',
-                    //    'src/jgosetup.js', 'src/jgonode.js', 'src/jgorecord.js', 'src/jgoutil.js',
-                    src: [ 'src/jgoinit.js', 'src/*.js' ],
-                    dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.js',
-            },
+                src: [ 'src/jgoinit.js', 'src/*.js' ],
+                dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.js',
+            }
         },
         uglify: {
             options: {

@@ -2,6 +2,8 @@
 var JGO = JGO || {};
 
 (function() {
+    'use strict';
+
     /**
      * Enum for intersection types. Aliased in JGO namespace, e.g. JGO.BLACK.
      * @memberof JGO
@@ -48,5 +50,5 @@ var JGO = JGO || {};
      * Board coordinate array.
      * @constant
      */
-    JGO.COORDINATES = "ABCDEFGHJKLMNOPQRSTUVWXYZ".split('');
+    JGO.COORDINATES = 'ABCDEFGHJKLMNOPQRSTUVWXYZ'.split('');
 })();

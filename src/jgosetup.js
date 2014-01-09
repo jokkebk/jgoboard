@@ -2,6 +2,7 @@
 var JGO = JGO || {};
 
 (function() {
+    'use strict';
 
     /**
     * Setup helper class to make creating JGO.Canvases easy.
@@ -21,16 +22,18 @@ var JGO = JGO || {};
             view: {xOffset:0, yOffset:0, width:jboard.width, height:jboard.height}
         };
 
-        if(jboard.width == jboard.height) switch(jboard.width) { // square
-            case 9:
-                defaults.stars.points=5;
-                defaults.stars.offset=2;
-                break;
-            case 13:
-            case 19:
-                defaults.stars.points=9;
-                defaults.stars.offset=3;
-                break;
+        if(jboard.width == jboard.height) {
+            switch(jboard.width) { // square
+                case 9:
+                    defaults.stars.points=5;
+                    defaults.stars.offset=2;
+                    break;
+                case 13:
+                case 19:
+                    defaults.stars.points=9;
+                    defaults.stars.offset=3;
+                    break;
+            }
         }
 
         this.jboard = jboard;

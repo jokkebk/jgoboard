@@ -2,6 +2,7 @@
 var JGO = JGO || {};
 
 (function() {
+    'use strict';
 
     /**
     * Go board class for storing intersection states. Also has listeners that
@@ -224,7 +225,7 @@ var JGO = JGO || {};
         for(var i=0, len=c.length; i<len; ++i)
             if(this.stones[c[i].i][c[i].j] == t)
                 ret.push(c);
-            return ret;
+        return ret;
     };
 
     /**
@@ -238,7 +239,7 @@ var JGO = JGO || {};
         for(var i=0, len=c.length; i<len; ++i)
             if(this.stones[c[i].i][c[i].j] == t)
                 return true;
-            return false;
+        return false;
     };
 
     /**

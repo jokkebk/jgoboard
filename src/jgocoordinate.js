@@ -2,15 +2,16 @@
 var JGO = JGO || {};
 
 (function() {
+    'use strict';
 
-    var SGFLetters = "abcdefghijklmnopqrstuvwxyz".split('');
+    var SGFLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
 
     /**
     * Create a helper class to create coordinates from (1,2) (zero-based),
-    * "ah" type of input. You can create a coordinate with no arguments, in
+    * 'ah' type of input. You can create a coordinate with no arguments, in
     * which case it defaults to (0,0), or with one argument, in which case it
-    * tries to parse "ai" type of string coordinate, or with two arguments, (i,j).
-    * "J18" style coordinates depend on board size due to number running from
+    * tries to parse 'ai' type of string coordinate, or with two arguments, (i,j).
+    * 'J18' style coordinates depend on board size due to number running from
     * bottom, so those need to be instantiated from JGO.Board.getCoordinate.
     *
     * @param {int} i Column or SGF-style string (optional).
@@ -27,16 +28,14 @@ var JGO = JGO || {};
                 this.i = 0;
                 this.j = 0;
 
-                if(typeof i != "string")
+                if(typeof i != 'string')
                     return;
 
+                // assume SGF-type coordinate
                 i = i.toLowerCase();
 
-                if(i.substr(0,1).toUpperCase() == i.substr(0,1)) { // capital letter, assume "J18" type
-                } else { // assume SGF-type coordinate
-                    this.i = SGFLetters.indexOf(i.substr(0,1));
-                    this.j = SGFLetters.indexOf(i.substr(1));
-                }
+                this.i = SGFLetters.indexOf(i.substr(0,1));
+                this.j = SGFLetters.indexOf(i.substr(1));
             }
         } else { // called without both parameters
             this.i = 0;
@@ -55,7 +54,7 @@ var JGO = JGO || {};
     };
 
     /**
-    * Make an SGF-type "ai" string representation of the coordinate.
+    * Make an SGF-type 'ai' string representation of the coordinate.
     *
     * @returns {string} String representation.
     */

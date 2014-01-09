@@ -1,0 +1,30 @@
+{
+    "bitwise": true,
+    "camelcase": true,
+    "curly": false, // let ifs be free
+    "eqeqeq": false, // === everywhere is just silly
+    "forin": true,
+    "freeze": false, // we want to have Array.each
+    "immed": true,
+    "indent": 4,
+    "latedef": true,
+    "newcap": true,
+    "noarg": true,
+    "noempty": true,
+    "nonew": true,
+    "quotmark": "single",
+    "undef": true,
+    "unused": true,
+    "strict": true,
+
+    //"sub": true,
+    //"browser": true,
+    //"expr": true,
+    //"onevar": true,
+    //"smarttabs": true,
+    //"trailing": true,
+
+    "globals": {
+        "module": true // just for Gruntfile.js
+    }
+}

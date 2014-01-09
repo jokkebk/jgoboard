@@ -8,6 +8,8 @@ var JGO = JGO || {};
 JGO.util = JGO.util || {};
 
 (function() {
+    'use strict';
+
     /**
      * Load images and defined by object and invoke callback when completed.
      *
@@ -22,20 +24,14 @@ JGO.util = JGO.util || {};
             if(sources.hasOwnProperty(src))
                 imagesLeft++;
 
-        alert('Images left: ' + imagesLeft);
-        var countdown = function() {
-            alert('Loaded image, ' + imagesLeft + ' to go!');
-            if(--imagesLeft <= 0)
-                callback(images);
-        };
+        var countdown = function() { if(--imagesLeft <= 0) callback(images); };
 
         for(src in sources) {
-            if(!sources.hasOwnProperty(src))
-                continue;
-
-            images[src] = new Image();
-            images[src].onload = countdown;
-            images[src].src = sources[src];
+            if(sources.hasOwnProperty(src)) {
+                images[src] = new Image();
+                images[src].onload = countdown;
+                images[src].src = sources[src];
+            }
         }
     };
 
@@ -54,9 +50,11 @@ JGO.util = JGO.util || {};
         var places = handicapPlaces[num], offset = (size <= 9 ? 2 : 3),
             step = (size - 1) / 2 - offset, coords = [];
 
-        if(places) for(var n=0; n<places.length; n++) {
-            var i = (places[n]-1) % 3, j = Math.floor((places[n]-1) / 3);
-            coords.push(new JGO.Coordinate(offset+i*step, offset+j*step));
+        if(places) {
+            for(var n=0; n<places.length; n++) {
+                var i = (places[n]-1) % 3, j = Math.floor((places[n]-1) / 3);
+                coords.push(new JGO.Coordinate(offset+i*step, offset+j*step));
+            }
         }
 
         return coords;

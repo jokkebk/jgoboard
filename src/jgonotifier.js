@@ -2,6 +2,7 @@
 var JGO = JGO || {};
 
 (function() {
+    'use strict';
 
     /**
     * A change notifier class that can listen to changes in a JGO.Board and keep
@@ -29,8 +30,9 @@ var JGO = JGO || {};
             setTimeout(function() { // schedule update in the end
                 for(var c=0; c<self.canvases.length; c++)
                     self.canvases[c].draw(jboard, self.min.i, self.min.j,
-                    self.max.i, self.max.j);
-                    self.changed = false; // changes updated, scheduled function run
+                        self.max.i, self.max.j);
+
+                self.changed = false; // changes updated, scheduled function run
             }, 0);
         };
 

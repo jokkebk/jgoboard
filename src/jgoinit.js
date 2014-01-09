@@ -19,16 +19,6 @@
 //    };
 //}
 
-// Some day everyone will have Array.indexOf
-if(!Array.prototype.indexOf) {
-    Array.prototype.indexOf = function(obj, start) {
-        for(var i = (start || 0), j = this.length; i < j; i++)
-            if(this[i] === obj)
-                return i;
-        return -1;
-    };
-}
-
 /**
  * Namespace for jGoBoard.
  * @namespace
@@ -36,6 +26,17 @@ if(!Array.prototype.indexOf) {
 var JGO = JGO || {};
 
 (function() {
+    'use strict';
+
+    // Some day everyone will have Array.indexOf
+    if(!Array.prototype.indexOf) {
+        Array.prototype.indexOf = function(obj, start) {
+            for(var i = (start || 0), j = this.length; i < j; i++)
+                if(this[i] === obj)
+                    return i;
+            return -1;
+        };
+    }
 
     /**
      * Deep extend an object. Part of main JGO namespace for brevity, it feels
@@ -50,7 +51,7 @@ var JGO = JGO || {};
     JGO.extend = function(dest, src) {
         for(var key in src) {
             if(src.hasOwnProperty(key)) {
-                if(typeof src[key] === "object") {
+                if(typeof src[key] === 'object') {
                     if(!dest[key] || (typeof dest[key] !== 'object'))
                         dest[key] = {}; // create/overwrite if necessary
                     JGO.extend(dest[key], src[key]);

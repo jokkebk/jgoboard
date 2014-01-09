@@ -2,6 +2,7 @@
 var JGO = JGO || {};
 
 (function() {
+    'use strict';
 
     /**
     * Create a go game record that can handle plays and variations. A JGO.Board
