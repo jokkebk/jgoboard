@@ -61,6 +61,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-shell');
 
     // Default task(s).
-    grunt.registerTask('default', ['jshint', 'shell', 'concat', 'uglify']);
+    grunt.registerTask('default', ['jshint', 'concat', 'uglify']);
 
 };
