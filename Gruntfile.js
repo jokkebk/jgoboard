@@ -18,6 +18,16 @@ module.exports = function(grunt) {
         //        }
         //    }
         //},
+        // Use shell command until jsdoc support gets to 3.3.0 (without Java)
+        shell: {
+            makeDocs: {
+                command: 'jsdoc -d doc src', // JSDoc doesn't support expansion
+                options: {
+                    stdout: true,
+                    stderr: true
+                }
+            }
+        },
         concat: {
             options: {
                 separator: '\n'
@@ -47,9 +57,10 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-jsdoc');
+    //grunt.loadNpmTasks('grunt-jsdoc');
+    grunt.loadNpmTasks('grunt-shell');
 
     // Default task(s).
-    grunt.registerTask('default', ['jshint', /*'jsdoc',*/ 'concat', 'uglify']);
+    grunt.registerTask('default', ['jshint', 'shell', 'concat', 'uglify']);
 
 };
