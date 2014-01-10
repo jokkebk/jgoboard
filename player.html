@@ -18,56 +18,51 @@
 <script type="text/javascript" src="dist/jgoboard-3.0.0.js"></script>
 <script type="text/javascript" src="large/board.js"></script>
 <script type="text/javascript">
-var jrecord = new JGO.Record(13);
-var jboard = jrecord.jboard;
+var jboard = new JGO.Board(13);
 var jsetup = new JGO.Setup(jboard, JGO.BOARD.largeWalnut);
 var player = JGO.WHITE; // next player
-var handi = JGO.util.getHandicapCoordinates(jboard.width, 2);
-var ko = false, lastMove = false, lastHover = false, lastX = -1, lastY = -1;
+var ko = false, lastMove = false; // ko coordinate and last move coordinate
+var lastHover = false, lastX = -1, lastY = -1; // hover helper vars
 
-jrecord.createNode();
-jrecord.getCurrentNode().setType(handi, JGO.BLACK);
+jboard.setType(JGO.util.getHandicapCoordinates(jboard.width, 2), JGO.BLACK);
 
 jsetup.setOptions({stars: {points:5}});
 jsetup.create('board', function(canvas) {
   canvas.addListener('click', function(coord, ev) {
-    var node = jrecord.getCurrentNode();
     var opponent = (player == JGO.BLACK) ? JGO.WHITE : JGO.BLACK;
 
     if(ev.shiftKey) { // on shift do edit
-      node = jrecord.createNode(); // new node
-
       if(jboard.getMark(coord) == JGO.MARK.NONE)
-        node.setMark(coord, JGO.MARK.SELECTED);
+        jboard.setMark(coord, JGO.MARK.SELECTED);
       else
-        node.setMark(coord, JGO.MARK.NONE);
+        jboard.setMark(coord, JGO.MARK.NONE);
 
       return;
     }
 
-    // clear hover away - if it's illegal move never mind to put it back
+    // clear hover away - it'll be replaced or then it will be an illegal move
+    // in any case so no need to worry about putting it back afterwards
     if(lastHover)
       jboard.setType(new JGO.Coordinate(lastX, lastY), JGO.CLEAR);
+
     lastHover = false;
 
     var play = jboard.playMove(coord, player, ko);
 
     if(play.success) {
-      node = jrecord.createNode({type: player});
-
-      node.setType(coord, player); // play stone
-      node.setType(play.captures, JGO.CLEAR); // clear opponent's stones
+      jboard.setType(coord, player); // play stone
+      jboard.setType(play.captures, JGO.CLEAR); // clear opponent's stones
 
       if(lastMove)
-        node.setMark(lastMove, JGO.MARK.NONE); // clear previous mark
+        jboard.setMark(lastMove, JGO.MARK.NONE); // clear previous mark
       if(ko)
-        node.setMark(ko, JGO.MARK.NONE); // clear previous ko mark
+        jboard.setMark(ko, JGO.MARK.NONE); // clear previous ko mark
 
-      node.setMark(coord, JGO.MARK.CIRCLE); // mark move
+      jboard.setMark(coord, JGO.MARK.CIRCLE); // mark move
       lastMove = coord;
 
       if(play.ko)
-        node.setMark(play.ko, JGO.MARK.CIRCLE); // mark ko, too
+        jboard.setMark(play.ko, JGO.MARK.CIRCLE); // mark ko, too
       ko = play.ko;
 
       player = opponent;
@@ -94,6 +89,7 @@ jsetup.create('board', function(canvas) {
   canvas.addListener('mouseout', function(ev) {
     if(lastHover)
       jboard.setType(new JGO.Coordinate(lastX, lastY), JGO.CLEAR);
+
     lastHover = false;
   });
 });
