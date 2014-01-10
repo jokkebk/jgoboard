@@ -38,6 +38,13 @@ var JGO = JGO || {};
         };
     }
 
+    // And String.trim
+    if(!String.prototype.trim) {
+        String.prototype.trim = function() {
+            return this.replace(/^\s+|\s+$/g, '');
+        };
+    }
+
     /**
      * Deep extend an object. Part of main JGO namespace for brevity, it feels
      * such a fundamental construct cannot be called JGO.util.extend.

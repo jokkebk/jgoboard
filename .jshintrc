@@ -1,24 +1,24 @@
 {
-    "bitwise": true,
-    "camelcase": true,
+    "bitwise": true, // we can live without bitwise ops
+    "camelcase": true, // we like camelcase
     "curly": false, // let ifs be free
     "eqeqeq": false, // === everywhere is just silly
-    "forin": true,
+    "forin": true, // be safe with for...in
     "freeze": false, // we want to have Array.each
-    "immed": true,
+    "immed": true, // no immediate function invokations without parenthesis
     "indent": 4,
-    "latedef": true,
-    "newcap": true,
-    "noarg": true,
-    "noempty": true,
-    "nonew": true,
-    "quotmark": "single",
-    "undef": true,
-    "unused": true,
-    "strict": true,
+    "latedef": true, // no use of variables before definition
+    "newcap": true, // capitalized constructors
+    "noarg": true, // no arguments.caller/callee
+    "noempty": true, // no empty blocks
+    "nonew": true, // no new without assignment
+    "quotmark": "single", // single quotes
+    "undef": true, // don't allow use of undefined values
+    "unused": true, // warn about unused variables
+    "strict": true, // strict mode
 
     //"sub": true,
-    //"browser": true,
+    "browser": true,
     //"expr": true,
     //"onevar": true,
     //"smarttabs": true,

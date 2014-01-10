@@ -198,7 +198,7 @@ var JGO = JGO || {};
     * @param {JGO.Coordinate} c The coordinate
     * @returns {Array} The array of adjacent coordinates of given type (may be an empty array)
     */
-    JGO.Board.prototype.getAdjacent = function(c, s) {
+    JGO.Board.prototype.getAdjacent = function(c) {
         var coordinates = [], i = c.i, j = c.j;
 
         if(i>0)

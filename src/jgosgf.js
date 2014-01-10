@@ -144,11 +144,13 @@ JGO.util = JGO.util || {};
     function explodeSGFList(propValues) {
         var coords = [];
 
-        $.each(propValues, function(i, val) {
+        for(var i=0, len=propValues.length; i<len; i++) {
+            var val = propValues[i];
+
             if(val.indexOf(':') == -1) { // single coordinate
                 coords.push(new JGO.Coordinate(val));
             } else {
-                var tuple = v.split(':'), c1, c2;
+                var tuple = val.split(':'), c1, c2, coord;
 
                 c1 = new JGO.Coordinate(tuple[0]);
                 c2 = new JGO.Coordinate(tuple[1]);
@@ -158,7 +160,7 @@ JGO.util = JGO.util || {};
                     for(coord.j=c1.j; coord.j<=c2.j; ++coord.j)
                         coords.push(coord.copy());
             }
-        });
+        }
 
         return coords;
     }
@@ -209,7 +211,7 @@ JGO.util = JGO.util || {};
             token = tokens[i];
 
             if(bracketOpen == -1) { // handling elements outside property values (i.e. square brackets)
-                token = jQuery.trim(token); // trim whitespace, it is irrelevant here
+                token = token.trim(); // trim whitespace, it is irrelevant here
                 if(token == '[') // found one
                     bracketOpen = i;
                 else if(token !== '') // we are outside brackets, so just push everything nonempty as it is into 'processed'

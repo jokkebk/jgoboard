@@ -312,7 +312,7 @@ var JGO = JGO || {};
         }, i1, j1, i2, j2); // provide iteration limits
 
         // Shadows
-        jboard.each(function(c, type, mark) {
+        jboard.each(function(c, type) {
             switch(type) {
                 case JGO.BLACK:
                 case JGO.WHITE:
@@ -367,7 +367,7 @@ var JGO = JGO || {};
             self.ctx.textBaseline = 'middle';
 
             var ox = 0.5 + self.getX(c.i - self.opt.view.xOffset),
-            oy = 0.5 + self.getY(c.j - self.opt.view.yOffset);
+            oy = 0.5 + self.getY(c.j - self.opt.view.yOffset), r;
 
             if(mark) {
                 switch(mark) {
