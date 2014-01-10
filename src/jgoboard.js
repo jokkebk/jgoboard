@@ -259,7 +259,7 @@ var JGO = JGO || {};
         while(queue.length) {
             var c = queue.shift();
 
-            if(c.toString() in seen) 
+            if(c.toString() in seen)
                 continue; // seen already
             else
                 seen[c.toString()] = true; // seen now

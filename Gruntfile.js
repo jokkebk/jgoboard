@@ -1,3 +1,4 @@
+/* jshint node: true */
 module.exports = function(grunt) {
     'use strict';
 
@@ -5,7 +6,7 @@ module.exports = function(grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         jshint: {
-            files: ['gruntfile.js', 'src/**/*.js', 'test/**/*.js'],
+            files: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.js'],
             options: {
                 jshintrc: true
             }

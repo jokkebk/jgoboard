@@ -45,7 +45,7 @@ JGO.util = JGO.util || {};
     JGO.util.getHandicapCoordinates = function(size, num) {
         // Telephone dial style numbering
         var handicapPlaces = [[], [], [3,7], [3,7,9], [1,3,7,9], [1,3,5,7,9],
-            [1,3,4,6,7,9], [1,3,4,5,6,7,9], [1,2,3,4,6,7,8,9], 
+            [1,3,4,6,7,9], [1,3,4,5,6,7,9], [1,2,3,4,6,7,8,9],
             [1,2,3,4,5,6,7,8,9]];
         var places = handicapPlaces[num], offset = (size <= 9 ? 2 : 3),
             step = (size - 1) / 2 - offset, coords = [];

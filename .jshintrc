@@ -16,15 +16,10 @@
     "undef": true, // don't allow use of undefined values
     "unused": true, // warn about unused variables
     "strict": true, // strict mode
+    "trailing": true, // we hate trailing whitespace
 
-    //"sub": true,
-    "browser": true,
-    //"expr": true,
-    //"onevar": true,
-    //"smarttabs": true,
-    //"trailing": true,
+    //"maxlen": 80, // not sure if this is wise
+    //"sub": true, // this would suppress warnings about x['y'] (not x.y)
 
-    "globals": {
-        "module": true // just for Gruntfile.js
-    }
+    "browser": true
 }
