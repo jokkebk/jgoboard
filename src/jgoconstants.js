@@ -32,6 +32,8 @@ var JGO = JGO || {};
     JGO.MARK = {
         /** No marker ('') */
         NONE: '',
+        /** Selected intersection */
+        SELECTED: '^',
         /** Square */
         SQUARE: '#',
         /** Triangle */

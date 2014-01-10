@@ -13,8 +13,10 @@
 <body>
 
 <div id="board"></div>
+<div id="message"></div>
 
 <script type="text/javascript" src="dist/jgoboard-3.0.0.js"></script>
+<script type="text/javascript" src="large/board.js"></script>
 <script type="text/javascript">
 var jrecord = new JGO.Record(13);
 var jboard = jrecord.jboard;
@@ -32,15 +34,16 @@ jsetup.create('board', function(canvas) {
     var node = jrecord.getCurrentNode();
     var opponent = (player == JGO.BLACK) ? JGO.WHITE : JGO.BLACK;
 
-    //if(ev.shiftKey) { // on shift do edit
-    //  var type = jboard.getType(coord);
+    if(ev.shiftKey) { // on shift do edit
+      node = jrecord.createNode(); // new node
 
-    //  if(node.type != JGO.NONE)
-    //    node = jrecord.createNode(); // new node
+      if(jboard.getMark(coord) == JGO.MARK.NONE)
+        node.setMark(coord, JGO.MARK.SELECTED);
+      else
+        node.setMark(coord, JGO.MARK.NONE);
 
-    //  node.setType(coord, type == JGO.WHITE ? JGO.CLEAR : type + 1);
-    //  return;
-    //}
+      return;
+    }
 
     var play = jboard.playMove(coord, player, ko);
 
@@ -64,6 +67,14 @@ jsetup.create('board', function(canvas) {
 
       player = opponent;
     } else alert('Illegal move: ' + play.errorMsg);
+  });
+
+  canvas.addListener('mousemove', function(coord, ev) {
+    $('#message').html(coord.i + ', ' + coord.j);
+  });
+
+  canvas.addListener('mouseout', function(ev) {
+    $('#message').html('-1, -1');
   });
 });
 </script>

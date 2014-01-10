@@ -8,17 +8,6 @@
  */
 
 
-// Some day everyone will have Object.keys
-//if(!Object.prototype.keys) {
-//    Object.prototype.keys = function() {
-//        var keys = [];
-//        for(var key in this)
-//            if(this.hasOwnProperty(key))
-//                keys.push(key);
-//        return keys;
-//    };
-//}
-
 /**
  * Namespace for jGoBoard.
  * @namespace
@@ -27,6 +16,17 @@ var JGO = JGO || {};
 
 (function() {
     'use strict';
+
+    // Some day everyone will have Object.keys
+    if(!Object.prototype.keys) {
+        Object.prototype.keys = function() {
+            var keys = [];
+            for(var key in this)
+                if(this.hasOwnProperty(key))
+                    keys.push(key);
+            return keys;
+        };
+    }
 
     // Some day everyone will have Array.indexOf
     if(!Array.prototype.indexOf) {

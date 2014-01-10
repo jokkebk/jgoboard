@@ -29,6 +29,8 @@
 var JGO = JGO || {};
 
 (function() {
+    'use strict';
+
     /**
      * Create a jGoBoard canvas object.
      *
@@ -63,7 +65,7 @@ var JGO = JGO || {};
         this.height = canvas.height =
         this.marginTop + this.marginBottom + this.boardHeight;
 
-        this.listeners = {'click': []};
+        this.listeners = {'click': [], 'mousemove': [], 'mouseout': []};
 
         /**
          * Get board row based on y coordinate.
@@ -88,10 +90,46 @@ var JGO = JGO || {};
         canvas.onclick = function(ev) {
             var x = self.getRow(ev.pageX), y = self.getColumn(ev.pageY),
                 c = new JGO.Coordinate(x,y),
-
                 listeners = self.listeners.click;
+
             for(var l=0; l&lt;listeners.length; l++)
                 listeners[l].call(self, c.copy(), ev);
+        };
+
+        var moveLastX = -1, moveLastY = -1;
+
+        // Move handler will call all listeners passing the coordinate of move
+        // whenever mouse moves over a new intersection
+        canvas.onmousemove = function(ev) {
+            var x = self.getRow(ev.pageX), y = self.getColumn(ev.pageY),
+                listeners = self.listeners.mousemove, c;
+
+            if(x &lt; self.opt.view.xOffset ||
+                x >= self.opt.view.xOffset + self.opt.view.width)
+                x = -1;
+
+            if(y &lt; self.opt.view.yOffset ||
+                y >= self.opt.view.yOffset + self.opt.view.height)
+                y = -1;
+
+            if(moveLastX == x &amp;&amp; moveLastY == y)
+                return; // no change
+
+            moveLastX = x;
+            moveLastY = y;
+            c = new JGO.Coordinate(x,y);
+
+            for(var l=0; l&lt;listeners.length; l++)
+                listeners[l].call(self, c.copy(), ev);
+        };
+
+        // Mouseout handler will again call all listeners of that event, no
+        // coordinates will be passed of course, only the event
+        canvas.onmouseout = function(ev) {
+            var listeners = self.listeners.mouseout;
+
+            for(var l=0; l&lt;listeners.length; l++)
+                listeners[l].call(self, ev);
         };
 
         container.appendChild(canvas);
@@ -156,10 +194,10 @@ var JGO = JGO || {};
 
             this.ctx.moveTo(0.5 + this.gridLeft + opt.grid.x * i,
                 0.5 + this.gridTop - (opt.edge.top ? 0 : opt.grid.y / 2 + padTop/2));
-                this.ctx.lineTo(0.5 + this.gridLeft + opt.grid.x * i,
-                    0.5 + this.gridTop + opt.grid.y * (opt.view.height - 1) +
-                        (opt.edge.bottom ? 0 : opt.grid.y / 2 + padBottom/2));
-                    this.ctx.stroke();
+            this.ctx.lineTo(0.5 + this.gridLeft + opt.grid.x * i,
+                0.5 + this.gridTop + opt.grid.y * (opt.view.height - 1) +
+                (opt.edge.bottom ? 0 : opt.grid.y / 2 + padBottom/2));
+            this.ctx.stroke();
         }
 
         // Draw horizontal gridlines
@@ -185,7 +223,7 @@ var JGO = JGO || {};
             for(j=0; j&lt;3; j++) {
                 for(i=0; i&lt;3; i++) {
                     if(j == 1 &amp;&amp; i == 1) { // center
-                        if(!(opt.stars.points &amp; 1))
+                        if(opt.stars.points % 2 === 0)
                             continue; // skip center
                     } else if(i == 1 || j == 1) { // non-corners
                         if(opt.stars.points &lt; 8)
@@ -222,9 +260,9 @@ var JGO = JGO || {};
                 this.ctx.fillText(JGO.COORDINATES[i + opt.view.xOffset],
                     this.gridLeft + opt.grid.x * i,
                 this.marginTop / 2);
-                if(opt.coordinates.bottom)
-                    this.ctx.fillText(JGO.COORDINATES[i + opt.view.xOffset],
-                        this.gridLeft + opt.grid.x * i,
+            if(opt.coordinates.bottom)
+                this.ctx.fillText(JGO.COORDINATES[i + opt.view.xOffset],
+                    this.gridLeft + opt.grid.x * i,
                     canvas.height - this.marginBottom / 2);
         }
 
@@ -234,8 +272,8 @@ var JGO = JGO || {};
                 this.ctx.fillText(''+(opt.board.height-opt.view.yOffset-i),
             this.marginLeft / 2,
                 this.gridTop + opt.grid.y * i);
-                if(opt.coordinates.right)
-                    this.ctx.fillText(''+(opt.board.height-opt.view.yOffset-i),
+            if(opt.coordinates.right)
+                this.ctx.fillText(''+(opt.board.height-opt.view.yOffset-i),
                 canvas.width - this.marginRight / 2,
                     this.gridTop + opt.grid.y * i);
         }
@@ -337,14 +375,14 @@ var JGO = JGO || {};
         }, i1, j1, i2, j2); // provide iteration limits
 
         // Shadows
-        jboard.each(function(c, type, mark) {
+        jboard.each(function(c, type) {
             switch(type) {
                 case JGO.BLACK:
                 case JGO.WHITE:
                     self.ctx.drawImage(self.img.shadow,
                         self.opt.shadow.xOff + self.getX(c.i - self.opt.view.xOffset) - self.img.shadow.width / 2,
                         self.opt.shadow.yOff + self.getY(c.j - self.opt.view.yOffset) - self.img.shadow.height / 2);
-                        break;
+                    break;
             }
         }, i1, j1, i2, j2); // provide iteration limits
 
@@ -392,64 +430,75 @@ var JGO = JGO || {};
             self.ctx.textBaseline = 'middle';
 
             var ox = 0.5 + self.getX(c.i - self.opt.view.xOffset),
-            oy = 0.5 + self.getY(c.j - self.opt.view.yOffset);
+                oy = 0.5 + self.getY(c.j - self.opt.view.yOffset), r;
 
-            if(mark) switch(mark) {
-                case JGO.MARK.SQUARE:
-                    self.ctx.beginPath();
-                    self.ctx.rect(ox - markX / 2, oy - markY / 2,
-                    markX, markY);
-                    self.ctx.stroke();
-                    break;
+            if(mark) {
+                switch(mark) {
+                    case JGO.MARK.SQUARE:
+                        self.ctx.beginPath();
+                        self.ctx.rect(ox - markX / 2, oy - markY / 2,
+                        markX, markY);
+                        self.ctx.stroke();
+                        break;
 
-                case JGO.MARK.CROSS:
-                    self.ctx.beginPath();
-                    self.ctx.moveTo(ox - markX / 2, oy + markY / 2);
-                    self.ctx.lineTo(ox + markX / 2, oy - markY / 2);
-                    self.ctx.moveTo(ox - markX / 2, oy - markY / 2);
-                    self.ctx.lineTo(ox + markX / 2, oy + markY / 2);
-                    self.ctx.stroke();
-                    break;
+                    case JGO.MARK.CROSS:
+                        self.ctx.beginPath();
+                        self.ctx.moveTo(ox - markX / 2, oy + markY / 2);
+                        self.ctx.lineTo(ox + markX / 2, oy - markY / 2);
+                        self.ctx.moveTo(ox - markX / 2, oy - markY / 2);
+                        self.ctx.lineTo(ox + markX / 2, oy + markY / 2);
+                        self.ctx.stroke();
+                        break;
 
-                case JGO.MARK.TRIANGLE:
-                    self.ctx.beginPath();
-                    for(r=0; r&lt;3; r++) {
-                        self.ctx.moveTo(ox + triangleR * Math.cos(Math.PI * (0.5 + 2*r/3)),
-                        oy - triangleR * Math.sin(Math.PI * (0.5 + 2*r/3)));
-                        self.ctx.lineTo(ox + triangleR * Math.cos(Math.PI * (0.5 + 2*(r+1)/3)),
-                        oy - triangleR * Math.sin(Math.PI * (0.5 + 2*(r+1)/3)));
-                    }
-                    self.ctx.stroke();
-                    break;
+                    case JGO.MARK.TRIANGLE:
+                        self.ctx.beginPath();
+                        for(r=0; r&lt;3; r++) {
+                            self.ctx.moveTo(ox + triangleR * Math.cos(Math.PI * (0.5 + 2*r/3)),
+                            oy - triangleR * Math.sin(Math.PI * (0.5 + 2*r/3)));
+                            self.ctx.lineTo(ox + triangleR * Math.cos(Math.PI * (0.5 + 2*(r+1)/3)),
+                            oy - triangleR * Math.sin(Math.PI * (0.5 + 2*(r+1)/3)));
+                        }
+                        self.ctx.stroke();
+                        break;
 
-                case JGO.MARK.CIRCLE:
-                    self.ctx.beginPath();
-                    self.ctx.arc(ox, oy, circleR, 2*Math.PI, false);
-                    self.ctx.stroke();
-                    break;
+                    case JGO.MARK.CIRCLE:
+                        self.ctx.beginPath();
+                        self.ctx.arc(ox, oy, circleR, 2*Math.PI, false);
+                        self.ctx.stroke();
+                        break;
 
-                case JGO.MARK.BLACK_TERRITORY:
-                    self.ctx.globalAlpha=1;
-                    self.ctx.drawImage(self.img.black, 0, 0,
-                        self.img.black.width, self.img.black.height,
-                        self.getX(c.i - self.opt.view.xOffset) - self.img.black.width / 4,
-                        self.getY(c.j - self.opt.view.yOffset) - self.img.black.height / 4,
-                    self.img.black.width / 2, self.img.black.height / 2);
-                    break;
+                    case JGO.MARK.BLACK_TERRITORY:
+                        self.ctx.globalAlpha=1;
+                        self.ctx.drawImage(self.img.black, 0, 0,
+                            self.img.black.width, self.img.black.height,
+                            self.getX(c.i - self.opt.view.xOffset) - self.img.black.width / 4,
+                            self.getY(c.j - self.opt.view.yOffset) - self.img.black.height / 4,
+                        self.img.black.width / 2, self.img.black.height / 2);
+                        break;
 
-                case JGO.MARK.WHITE_TERRITORY:
-                    self.ctx.globalAlpha=1;
-                    self.ctx.drawImage(self.img.white, 0, 0,
-                        self.img.white.width, self.img.white.height,
-                        self.getX(c.i - self.opt.view.xOffset) - self.img.white.width / 4,
-                        self.getY(c.j - self.opt.view.yOffset) - self.img.white.height / 4,
-                    self.img.white.width / 2, self.img.white.height / 2);
-                    break;
+                    case JGO.MARK.WHITE_TERRITORY:
+                        self.ctx.globalAlpha=1;
+                        self.ctx.drawImage(self.img.white, 0, 0,
+                            self.img.white.width, self.img.white.height,
+                            self.getX(c.i - self.opt.view.xOffset) - self.img.white.width / 4,
+                            self.getY(c.j - self.opt.view.yOffset) - self.img.white.height / 4,
+                        self.img.white.width / 2, self.img.white.height / 2);
+                        break;
 
-                default: // Label
-                    // For clear intersections, grid is cleared before shadow cast
-                    self.ctx.fillText(mark, ox, oy);
-                    break;
+                    case JGO.MARK.SELECTED:
+                        self.ctx.globalAlpha=0.5;
+                        self.ctx.fillStyle = '#8080FF';
+                        //self.ctx.beginPath();
+                        self.ctx.fillRect(ox - self.opt.grid.x / 2,
+                            oy - self.opt.grid.y / 2,
+                            self.opt.grid.x, self.opt.grid.y);
+                        break;
+
+                    default: // Label
+                        // For clear intersections, grid is cleared before shadow cast
+                        self.ctx.fillText(mark, ox, oy);
+                        break;
+                }
             }
         }, i1, j1, i2, j2); // provide iteration limits
 
@@ -459,7 +508,8 @@ var JGO = JGO || {};
     /**
     * Add an event listener to canvas (click) events. The callback will be called
     * with 'this' referring to JGO.Canvas object, with coordinate and event
-    * as parameters.
+    * as parameters. Supported event types are 'click', 'mousemove', and
+    * 'mouseout'. With 'mouseout', there is no coordinate parameter for callback.
     *
     * @param {String} event The event to listen to, e.g. 'click'.
     * @param {function} callback The callback.
@@ -485,7 +535,7 @@ var JGO = JGO || {};
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha3</a> on Thu Jan 09 2014 22:36:59 GMT+0200 (FLE Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha3</a> on Fri Jan 10 2014 23:19:29 GMT+0200 (FLE Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

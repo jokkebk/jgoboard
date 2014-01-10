@@ -38,7 +38,7 @@ var JGO = JGO || {};
         this.height = canvas.height =
         this.marginTop + this.marginBottom + this.boardHeight;
 
-        this.listeners = {'click': []};
+        this.listeners = {'click': [], 'mousemove': [], 'mouseout': []};
 
         /**
          * Get board row based on y coordinate.
@@ -63,10 +63,46 @@ var JGO = JGO || {};
         canvas.onclick = function(ev) {
             var x = self.getRow(ev.pageX), y = self.getColumn(ev.pageY),
                 c = new JGO.Coordinate(x,y),
-
                 listeners = self.listeners.click;
+
             for(var l=0; l<listeners.length; l++)
                 listeners[l].call(self, c.copy(), ev);
+        };
+
+        var moveLastX = -1, moveLastY = -1;
+
+        // Move handler will call all listeners passing the coordinate of move
+        // whenever mouse moves over a new intersection
+        canvas.onmousemove = function(ev) {
+            var x = self.getRow(ev.pageX), y = self.getColumn(ev.pageY),
+                listeners = self.listeners.mousemove, c;
+
+            if(x < self.opt.view.xOffset ||
+                x >= self.opt.view.xOffset + self.opt.view.width)
+                x = -1;
+
+            if(y < self.opt.view.yOffset ||
+                y >= self.opt.view.yOffset + self.opt.view.height)
+                y = -1;
+
+            if(moveLastX == x && moveLastY == y)
+                return; // no change
+
+            moveLastX = x;
+            moveLastY = y;
+            c = new JGO.Coordinate(x,y);
+
+            for(var l=0; l<listeners.length; l++)
+                listeners[l].call(self, c.copy(), ev);
+        };
+
+        // Mouseout handler will again call all listeners of that event, no
+        // coordinates will be passed of course, only the event
+        canvas.onmouseout = function(ev) {
+            var listeners = self.listeners.mouseout;
+
+            for(var l=0; l<listeners.length; l++)
+                listeners[l].call(self, ev);
         };
 
         container.appendChild(canvas);
@@ -367,7 +403,7 @@ var JGO = JGO || {};
             self.ctx.textBaseline = 'middle';
 
             var ox = 0.5 + self.getX(c.i - self.opt.view.xOffset),
-            oy = 0.5 + self.getY(c.j - self.opt.view.yOffset), r;
+                oy = 0.5 + self.getY(c.j - self.opt.view.yOffset), r;
 
             if(mark) {
                 switch(mark) {
@@ -422,6 +458,15 @@ var JGO = JGO || {};
                         self.img.white.width / 2, self.img.white.height / 2);
                         break;
 
+                    case JGO.MARK.SELECTED:
+                        self.ctx.globalAlpha=0.5;
+                        self.ctx.fillStyle = '#8080FF';
+                        //self.ctx.beginPath();
+                        self.ctx.fillRect(ox - self.opt.grid.x / 2,
+                            oy - self.opt.grid.y / 2,
+                            self.opt.grid.x, self.opt.grid.y);
+                        break;
+
                     default: // Label
                         // For clear intersections, grid is cleared before shadow cast
                         self.ctx.fillText(mark, ox, oy);
@@ -436,7 +481,8 @@ var JGO = JGO || {};
     /**
     * Add an event listener to canvas (click) events. The callback will be called
     * with 'this' referring to JGO.Canvas object, with coordinate and event
-    * as parameters.
+    * as parameters. Supported event types are 'click', 'mousemove', and
+    * 'mouseout'. With 'mouseout', there is no coordinate parameter for callback.
     *
     * @param {String} event The event to listen to, e.g. 'click'.
     * @param {function} callback The callback.
