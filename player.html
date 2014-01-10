@@ -23,7 +23,7 @@ var jboard = jrecord.jboard;
 var jsetup = new JGO.Setup(jboard, JGO.BOARD.largeWalnut);
 var player = JGO.WHITE; // next player
 var handi = JGO.util.getHandicapCoordinates(jboard.width, 2);
-var ko = false, lastMove = false;
+var ko = false, lastMove = false, lastHover = false, lastX = -1, lastY = -1;
 
 jrecord.createNode();
 jrecord.getCurrentNode().setType(handi, JGO.BLACK);
@@ -45,6 +45,11 @@ jsetup.create('board', function(canvas) {
       return;
     }
 
+    // clear hover away - if it's illegal move never mind to put it back
+    if(lastHover)
+      jboard.setType(new JGO.Coordinate(lastX, lastY), JGO.CLEAR);
+    lastHover = false;
+
     var play = jboard.playMove(coord, player, ko);
 
     if(play.success) {
@@ -56,7 +61,7 @@ jsetup.create('board', function(canvas) {
       if(lastMove)
         node.setMark(lastMove, JGO.MARK.NONE); // clear previous mark
       if(ko)
-        node.setMark(coord, JGO.MARK.NONE); // clear previous ko mark
+        node.setMark(ko, JGO.MARK.NONE); // clear previous ko mark
 
       node.setMark(coord, JGO.MARK.CIRCLE); // mark move
       lastMove = coord;
@@ -70,11 +75,26 @@ jsetup.create('board', function(canvas) {
   });
 
   canvas.addListener('mousemove', function(coord, ev) {
-    $('#message').html(coord.i + ', ' + coord.j);
+    if(coord.i == -1 || coord.j == -1 || (coord.i == lastX && coord.j == lastY))
+      return;
+
+    if(lastHover) // clear previous hover if there was one
+      jboard.setType(new JGO.Coordinate(lastX, lastY), JGO.CLEAR);
+
+    lastX = coord.i;
+    lastY = coord.j;
+
+    if(jboard.getType(coord) == JGO.CLEAR && jboard.getMark(coord) == JGO.MARK.NONE) {
+      jboard.setType(coord, player == JGO.WHITE ? JGO.DIM_WHITE : JGO.DIM_BLACK);
+      lastHover = true;
+    } else
+      lastHover = false;
   });
 
   canvas.addListener('mouseout', function(ev) {
-    $('#message').html('-1, -1');
+    if(lastHover)
+      jboard.setType(new JGO.Coordinate(lastX, lastY), JGO.CLEAR);
+    lastHover = false;
   });
 });
 </script>

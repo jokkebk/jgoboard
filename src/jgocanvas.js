@@ -365,7 +365,7 @@ var JGO = JGO || {};
 
             switch(type) {
                 case JGO.DIM_BLACK:
-                    self.ctx.globalAlpha=self.self.opt.stone.dimAlpha;
+                    self.ctx.globalAlpha=self.opt.stone.dimAlpha;
                     self.ctx.drawImage(self.img.black, self.getX(c.i - self.opt.view.xOffset) - self.img.black.width / 2,
                     self.getY(c.j - self.opt.view.yOffset) - self.img.black.height / 2);
                     markColor = self.opt.mark.blackColor; // if we have marks, self is the color
@@ -377,7 +377,7 @@ var JGO = JGO || {};
                     markColor = self.opt.mark.blackColor; // if we have marks, self is the color
                     break;
                 case JGO.DIM_WHITE:
-                    self.ctx.globalAlpha=self.self.opt.stone.dimAlpha;
+                    self.ctx.globalAlpha=self.opt.stone.dimAlpha;
                     self.ctx.drawImage(self.img.white, self.getX(c.i - self.opt.view.xOffset) - self.img.white.width / 2,
                     self.getY(c.j - self.opt.view.yOffset) - self.img.white.height / 2);
                     markColor = self.opt.mark.whiteColor; // if we have marks, self is the color
