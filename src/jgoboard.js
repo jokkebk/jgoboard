@@ -86,10 +86,10 @@ var JGO = JGO || {};
     JGO.Board.prototype.each = function(func, i1, j1, i2, j2) {
         var c = new JGO.Coordinate();
 
-        if(!i1) i1 = 0;
-        if(!j1) j1 = 0;
-        if(!i2) i2 = this.width-1;
-        if(!j2) j2 = this.height-1;
+        if(i1 !== undefined) i1 = 0;
+        if(j1 !== undefined) j1 = 0;
+        if(i2 !== undefined) i2 = this.width-1;
+        if(j2 !== undefined) j2 = this.height-1;
 
         for(c.j=j1; c.j<=j2; c.j++)
             for(c.i=i1; c.i<=i2; c.i++)
