@@ -14,8 +14,8 @@ var JGO = JGO || {};
     * 'J18' style coordinates depend on board size due to number running from
     * bottom, so those need to be instantiated from JGO.Board.getCoordinate.
     *
-    * @param {int} i Column or SGF-style string (optional).
-    * @param {int} j Row (optional).
+    * @param {int} [i] Column or SGF-style string.
+    * @param {int} [j] Row.
     * @memberof JGO
     * @constructor
     */

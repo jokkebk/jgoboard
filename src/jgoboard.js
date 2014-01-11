@@ -9,7 +9,7 @@ var JGO = JGO || {};
     * are notified on any changes to the board via setType() and setMark().
     *
     * @param {int} width The width of the board
-    * @param {int} height The height of the board (optional)
+    * @param {int} [height] The height of the board
     * @memberof JGO
     * @constructor
     */
@@ -77,10 +77,10 @@ var JGO = JGO || {};
     *
     * @param {func} func The iterator method, which is called with the coordinate
     * and intersection object.
-    * @param {int} i1 Optional colunm start.
-    * @param {int} j1 Optional row start.
-    * @param {int} i2 Optional colunm end.
-    * @param {int} j2 Optional row end.
+    * @param {int} [i1] Column start.
+    * @param {int} [j1] Row start.
+    * @param {int} [i2] Colunm end.
+    * @param {int} [j2] Row end.
     * context of board object and passed coordinate and newVal as parameter.
     */
     JGO.Board.prototype.each = function(func, i1, j1, i2, j2) {
@@ -246,7 +246,7 @@ var JGO = JGO || {};
     * Search all intersections of similar type, return group and edge coordinates.
     *
     * @param {JGO.Coordinate} coord The coordinate from which to start search.
-    * @param {int} overrideType Treat current coordinate as this type (optional).
+    * @param {int} [overrideType] Treat current coordinate as this type.
     * @returns {Object} Two arrays of coordinates in members 'group' and 'neighbors'.
     */
     JGO.Board.prototype.getGroup = function(coord, overrideType) {
@@ -308,7 +308,7 @@ var JGO = JGO || {};
     * @param {JGO.Board} jboard Board to play the move on (stays unchanged).
     * @param {JGO.Coordinate} coord Coordinate to play or null for pass.
     * @param {int} stone Stone to play - JGO.BLACK or JGO.WHITE.
-    * @param {JGO.Coordinate} ko Coordinate of previous ko (optional).
+    * @param {JGO.Coordinate} [ko] Coordinate of previous ko.
     * @returns {Object} Move result data structure.
     */
     JGO.Board.prototype.playMove = function(coord, stone, ko) {

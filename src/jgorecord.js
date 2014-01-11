@@ -46,7 +46,7 @@ var JGO = JGO || {};
     /**
     * Advance to the next node in the game tree.
     *
-    * @param {int} variation (Optional) parameter to specify which variation to select, if there are several branches
+    * @param {int} [variation] parameter to specify which variation to select, if there are several branches
     * @returns {JGO.Node} New current node or null if at the end of game tree.
     */
     JGO.Record.prototype.next = function(variation) {
