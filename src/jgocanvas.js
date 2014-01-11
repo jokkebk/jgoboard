@@ -156,6 +156,8 @@ var JGO = JGO || {};
 
         this.ctx.strokeStyle = opt.grid.color;
 
+        var smt = this.opt.grid.smooth; // with 0.5 there will be full antialias
+
         // Draw vertical gridlines
         for(i=0; i<opt.view.width; i++) {
             if((i === 0 && opt.edge.left) || (i+1 == opt.view.width && opt.edge.right))
@@ -165,10 +167,10 @@ var JGO = JGO || {};
 
             this.ctx.beginPath();
 
-            this.ctx.moveTo(0.5 + this.gridLeft + opt.grid.x * i,
-                0.5 + this.gridTop - (opt.edge.top ? 0 : opt.grid.y / 2 + padTop/2));
-            this.ctx.lineTo(0.5 + this.gridLeft + opt.grid.x * i,
-                0.5 + this.gridTop + opt.grid.y * (opt.view.height - 1) +
+            this.ctx.moveTo(smt + this.gridLeft + opt.grid.x * i,
+                smt + this.gridTop - (opt.edge.top ? 0 : opt.grid.y / 2 + padTop/2));
+            this.ctx.lineTo(smt + this.gridLeft + opt.grid.x * i,
+                smt + this.gridTop + opt.grid.y * (opt.view.height - 1) +
                 (opt.edge.bottom ? 0 : opt.grid.y / 2 + padBottom/2));
             this.ctx.stroke();
         }
@@ -182,11 +184,11 @@ var JGO = JGO || {};
 
             this.ctx.beginPath();
 
-            this.ctx.moveTo(0.5 + this.gridLeft - (opt.edge.left ? 0 : opt.grid.x / 2 + padLeft/2),
-            0.5 + this.gridTop + opt.grid.y * i);
-            this.ctx.lineTo(0.5 + this.gridLeft + opt.grid.x * (opt.view.width - 1) +
+            this.ctx.moveTo(smt + this.gridLeft - (opt.edge.left ? 0 : opt.grid.x / 2 + padLeft/2),
+            smt + this.gridTop + opt.grid.y * i);
+            this.ctx.lineTo(smt + this.gridLeft + opt.grid.x * (opt.view.width - 1) +
                 (opt.edge.right ? 0 : opt.grid.x / 2 + padRight/2),
-            0.5 + this.gridTop + opt.grid.y * i);
+            smt + this.gridTop + opt.grid.y * i);
             this.ctx.stroke();
         }
 
@@ -213,8 +215,8 @@ var JGO = JGO || {};
                         continue; // invisible
 
                     this.ctx.beginPath();
-                    this.ctx.arc(0.5 + this.gridLeft + x * opt.grid.x,
-                        0.5 + this.gridTop + y * opt.grid.y,
+                    this.ctx.arc(smt + this.gridLeft + x * opt.grid.x,
+                        smt + this.gridTop + y * opt.grid.y,
                     opt.stars.radius, 2*Math.PI, false);
                     this.ctx.fillStyle = opt.grid.color;
                     this.ctx.fill();
