@@ -49,8 +49,7 @@ function move(dir) {
   $('#messages').html(jrecord.getCurrentNode().comment);
 }
 
-$.ajax('TP2014A.sgf', {
-//$.ajax('test.sgf', {
+$.ajax('demo.sgf', {
   complete: function(resp) {
     var jsetup;
 
@@ -67,7 +66,6 @@ $.ajax('TP2014A.sgf', {
     jsetup.create('board', function(canvas) {
       // Do something
     });
-    return 1;
   }
 });
 </script>
