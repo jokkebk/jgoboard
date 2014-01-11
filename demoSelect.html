@@ -1,0 +1,71 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Board</title>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+</head>
+<body>
+
+<div id="board"></div>
+
+<div id="message"></div>
+
+<p>Click on board to add stones. Click on existing stones to change their color / remove them.</p>
+<p>
+<a href="#" onclick="beginSelect(); return false;">Select area</a>
+<a href="#" onclick="clearSelection(); return false;">Clear selection</a>
+</p>
+
+<script type="text/javascript" src="dist/jgoboard-3.0.0.js"></script>
+<script type="text/javascript" src="large/board.js"></script>
+<script type="text/javascript">
+var jboard = new JGO.Board(19);
+var jsetup = new JGO.Setup(jboard, JGO.BOARD.large);
+var leftCoord, rightCoord, topCoord, bottomCoord; // selected coords
+var state = 0, states = {edit:0, select1:1, select2:2};
+
+jsetup.create('board', function(canvas) {
+  canvas.addListener('click', function(coord, ev) {
+    switch(state) {
+      case states.edit:
+        var type = jboard.getType(coord);
+        type = (type == JGO.WHITE) ? JGO.CLEAR : type + 1; // cycle
+        jboard.setType(coord, type);
+        break;
+      case states.select1:
+        leftCoord = rightCoord = coord.i;
+        topCoord = bottomCoord = coord.j;
+        jboard.each(function(c) { this.setMark(c, JGO.MARK.SELECTED); }, leftCoord, topCoord, rightCoord, bottomCoord);
+        state = states.select2;
+        break;
+      case states.select2:
+        rightCoord = coord.i;
+        bottomCoord = coord.j;
+
+        // Order coordinates
+        var t;
+        if(topCoord > bottomCoord) { t = topCoord; topCoord = bottomCoord; bottomCoord = t; }
+        if(leftCoord > rightCoord) { t = leftCoord; leftCoord = rightCoord; rightCoord = t; }
+
+        jboard.each(function(c) { this.setMark(c, JGO.MARK.SELECTED); }, leftCoord, topCoord, rightCoord, bottomCoord);
+        state = states.edit;
+        $('#message').html('Selection done! From ' + leftCoord + ',' + topCoord + ' to ' + rightCoord + ',' + bottomCoord);
+        break;
+    }
+  });
+});
+
+function clearSelection() {
+  jboard.each(function(c) { this.setMark(c, JGO.MARK.NONE); }, leftCoord, topCoord, rightCoord, bottomCoord);
+}
+
+function beginSelect() {
+  clearSelection();
+  state = states.select1;
+  alert('Click on opposite corners of the area you wish to select');
+}
+</script>
+
+</body>
+</html>
