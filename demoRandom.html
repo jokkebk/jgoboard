@@ -15,12 +15,18 @@
 <div id="board"></div>
 
 <script type="text/javascript" src="dist/jgoboard-3.0.0.js"></script>
-<script type="text/javascript" src="medium/board.js"></script>
+<script type="text/javascript" src="large/board.js"></script>
 <script type="text/javascript">
 function randomBoard(jboard) {
-  var types = [JGO.CLEAR, JGO.BLACK, JGO.WHITE],//, JGO.DIM_BLACK, JGO.DIM_WHITE],
-      marks = [JGO.MARK.NONE, JGO.MARK.SQUARE, JGO.MARK.TRIANGLE, JGO.MARK.CIRCLE, JGO.MARK.CROSS,
-        JGO.MARK.BLACK_TERRITORY, JGO.MARK.WHITE_TERRITORY, '104', 'A'];
+  var types = JGO.INTERSECTION.keys(), marks = JGO.MARK.keys(), i;
+
+  for(i=0; i<types.length; i++)
+    types[i] = JGO.INTERSECTION[types[i]]; // map
+
+  for(i=0; i<marks.length; i++)
+    marks[i] = JGO.MARK[marks[i]]; // map
+
+  marks = marks.concat(['104', 'A']); // add a few labels
 
   jboard.each(function(coord) {
     this.setType(coord, types[Math.floor(Math.random()*types.length)])
@@ -29,11 +35,10 @@ function randomBoard(jboard) {
 }
 
 var jboard = new JGO.Board(19);
-var jsetup = new JGO.Setup(jboard, JGO.BOARD.mediumBW);
+var jsetup = new JGO.Setup(jboard, JGO.BOARD.large);
 
 randomBoard(jboard);
 
-jsetup.setOptions({coordinates: false});
 jsetup.create('board');
 </script>
 
