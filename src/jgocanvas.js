@@ -41,56 +41,51 @@ var JGO = JGO || {};
         this.listeners = {'click': [], 'mousemove': [], 'mouseout': []};
 
         /**
-         * Get board row based on y coordinate.
-         * @param {number} y Coordinate.
-         * @returns {number} The row.
-         */
-        this.getRow = function(y) {
-            return Math.floor((y-canvas.offsetTop-self.marginTop-padTop)/opt.grid.y) + opt.view.yOffset;
-        };
-
-        /**
-         * Get board column based on x coordinate.
+         * Get board coordinate based on screen coordinates.
          * @param {number} x Coordinate.
-         * @returns {number} The column.
+         * @param {number} y Coordinate.
+         * @returns {JGO.Coordinate} Board coordinate.
          */
-        this.getColumn = function(x) {
-            return Math.floor((x-canvas.offsetLeft-self.marginLeft-padLeft)/opt.grid.x) + opt.view.xOffset;
+        this.getCoordinate = function(pageX, pageY) {
+            var bounds = canvas.getBoundingClientRect(),
+                scaledX = (pageX - bounds.left) * canvas.width / (bounds.right - bounds.left),
+                scaledY = (pageY - bounds.top) * canvas.height / (bounds.bottom - bounds.top);
+
+            return new JGO.Coordinate(
+                Math.floor((scaledX-self.marginLeft-padLeft)/opt.grid.x) + opt.view.xOffset,
+                Math.floor((scaledY-self.marginTop-padTop)/opt.grid.y) + opt.view.yOffset);
         };
 
         // Click handler will call all listeners passing the coordinate of click
         // and the click event
         canvas.onclick = function(ev) {
-            var x = self.getRow(ev.pageX), y = self.getColumn(ev.pageY),
-                c = new JGO.Coordinate(x,y),
+            var c = self.getCoordinate(ev.pageX, ev.pageY),
                 listeners = self.listeners.click;
 
             for(var l=0; l<listeners.length; l++)
                 listeners[l].call(self, c.copy(), ev);
         };
 
-        var moveLastX = -1, moveLastY = -1;
+        var lastMove = new JGO.Coordinate(-1,-1);
 
         // Move handler will call all listeners passing the coordinate of move
         // whenever mouse moves over a new intersection
         canvas.onmousemove = function(ev) {
-            var x = self.getRow(ev.pageX), y = self.getColumn(ev.pageY),
-                listeners = self.listeners.mousemove, c;
+            var c = self.getCoordinate(ev.pageX, ev.pageY),
+                listeners = self.listeners.mousemove;
 
-            if(x < self.opt.view.xOffset ||
-                x >= self.opt.view.xOffset + self.opt.view.width)
-                x = -1;
+            if(c.i < self.opt.view.xOffset ||
+                c.i >= self.opt.view.xOffset + self.opt.view.width)
+                c.i = -1;
 
-            if(y < self.opt.view.yOffset ||
-                y >= self.opt.view.yOffset + self.opt.view.height)
-                y = -1;
+            if(c.j < self.opt.view.yOffset ||
+                c.j >= self.opt.view.yOffset + self.opt.view.height)
+                c.j = -1;
 
-            if(moveLastX == x && moveLastY == y)
+            if(lastMove.equals(c))
                 return; // no change
-
-            moveLastX = x;
-            moveLastY = y;
-            c = new JGO.Coordinate(x,y);
+            else
+                lastMove = c.copy();
 
             for(var l=0; l<listeners.length; l++)
                 listeners[l].call(self, c.copy(), ev);
@@ -535,10 +530,11 @@ var JGO = JGO || {};
     };
 
     /**
-    * Add an event listener to canvas (click) events. The callback will be called
-    * with 'this' referring to JGO.Canvas object, with coordinate and event
-    * as parameters. Supported event types are 'click', 'mousemove', and
-    * 'mouseout'. With 'mouseout', there is no coordinate parameter for callback.
+    * Add an event listener to canvas (click) events. The callback will be
+    * called with 'this' referring to JGO.Canvas object, with coordinate and
+    * event * as parameters. Supported event types are 'click', 'mousemove',
+    * and * 'mouseout'. With 'mouseout', there is no coordinate parameter for
+    * callback.
     *
     * @param {String} event The event to listen to, e.g. 'click'.
     * @param {function} callback The callback.
