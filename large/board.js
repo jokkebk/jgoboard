@@ -49,3 +49,7 @@ JGO.BOARD.largeWalnut = JGO.extend(JGO.extend({}, JGO.BOARD.large), {
     boardShadow: {color: '#e2baa0'},
     grid: {color: '#101010', borderWidth: 1.8, lineWidth: 1.5}
 });
+
+JGO.BOARD.largeBW = JGO.extend(JGO.extend({}, JGO.BOARD.large), {
+    textures: false
+});

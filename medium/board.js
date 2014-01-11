@@ -49,3 +49,7 @@ JGO.BOARD.mediumWalnut = JGO.extend(JGO.extend({}, JGO.BOARD.medium), {
     boardShadow: {color: '#e2baa0'},
     grid: {color: '#101010', borderWidth: 1.4, lineWidth: 1.1}
 });
+
+JGO.BOARD.mediumBW = JGO.extend(JGO.extend({}, JGO.BOARD.medium), {
+    textures: false
+});

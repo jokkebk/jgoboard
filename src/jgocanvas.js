@@ -112,43 +112,44 @@ var JGO = JGO || {};
         this.img = img;
 
         // Fill margin with correct color
-        this.ctx.rect(0, 0, canvas.width, canvas.height);
         this.ctx.fillStyle = opt.margin.color;
-        this.ctx.fill();
+        this.ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Prepare to draw board with shadow
-        this.ctx.save();
-        this.ctx.shadowColor = opt.boardShadow.color;
-        this.ctx.shadowBlur = opt.boardShadow.blur;
-        this.ctx.shadowOffsetX = opt.boardShadow.offX;
-        this.ctx.shadowOffsetX = opt.boardShadow.offY;
+        if(img.board) {
+            // Prepare to draw board with shadow
+            this.ctx.save();
+            this.ctx.shadowColor = opt.boardShadow.color;
+            this.ctx.shadowBlur = opt.boardShadow.blur;
+            this.ctx.shadowOffsetX = opt.boardShadow.offX;
+            this.ctx.shadowOffsetX = opt.boardShadow.offY;
 
-        var clipTop = opt.edge.top ? 0 : this.marginTop,
-        clipLeft = opt.edge.left ? 0 : this.marginLeft,
-        clipBottom = opt.edge.bottom ? 0 : this.marginBottom,
-        clipRight = opt.edge.right ? 0 : this.marginRight;
+            var clipTop = opt.edge.top ? 0 : this.marginTop,
+                clipLeft = opt.edge.left ? 0 : this.marginLeft,
+                clipBottom = opt.edge.bottom ? 0 : this.marginBottom,
+                clipRight = opt.edge.right ? 0 : this.marginRight;
 
-        // Set clipping to throw shadow only on actual edges
-        this.ctx.beginPath();
-        this.ctx.rect(clipLeft, clipTop,
-            canvas.width - clipLeft - clipRight,
-        canvas.height - clipTop - clipBottom);
-        this.ctx.clip();
+            // Set clipping to throw shadow only on actual edges
+            this.ctx.beginPath();
+            this.ctx.rect(clipLeft, clipTop,
+                canvas.width - clipLeft - clipRight,
+            canvas.height - clipTop - clipBottom);
+            this.ctx.clip();
 
-        this.ctx.drawImage(img.board, 0, 0,
-            this.boardWidth, this.boardHeight,
-            this.marginLeft, this.marginTop,
-        this.boardWidth, this.boardHeight);
+            this.ctx.drawImage(img.board, 0, 0,
+                this.boardWidth, this.boardHeight,
+                this.marginLeft, this.marginTop,
+            this.boardWidth, this.boardHeight);
 
-        // Draw lighter border around the board to make it more photography
-        this.ctx.strokeStyle = opt.border.color;
-        this.ctx.lineWidth = opt.border.lineWidth;
-        this.ctx.beginPath();
-        this.ctx.rect(this.marginLeft, this.marginTop,
-        this.boardWidth, this.boardHeight);
-        this.ctx.stroke();
+            // Draw lighter border around the board to make it more photography
+            this.ctx.strokeStyle = opt.border.color;
+            this.ctx.lineWidth = opt.border.lineWidth;
+            this.ctx.beginPath();
+            this.ctx.rect(this.marginLeft, this.marginTop,
+            this.boardWidth, this.boardHeight);
+            this.ctx.stroke();
 
-        this.ctx.restore(); // forget shadow and clipping
+            this.ctx.restore(); // forget shadow and clipping
+        }
 
         // Top left center of grid (not edge, center!)
         this.gridTop = this.marginTop + padTop + opt.grid.y / 2;
@@ -231,11 +232,11 @@ var JGO = JGO || {};
 
         // Draw horizontal coordinates
         for(i=0; i<opt.view.width; i++) {
-            if(opt.coordinates.top)
+            if(opt.coordinates && opt.coordinates.top)
                 this.ctx.fillText(JGO.COORDINATES[i + opt.view.xOffset],
                     this.gridLeft + opt.grid.x * i,
                 this.marginTop / 2);
-            if(opt.coordinates.bottom)
+            if(opt.coordinates && opt.coordinates.bottom)
                 this.ctx.fillText(JGO.COORDINATES[i + opt.view.xOffset],
                     this.gridLeft + opt.grid.x * i,
                     canvas.height - this.marginBottom / 2);
@@ -243,11 +244,11 @@ var JGO = JGO || {};
 
         // Draw vertical coordinates
         for(i=0; i<opt.view.height; i++) {
-            if(opt.coordinates.left)
+            if(opt.coordinates && opt.coordinates.left)
                 this.ctx.fillText(''+(opt.board.height-opt.view.yOffset-i),
             this.marginLeft / 2,
                 this.gridTop + opt.grid.y * i);
-            if(opt.coordinates.right)
+            if(opt.coordinates && opt.coordinates.right)
                 this.ctx.fillText(''+(opt.board.height-opt.view.yOffset-i),
                 canvas.width - this.marginRight / 2,
                     this.gridTop + opt.grid.y * i);
@@ -327,26 +328,32 @@ var JGO = JGO || {};
         var isLabel = /^[a-zA-Z1-9]/;
 
         // Stone radius derived marker size parameters
-        var clearW = this.opt.stone.radius * 1.5,
-            clearH = this.opt.stone.radius * 1.2,
-            markX = this.opt.stone.radius * 1.1,
-            markY = this.opt.stone.radius * 1.1,
-            circleR = this.opt.stone.radius * 0.5,
-            triangleR = this.opt.stone.radius * 0.9;
+        var stoneR = this.opt.stone.radius,
+            clearW = stoneR * 1.5, clearH = stoneR * 1.2,
+            markX = stoneR * 1.1, markY = stoneR * 1.1,
+            circleR = stoneR * 0.5, triangleR = stoneR * 0.9,
+            clearFunc;
 
         // Clear grid for labels on clear intersections before casting shadows
+        if(this.img.board) { // there is a board texture
+            clearFunc = function(ox, oy) {
+                self.ctx.drawImage(self.img.board,
+                    ox - self.marginLeft - clearW / 2, oy - self.marginTop - clearH / 2, clearW, clearH,
+                    ox - clearW / 2, oy - clearH / 2, clearW, clearH);
+            };
+        } else { // no board texture
+            this.ctx.fillStyle = this.opt.margin.color;
+            clearFunc = function(ox, oy) {
+                self.ctx.fillRect(ox - clearW / 2, oy - clearH / 2, clearW, clearH);
+            };
+        }
+
         jboard.each(function(c, type, mark) {
             var ox = 0.5 + self.getX(c.i - self.opt.view.xOffset),
-            oy = 0.5 + self.getY(c.j - self.opt.view.yOffset);
+                oy = 0.5 + self.getY(c.j - self.opt.view.yOffset);
 
             if(type == JGO.CLEAR && mark && isLabel.test(mark))
-                self.ctx.drawImage(self.img.board,
-                    ox - self.marginLeft - clearW / 2,
-                    oy - self.marginTop - clearH / 2,
-                    clearW, clearH,
-                    ox - clearW / 2,
-                    oy - clearH / 2,
-                clearW, clearH);
+                clearFunc(ox, oy);
         }, i1, j1, i2, j2); // provide iteration limits
 
         // Shadows
@@ -366,6 +373,61 @@ var JGO = JGO || {};
             }, i1, j1, i2, j2); // provide iteration limits
         }
 
+        var whiteFunc, blackFunc, whiteTerrFunc, blackTerrFunc;
+
+        if(this.img.white && this.img.black) {
+            blackFunc = function(ox, oy) {
+                self.ctx.drawImage(self.img.black, ox - self.img.black.width / 2,
+                    oy - self.img.black.height / 2);
+            };
+            blackTerrFunc = function(ox, oy) {
+                self.ctx.drawImage(self.img.black, 0, 0,
+                    self.img.black.width, self.img.black.height,
+                    ox - self.img.black.width / 4,
+                    oy - self.img.black.height / 4,
+                    self.img.black.width / 2, self.img.black.height / 2);
+            };
+            whiteFunc = function(ox, oy) {
+                self.ctx.drawImage(self.img.white, ox - self.img.white.width / 2,
+                    oy - self.img.white.height / 2);
+            };
+            whiteTerrFunc = function(ox, oy) {
+                self.ctx.drawImage(self.img.white, 0, 0,
+                    self.img.white.width, self.img.white.height,
+                    ox - self.img.white.width / 4,
+                    oy - self.img.white.height / 4,
+                    self.img.white.width / 2, self.img.white.height / 2);
+            };
+        } else {
+            blackFunc = function(ox, oy) {
+                self.ctx.fillStyle = '#000000';
+                self.ctx.beginPath();
+                self.ctx.arc(ox, oy, stoneR, 2*Math.PI, false);
+                self.ctx.fill();
+            };
+            blackTerrFunc = function(ox, oy) {
+                self.ctx.fillStyle = '#000000';
+                self.ctx.beginPath();
+                self.ctx.arc(ox, oy, stoneR/2, 2*Math.PI, false);
+                self.ctx.fill();
+            };
+            whiteFunc = function(ox, oy) {
+                self.ctx.fillStyle = '#FFFFFF';
+                self.ctx.strokeStyle = '#000000';
+                self.ctx.beginPath();
+                self.ctx.arc(ox, oy, stoneR, 2*Math.PI, false);
+                self.ctx.fill();
+                self.ctx.stroke();
+            };
+            whiteTerrFunc = function(ox, oy) {
+                self.ctx.fillStyle = '#FFFFFF';
+                self.ctx.strokeStyle = '#000000';
+                self.ctx.beginPath();
+                self.ctx.arc(ox, oy, stoneR/2, 2*Math.PI, false);
+                self.ctx.fill();
+                self.ctx.stroke();
+            };
+        }
         // Stones and marks
         jboard.each(function(c, type, mark) {
             var ox = 0.5 + self.getX(c.i - self.opt.view.xOffset),
@@ -375,26 +437,22 @@ var JGO = JGO || {};
             switch(type) {
                 case JGO.DIM_BLACK:
                     self.ctx.globalAlpha=self.opt.stone.dimAlpha;
-                    self.ctx.drawImage(self.img.black, ox - self.img.black.width / 2,
-                    oy - self.img.black.height / 2);
+                    blackFunc(ox, oy);
                     markColor = self.opt.mark.blackColor; // if we have marks, self is the color
                     break;
                 case JGO.BLACK:
                     self.ctx.globalAlpha=1;
-                    self.ctx.drawImage(self.img.black, ox - self.img.black.width / 2,
-                    oy - self.img.black.height / 2);
+                    blackFunc(ox, oy);
                     markColor = self.opt.mark.blackColor; // if we have marks, self is the color
                     break;
                 case JGO.DIM_WHITE:
                     self.ctx.globalAlpha=self.opt.stone.dimAlpha;
-                    self.ctx.drawImage(self.img.white, ox - self.img.white.width / 2,
-                    oy - self.img.white.height / 2);
+                    whiteFunc(ox,oy);
                     markColor = self.opt.mark.whiteColor; // if we have marks, self is the color
                     break;
                 case JGO.WHITE:
                     self.ctx.globalAlpha=1;
-                    self.ctx.drawImage(self.img.white, ox - self.img.white.width / 2,
-                    oy - self.img.white.height / 2);
+                    whiteFunc(ox,oy);
                     markColor = self.opt.mark.whiteColor; // if we have marks, self is the color
                     break;
                 default:
@@ -448,20 +506,12 @@ var JGO = JGO || {};
 
                     case JGO.MARK.BLACK_TERRITORY:
                         self.ctx.globalAlpha=1;
-                        self.ctx.drawImage(self.img.black, 0, 0,
-                            self.img.black.width, self.img.black.height,
-                            ox - self.img.black.width / 4,
-                            oy - self.img.black.height / 4,
-                        self.img.black.width / 2, self.img.black.height / 2);
+                        whiteTerrFunc();
                         break;
 
                     case JGO.MARK.WHITE_TERRITORY:
                         self.ctx.globalAlpha=1;
-                        self.ctx.drawImage(self.img.white, 0, 0,
-                            self.img.white.width, self.img.white.height,
-                            ox - self.img.white.width / 4,
-                            oy - self.img.white.height / 4,
-                        self.img.white.width / 2, self.img.white.height / 2);
+                        whiteTerrFunc();
                         break;
 
                     case JGO.MARK.SELECTED:

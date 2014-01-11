@@ -29,10 +29,11 @@ function randomBoard(jboard) {
 }
 
 var jboard = new JGO.Board(19);
-var jsetup = new JGO.Setup(jboard, JGO.BOARD.medium);
+var jsetup = new JGO.Setup(jboard, JGO.BOARD.mediumBW);
 
 randomBoard(jboard);
 
+jsetup.setOptions({coordinates: false});
 jsetup.create('board');
 </script>
 

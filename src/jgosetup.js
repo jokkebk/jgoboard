@@ -79,15 +79,20 @@ var JGO = JGO || {};
     */
     JGO.Setup.prototype.create = function(elemId, ready) {
         var self = this, jboard = this.jboard,
-        options = JGO.extend({}, this.options);
+            options = JGO.extend({}, this.options), instfunc;
 
-        JGO.util.loadImages(this.options.textures, function(images) {
+        instfunc = function(images) {
             var jcanvas = new JGO.Canvas(elemId, options, images);
             jcanvas.draw(jboard, 0, 0, jboard.width-1, jboard.height-1);
             self.jnotifier.addCanvas(jcanvas); // add canvas to listener
             if(ready)
                 ready(jcanvas);
-        });
+        };
+
+        if(this.options.textures) // at least some textures exist
+            JGO.util.loadImages(this.options.textures, instfunc);
+        else
+            instfunc({black:false,white:false,shadow:false,board:false});
     };
 
 })();
