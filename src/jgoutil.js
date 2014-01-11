@@ -21,13 +21,13 @@ JGO.util = JGO.util || {};
         var images = {}, imagesLeft = 0;
 
         for(var src in sources)
-            if(sources.hasOwnProperty(src))
+            if(sources.hasOwnProperty(src) && sources[src])
                 imagesLeft++;
 
         var countdown = function() { if(--imagesLeft <= 0) callback(images); };
 
         for(src in sources) {
-            if(sources.hasOwnProperty(src)) {
+            if(sources.hasOwnProperty(src) && sources[src]) {
                 images[src] = new Image();
                 images[src].onload = countdown;
                 images[src].src = sources[src];

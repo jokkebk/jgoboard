@@ -350,44 +350,51 @@ var JGO = JGO || {};
         }, i1, j1, i2, j2); // provide iteration limits
 
         // Shadows
-        jboard.each(function(c, type) {
-            switch(type) {
-                case JGO.BLACK:
-                case JGO.WHITE:
-                    self.ctx.drawImage(self.img.shadow,
-                        self.opt.shadow.xOff + self.getX(c.i - self.opt.view.xOffset) - self.img.shadow.width / 2,
-                        self.opt.shadow.yOff + self.getY(c.j - self.opt.view.yOffset) - self.img.shadow.height / 2);
-                    break;
-            }
-        }, i1, j1, i2, j2); // provide iteration limits
+        if(this.img.shadow) {
+            jboard.each(function(c, type) {
+                var ox = 0.5 + self.getX(c.i - self.opt.view.xOffset),
+                    oy = 0.5 + self.getY(c.j - self.opt.view.yOffset);
+
+                switch(type) {
+                    case JGO.BLACK:
+                    case JGO.WHITE:
+                        self.ctx.drawImage(self.img.shadow,
+                            self.opt.shadow.xOff + ox - self.img.shadow.width / 2,
+                            self.opt.shadow.yOff + oy - self.img.shadow.height / 2);
+                        break;
+                }
+            }, i1, j1, i2, j2); // provide iteration limits
+        }
 
         // Stones and marks
         jboard.each(function(c, type, mark) {
-            var markColor;
+            var ox = 0.5 + self.getX(c.i - self.opt.view.xOffset),
+                oy = 0.5 + self.getY(c.j - self.opt.view.yOffset);
+            var markColor, r;
 
             switch(type) {
                 case JGO.DIM_BLACK:
                     self.ctx.globalAlpha=self.opt.stone.dimAlpha;
-                    self.ctx.drawImage(self.img.black, self.getX(c.i - self.opt.view.xOffset) - self.img.black.width / 2,
-                    self.getY(c.j - self.opt.view.yOffset) - self.img.black.height / 2);
+                    self.ctx.drawImage(self.img.black, ox - self.img.black.width / 2,
+                    oy - self.img.black.height / 2);
                     markColor = self.opt.mark.blackColor; // if we have marks, self is the color
                     break;
                 case JGO.BLACK:
                     self.ctx.globalAlpha=1;
-                    self.ctx.drawImage(self.img.black, self.getX(c.i - self.opt.view.xOffset) - self.img.black.width / 2,
-                    self.getY(c.j - self.opt.view.yOffset) - self.img.black.height / 2);
+                    self.ctx.drawImage(self.img.black, ox - self.img.black.width / 2,
+                    oy - self.img.black.height / 2);
                     markColor = self.opt.mark.blackColor; // if we have marks, self is the color
                     break;
                 case JGO.DIM_WHITE:
                     self.ctx.globalAlpha=self.opt.stone.dimAlpha;
-                    self.ctx.drawImage(self.img.white, self.getX(c.i - self.opt.view.xOffset) - self.img.white.width / 2,
-                    self.getY(c.j - self.opt.view.yOffset) - self.img.white.height / 2);
+                    self.ctx.drawImage(self.img.white, ox - self.img.white.width / 2,
+                    oy - self.img.white.height / 2);
                     markColor = self.opt.mark.whiteColor; // if we have marks, self is the color
                     break;
                 case JGO.WHITE:
                     self.ctx.globalAlpha=1;
-                    self.ctx.drawImage(self.img.white, self.getX(c.i - self.opt.view.xOffset) - self.img.white.width / 2,
-                    self.getY(c.j - self.opt.view.yOffset) - self.img.white.height / 2);
+                    self.ctx.drawImage(self.img.white, ox - self.img.white.width / 2,
+                    oy - self.img.white.height / 2);
                     markColor = self.opt.mark.whiteColor; // if we have marks, self is the color
                     break;
                 default:
@@ -403,9 +410,6 @@ var JGO = JGO || {};
             self.ctx.fillStyle = markColor;
             self.ctx.textAlign = 'center';
             self.ctx.textBaseline = 'middle';
-
-            var ox = 0.5 + self.getX(c.i - self.opt.view.xOffset),
-                oy = 0.5 + self.getY(c.j - self.opt.view.yOffset), r;
 
             if(mark) {
                 switch(mark) {
@@ -446,8 +450,8 @@ var JGO = JGO || {};
                         self.ctx.globalAlpha=1;
                         self.ctx.drawImage(self.img.black, 0, 0,
                             self.img.black.width, self.img.black.height,
-                            self.getX(c.i - self.opt.view.xOffset) - self.img.black.width / 4,
-                            self.getY(c.j - self.opt.view.yOffset) - self.img.black.height / 4,
+                            ox - self.img.black.width / 4,
+                            oy - self.img.black.height / 4,
                         self.img.black.width / 2, self.img.black.height / 2);
                         break;
 
@@ -455,8 +459,8 @@ var JGO = JGO || {};
                         self.ctx.globalAlpha=1;
                         self.ctx.drawImage(self.img.white, 0, 0,
                             self.img.white.width, self.img.white.height,
-                            self.getX(c.i - self.opt.view.xOffset) - self.img.white.width / 4,
-                            self.getY(c.j - self.opt.view.yOffset) - self.img.white.height / 4,
+                            ox - self.img.white.width / 4,
+                            oy - self.img.white.height / 4,
                         self.img.white.width / 2, self.img.white.height / 2);
                         break;
 
