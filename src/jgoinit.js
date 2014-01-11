@@ -1,13 +1,3 @@
-/*!
- * jGoBoard v3.0
- * http://www.jgoboard.com/
- *
- * This software is licensed under a Creative Commons Attribution-NonCommercial 3.0 Unported License:
- * http://creativecommons.org/licenses/by-nc/3.0/
- * If you want to negotiate on a commercial license, please contact the author.
- */
-
-
 /**
  * Namespace for jGoBoard.
  * @namespace

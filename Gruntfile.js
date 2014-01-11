@@ -24,7 +24,9 @@ module.exports = function(grunt) {
         },
         concat: {
             options: {
-                separator: '\n'
+                separator: '\n',
+                banner: '/*! <%= pkg.name %> <%= pkg.version %>, (c) <%= pkg.author %>. ' +
+                    'Licensed under <%= pkg.license %>, see <%= pkg.homepage %> for details. */\n'
             },
             dist: {
                 src: [ 'src/jgoinit.js', 'src/*.js' ],
@@ -33,8 +35,7 @@ module.exports = function(grunt) {
         },
         uglify: {
             options: {
-                // the banner is inserted at the top of the output
-                banner: '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n'
+                banner: '<%= concat.options.banner %>'
             },
             dist: {
                 files: {
