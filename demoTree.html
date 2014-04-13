@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Board</title>
+  <style type="text/css">
+    /*body {
+      background-color: #eeeeee;
+    }*/
+  </style>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+</head>
+<body>
+
+<div id="board"></div>
+
+<p>
+<a href="#" onclick="move(-2); return false;">First</a>
+<a href="#" onclick="move(-1); return false;">Previous</a>
+<a href="#" onclick="move(1); return false;">Next</a>
+<a href="#" onclick="move(2); return false;">Last</a>
+</p>
+
+<pre id="messages"></pre>
+
+<script type="text/javascript" src="dist/jgoboard-3.1.0.js"></script>
+<script type="text/javascript" src="medium/board.js"></script>
+<script type="text/javascript">
+var jrecord;
+
+function move(dir) {
+  var node;
+
+  switch(dir) {
+    case -2: // first
+      jrecord.first();
+      break;
+    case -1:
+      jrecord.previous();
+      break;
+    case 1:
+      jrecord.next();
+      break;
+    case 2: // last
+      while(jrecord.next() != null) {}
+      break;
+    default: // do nothing
+      break;
+  }
+
+  $('#messages').html(jrecord.getCurrentNode().comment);
+}
+
+$.ajax('demo.sgf', { // fetch demo.sgf
+  complete: function(resp) {
+    var jsetup;
+
+    jrecord = JGO.util.loadSGF(resp.responseText);
+    move(0); // sets comment
+
+    if(!(jrecord instanceof JGO.Record)) {
+      alert('Empty SGF or multiple games in one SGF not supported!');
+      return;
+    }
+
+    jsetup = new JGO.Setup(jrecord.jboard, JGO.BOARD.medium);
+    jsetup.create('board', function(canvas) {
+      // Do something
+    });
+  }
+});
+</script>
+
+</body>
+</html>

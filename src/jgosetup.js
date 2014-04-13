@@ -12,18 +12,18 @@ var JGO = JGO || {};
     * @constructor
     * @memberof JGO
     */
-    JGO.Setup = function(jboard, boardOptions) {
+    JGO.Setup = function(board, boardOptions) {
         var defaults = {
             margin: {color:'white'},
             edge: {top:true, bottom:true, left:true, right:true},
             coordinates: {top:true, bottom:true, left:true, right:true},
             stars: {points: 0 },
-            board: {width:jboard.width, height:jboard.height},
-            view: {xOffset:0, yOffset:0, width:jboard.width, height:jboard.height}
+            board: {width:board.width, height:board.height},
+            view: {xOffset:0, yOffset:0, width:board.width, height:board.height}
         };
 
-        if(jboard.width == jboard.height) {
-            switch(jboard.width) { // square
+        if(board.width == board.height) {
+            switch(board.width) { // square
                 case 9:
                     defaults.stars.points=5;
                     defaults.stars.offset=2;
@@ -36,9 +36,13 @@ var JGO = JGO || {};
             }
         }
 
-        this.jboard = jboard;
-        this.jnotifier = new JGO.Notifier(jboard);
+        this.board = board; // board to follow
+        this.notifier = new JGO.Notifier(board); // board change tracker
         this.options = JGO.extend(defaults, boardOptions); // clone
+
+        // Creating these is postponed until create() or createTree() is called
+        this.stones = false; // stone drawing facility (JGO.Stones)
+        this.boardTexture = false; // board texture
     };
 
     /**
@@ -72,27 +76,35 @@ var JGO = JGO || {};
     };
 
     /**
-    * Create JGO.Canvas based on current settings.
+    * Create JGO.Canvas based on current settings. When textures are used,
+    * image resources need to be loaded, so the function returns and
+    * asynchronously call readyFn after actual initialization.
     *
     * @param {String} elemId The element where to create the canvas in.
-    * @param {function} ready Function to call with canvas once it is ready.
+    * @param {function} readyFn Function to call with canvas once it is ready.
     */
-    JGO.Setup.prototype.create = function(elemId, ready) {
-        var self = this, jboard = this.jboard,
-            options = JGO.extend({}, this.options), instfunc;
+    JGO.Setup.prototype.create = function(elemId, readyFn) {
+        var self = this, options = JGO.extend({}, this.options), instFn;
 
-        instfunc = function(images) {
-            var jcanvas = new JGO.Canvas(elemId, options, images);
-            jcanvas.draw(jboard, 0, 0, jboard.width-1, jboard.height-1);
-            self.jnotifier.addCanvas(jcanvas); // add canvas to listener
-            if(ready)
-                ready(jcanvas);
+        instFn = function(images) {
+            var jcanvas;
+
+            // Stone drawing facility
+            self.stones = new JGO.Stones(images, options);
+            self.boardTexture = images.board;
+
+            jcanvas = new JGO.Canvas(elemId, options, self.stones, self.boardTexture);
+            jcanvas.draw(self.board, 0, 0, self.board.width-1, self.board.height-1);
+
+            self.notifier.addCanvas(jcanvas); // add canvas to listener
+
+            if(readyFn) readyFn(jcanvas);
         };
 
         if(this.options.textures) // at least some textures exist
-            JGO.util.loadImages(this.options.textures, instfunc);
-        else
-            instfunc({black:false,white:false,shadow:false,board:false});
+            JGO.util.loadImages(this.options.textures, instFn);
+        else // blain BW board
+            instFn({black:false,white:false,shadow:false,board:false});
     };
 
 })();

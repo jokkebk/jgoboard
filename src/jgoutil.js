@@ -20,13 +20,16 @@ JGO.util = JGO.util || {};
     JGO.util.loadImages = function(sources, callback) {
         var images = {}, imagesLeft = 0;
 
-        for(var src in sources)
+        for(var src in sources) // count non-false properties as images
             if(sources.hasOwnProperty(src) && sources[src])
                 imagesLeft++;
 
-        var countdown = function() { if(--imagesLeft <= 0) callback(images); };
+        var countdown = function() {
+            if(--imagesLeft <= 0)
+                callback(images);
+        };
 
-        for(src in sources) {
+        for(src in sources) { // load non-false properties to images object
             if(sources.hasOwnProperty(src) && sources[src]) {
                 images[src] = new Image();
                 images[src].onload = countdown;
