@@ -1,4 +1,4 @@
-/*! jgoboard 3.0.0, (c) Joonas Pihlajamaa. Licensed under CC-BY-NC-4.0, see http://jgoboard.com for details. */
+/*! jgoboard 3.2.0, (c) Joonas Pihlajamaa. Licensed under CC-BY-NC-4.0, see http://jgoboard.com for details. */
 /**
  * Namespace for jGoBoard.
  * @namespace
@@ -82,8 +82,9 @@ var JGO = JGO || {};
 
         if(height !== undefined)
             this.height = height;
-        else
+        else { //noinspection JSSuspiciousNameCombination
             this.height = this.width;
+        }
 
         this.listeners = [];
 
@@ -429,11 +430,12 @@ var JGO = JGO || {};
      *
      * @param {String} elem Container element id.
      * @param {Object} opt Options object.
-     * @param {Object} img Image array.
+     * @param {JGO.Stones} stones Stone and marker drawing facility.
+     * @param {Image} boardTexture Board texture or false if none.
      * @constructor
      * @memberof JGO
      */
-    JGO.Canvas = function(elem, opt, img) {
+    JGO.Canvas = function(elem, opt, stones, boardTexture) {
         var container = document.getElementById(elem),
             canvas = document.createElement('canvas'),
             self = this, i, j;
@@ -524,13 +526,14 @@ var JGO = JGO || {};
 
         this.ctx = canvas.getContext('2d');
         this.opt = opt;
-        this.img = img;
+        this.stones = stones;
+        this.boardTexture = boardTexture;
 
         // Fill margin with correct color
         this.ctx.fillStyle = opt.margin.color;
         this.ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        if(img.board) {
+        if(this.boardTexture) {
             // Prepare to draw board with shadow
             this.ctx.save();
             this.ctx.shadowColor = opt.boardShadow.color;
@@ -550,7 +553,7 @@ var JGO = JGO || {};
             canvas.height - clipTop - clipBottom);
             this.ctx.clip();
 
-            this.ctx.drawImage(img.board, 0, 0,
+            this.ctx.drawImage(this.boardTexture, 0, 0,
                 this.boardWidth, this.boardHeight,
                 this.marginLeft, this.marginTop,
             this.boardWidth, this.boardHeight);
@@ -744,15 +747,12 @@ var JGO = JGO || {};
 
         // Stone radius derived marker size parameters
         var stoneR = this.opt.stone.radius,
-            clearW = stoneR * 1.5, clearH = stoneR * 1.2,
-            markX = stoneR * 1.1, markY = stoneR * 1.1,
-            circleR = stoneR * 0.5, triangleR = stoneR * 0.9,
-            clearFunc;
+            clearW = stoneR * 1.5, clearH = stoneR * 1.2, clearFunc;
 
         // Clear grid for labels on clear intersections before casting shadows
-        if(this.img.board) { // there is a board texture
+        if(this.boardTexture) { // there is a board texture
             clearFunc = function(ox, oy) {
-                self.ctx.drawImage(self.img.board,
+                self.ctx.drawImage(self.boardTexture,
                     ox - self.marginLeft - clearW / 2, oy - self.marginTop - clearH / 2, clearW, clearH,
                     ox - clearW / 2, oy - clearH / 2, clearW, clearH);
             };
@@ -772,107 +772,41 @@ var JGO = JGO || {};
         }, i1, j1, i2, j2); // provide iteration limits
 
         // Shadows
-        if(this.img.shadow) {
+        if(this.stones.drawShadow !== false) {
             jboard.each(function(c, type) {
                 var ox = 0.5 + self.getX(c.i - self.opt.view.xOffset),
                     oy = 0.5 + self.getY(c.j - self.opt.view.yOffset);
 
-                switch(type) {
-                    case JGO.BLACK:
-                    case JGO.WHITE:
-                        self.ctx.drawImage(self.img.shadow,
-                            self.opt.shadow.xOff + ox - self.img.shadow.width / 2,
-                            self.opt.shadow.yOff + oy - self.img.shadow.height / 2);
-                        break;
+                if(type == JGO.BLACK || type == JGO.WHITE) {
+                    self.stones.drawShadow(self.ctx,
+                                           self.opt.shadow.xOff + ox,
+                                           self.opt.shadow.yOff + oy);
                 }
             }, i1, j1, i2, j2); // provide iteration limits
         }
 
-        var whiteFunc, blackFunc, whiteTerrFunc, blackTerrFunc;
-
-        if(this.img.white && this.img.black) {
-            blackFunc = function(ox, oy) {
-                self.ctx.drawImage(self.img.black, ox - self.img.black.width / 2,
-                    oy - self.img.black.height / 2);
-            };
-            blackTerrFunc = function(ox, oy) {
-                self.ctx.drawImage(self.img.black, 0, 0,
-                    self.img.black.width, self.img.black.height,
-                    ox - self.img.black.width / 4,
-                    oy - self.img.black.height / 4,
-                    self.img.black.width / 2, self.img.black.height / 2);
-            };
-            whiteFunc = function(ox, oy) {
-                self.ctx.drawImage(self.img.white, ox - self.img.white.width / 2,
-                    oy - self.img.white.height / 2);
-            };
-            whiteTerrFunc = function(ox, oy) {
-                self.ctx.drawImage(self.img.white, 0, 0,
-                    self.img.white.width, self.img.white.height,
-                    ox - self.img.white.width / 4,
-                    oy - self.img.white.height / 4,
-                    self.img.white.width / 2, self.img.white.height / 2);
-            };
-        } else {
-            blackFunc = function(ox, oy) {
-                self.ctx.fillStyle = '#000000';
-                self.ctx.beginPath();
-                self.ctx.arc(ox, oy, stoneR, 2*Math.PI, false);
-                self.ctx.fill();
-            };
-            blackTerrFunc = function(ox, oy) {
-                self.ctx.fillStyle = '#000000';
-                self.ctx.beginPath();
-                self.ctx.arc(ox, oy, stoneR/2, 2*Math.PI, false);
-                self.ctx.fill();
-            };
-            whiteFunc = function(ox, oy) {
-                self.ctx.fillStyle = '#FFFFFF';
-                self.ctx.strokeStyle = '#000000';
-                self.ctx.beginPath();
-                self.ctx.arc(ox, oy, stoneR, 2*Math.PI, false);
-                self.ctx.fill();
-                self.ctx.stroke();
-            };
-            whiteTerrFunc = function(ox, oy) {
-                self.ctx.fillStyle = '#FFFFFF';
-                self.ctx.strokeStyle = '#000000';
-                self.ctx.beginPath();
-                self.ctx.arc(ox, oy, stoneR/2, 2*Math.PI, false);
-                self.ctx.fill();
-                self.ctx.stroke();
-            };
-        }
         // Stones and marks
         jboard.each(function(c, type, mark) {
             var ox = 0.5 + self.getX(c.i - self.opt.view.xOffset),
                 oy = 0.5 + self.getY(c.j - self.opt.view.yOffset);
-            var markColor, r;
+            var markColor;
 
             switch(type) {
-                case JGO.DIM_BLACK:
-                    self.ctx.globalAlpha=self.opt.stone.dimAlpha;
-                    blackFunc(ox, oy);
-                    markColor = self.opt.mark.blackColor; // if we have marks, self is the color
-                    break;
-                case JGO.BLACK:
-                    self.ctx.globalAlpha=1;
-                    blackFunc(ox, oy);
-                    markColor = self.opt.mark.blackColor; // if we have marks, self is the color
-                    break;
-                case JGO.DIM_WHITE:
-                    self.ctx.globalAlpha=self.opt.stone.dimAlpha;
-                    whiteFunc(ox,oy);
-                    markColor = self.opt.mark.whiteColor; // if we have marks, self is the color
-                    break;
-                case JGO.WHITE:
-                    self.ctx.globalAlpha=1;
-                    whiteFunc(ox,oy);
-                    markColor = self.opt.mark.whiteColor; // if we have marks, self is the color
-                    break;
-                default:
-                    self.ctx.globalAlpha=1;
-                    markColor = self.opt.mark.clearColor; // if we have marks, self is the color
+            case JGO.BLACK:
+            case JGO.DIM_BLACK:
+                self.ctx.globalAlpha = type == JGO.BLACK ? 1 : self.opt.stone.dimAlpha;
+                self.stones.drawStone(self.ctx, JGO.BLACK, ox, oy);
+                markColor = self.opt.mark.blackColor; // if we have marks, this is the color
+                break;
+            case JGO.WHITE:
+            case JGO.DIM_WHITE:
+                self.ctx.globalAlpha = type == JGO.WHITE ? 1 : self.opt.stone.dimAlpha;
+                self.stones.drawStone(self.ctx, JGO.WHITE, ox, oy);
+                markColor = self.opt.mark.whiteColor; // if we have marks, this is the color
+                break;
+            default:
+                self.ctx.globalAlpha=1;
+                markColor = self.opt.mark.clearColor; // if we have marks, this is the color
             }
 
             // Common settings to all markers
@@ -884,66 +818,7 @@ var JGO = JGO || {};
             self.ctx.textAlign = 'center';
             self.ctx.textBaseline = 'middle';
 
-            if(mark) {
-                switch(mark) {
-                    case JGO.MARK.SQUARE:
-                        self.ctx.beginPath();
-                        self.ctx.rect(ox - markX / 2, oy - markY / 2,
-                        markX, markY);
-                        self.ctx.stroke();
-                        break;
-
-                    case JGO.MARK.CROSS:
-                        self.ctx.beginPath();
-                        self.ctx.moveTo(ox - markX / 2, oy + markY / 2);
-                        self.ctx.lineTo(ox + markX / 2, oy - markY / 2);
-                        self.ctx.moveTo(ox - markX / 2, oy - markY / 2);
-                        self.ctx.lineTo(ox + markX / 2, oy + markY / 2);
-                        self.ctx.stroke();
-                        break;
-
-                    case JGO.MARK.TRIANGLE:
-                        self.ctx.beginPath();
-                        for(r=0; r<3; r++) {
-                            self.ctx.moveTo(ox + triangleR * Math.cos(Math.PI * (0.5 + 2*r/3)),
-                            oy - triangleR * Math.sin(Math.PI * (0.5 + 2*r/3)));
-                            self.ctx.lineTo(ox + triangleR * Math.cos(Math.PI * (0.5 + 2*(r+1)/3)),
-                            oy - triangleR * Math.sin(Math.PI * (0.5 + 2*(r+1)/3)));
-                        }
-                        self.ctx.stroke();
-                        break;
-
-                    case JGO.MARK.CIRCLE:
-                        self.ctx.beginPath();
-                        self.ctx.arc(ox, oy, circleR, 2*Math.PI, false);
-                        self.ctx.stroke();
-                        break;
-
-                    case JGO.MARK.BLACK_TERRITORY:
-                        self.ctx.globalAlpha=1;
-                        whiteTerrFunc();
-                        break;
-
-                    case JGO.MARK.WHITE_TERRITORY:
-                        self.ctx.globalAlpha=1;
-                        whiteTerrFunc();
-                        break;
-
-                    case JGO.MARK.SELECTED:
-                        self.ctx.globalAlpha=0.5;
-                        self.ctx.fillStyle = '#8080FF';
-                        //self.ctx.beginPath();
-                        self.ctx.fillRect(ox - self.opt.grid.x / 2,
-                            oy - self.opt.grid.y / 2,
-                            self.opt.grid.x, self.opt.grid.y);
-                        break;
-
-                    default: // Label
-                        // For clear intersections, grid is cleared before shadow cast
-                        self.ctx.fillText(mark, ox, oy);
-                        break;
-                }
-            }
+            if(mark) self.stones.drawMark(self.ctx, mark, ox, oy);
         }, i1, j1, i2, j2); // provide iteration limits
 
         this.ctx.restore(); // also restores globalAlpha
@@ -952,8 +827,8 @@ var JGO = JGO || {};
     /**
     * Add an event listener to canvas (click) events. The callback will be
     * called with 'this' referring to JGO.Canvas object, with coordinate and
-    * event * as parameters. Supported event types are 'click', 'mousemove',
-    * and * 'mouseout'. With 'mouseout', there is no coordinate parameter for
+    * event as parameters. Supported event types are 'click', 'mousemove',
+    * and 'mouseout'. With 'mouseout', there is no coordinate parameter for
     * callback.
     *
     * @param {String} event The event to listen to, e.g. 'click'.
@@ -1129,6 +1004,22 @@ var JGO = JGO || {};
     };
 
     /**
+    * Helper method to clear parent node's markers. Created to achieve SGF like
+    * stateless marker behavaior.
+    */
+    JGO.Node.prototype.clearParentMarks = function() {
+        if(!this.parent)
+            return;
+
+        for(var i=this.parent.changes.length-1; i>=0; i--) {
+            var item = this.parent.changes[i];
+
+            if('mark' in item)
+                this.setMark(item.c, JGO.MARK.NONE);
+        }
+    };
+
+    /**
     * Helper method to make changes to a board while saving them in the node.
     *
     * @param {Object} c JGO.Coordinate or array of them.
@@ -1280,14 +1171,28 @@ var JGO = JGO || {};
         return this.current;
     };
 
+
+    /**
+    * Get root node.
+    *
+    * @returns {JGO.Node} Root node.
+    */
+    JGO.Record.prototype.getRootNode = function() {
+        return this.root;
+    };
+
     /**
     * Create new empty node under current one.
     *
+    * @param {bool} clearParentMarks True to clear parent node marks.
     * @param {Object} info Node information - ko coordinate, comment, etc.
     * @returns {JGO.Node} New, current node.
     */
-    JGO.Record.prototype.createNode = function(options) {
+    JGO.Record.prototype.createNode = function(clearParentMarks, options) {
         var node = new JGO.Node(this.jboard, this.current, options);
+
+        if(clearParentMarks)
+            node.clearParentMarks();
 
         if(this.root === null)
             this.root = node;
@@ -1386,18 +1291,18 @@ var JGO = JGO || {};
     * @constructor
     * @memberof JGO
     */
-    JGO.Setup = function(jboard, boardOptions) {
+    JGO.Setup = function(board, boardOptions) {
         var defaults = {
             margin: {color:'white'},
             edge: {top:true, bottom:true, left:true, right:true},
             coordinates: {top:true, bottom:true, left:true, right:true},
             stars: {points: 0 },
-            board: {width:jboard.width, height:jboard.height},
-            view: {xOffset:0, yOffset:0, width:jboard.width, height:jboard.height}
+            board: {width:board.width, height:board.height},
+            view: {xOffset:0, yOffset:0, width:board.width, height:board.height}
         };
 
-        if(jboard.width == jboard.height) {
-            switch(jboard.width) { // square
+        if(board.width == board.height) {
+            switch(board.width) { // square
                 case 9:
                     defaults.stars.points=5;
                     defaults.stars.offset=2;
@@ -1410,9 +1315,13 @@ var JGO = JGO || {};
             }
         }
 
-        this.jboard = jboard;
-        this.jnotifier = new JGO.Notifier(jboard);
+        this.board = board; // board to follow
+        this.notifier = new JGO.Notifier(board); // board change tracker
         this.options = JGO.extend(defaults, boardOptions); // clone
+
+        // Creating these is postponed until create() or createTree() is called
+        this.stones = false; // stone drawing facility (JGO.Stones)
+        this.boardTexture = false; // board texture
     };
 
     /**
@@ -1446,27 +1355,35 @@ var JGO = JGO || {};
     };
 
     /**
-    * Create JGO.Canvas based on current settings.
+    * Create JGO.Canvas based on current settings. When textures are used,
+    * image resources need to be loaded, so the function returns and
+    * asynchronously call readyFn after actual initialization.
     *
     * @param {String} elemId The element where to create the canvas in.
-    * @param {function} ready Function to call with canvas once it is ready.
+    * @param {function} readyFn Function to call with canvas once it is ready.
     */
-    JGO.Setup.prototype.create = function(elemId, ready) {
-        var self = this, jboard = this.jboard,
-            options = JGO.extend({}, this.options), instfunc;
+    JGO.Setup.prototype.create = function(elemId, readyFn) {
+        var self = this, options = JGO.extend({}, this.options), instFn;
 
-        instfunc = function(images) {
-            var jcanvas = new JGO.Canvas(elemId, options, images);
-            jcanvas.draw(jboard, 0, 0, jboard.width-1, jboard.height-1);
-            self.jnotifier.addCanvas(jcanvas); // add canvas to listener
-            if(ready)
-                ready(jcanvas);
+        instFn = function(images) {
+            var jcanvas;
+
+            // Stone drawing facility
+            self.stones = new JGO.Stones(images, options);
+            self.boardTexture = images.board;
+
+            jcanvas = new JGO.Canvas(elemId, options, self.stones, self.boardTexture);
+            jcanvas.draw(self.board, 0, 0, self.board.width-1, self.board.height-1);
+
+            self.notifier.addCanvas(jcanvas); // add canvas to listener
+
+            if(readyFn) readyFn(jcanvas);
         };
 
         if(this.options.textures) // at least some textures exist
-            JGO.util.loadImages(this.options.textures, instfunc);
-        else
-            instfunc({black:false,white:false,shadow:false,board:false});
+            JGO.util.loadImages(this.options.textures, instFn);
+        else // blain BW board
+            instFn({black:false,white:false,shadow:false,board:false});
     };
 
 })();
@@ -1543,7 +1460,7 @@ JGO.util = JGO.util || {};
             'SQ': '#'
         };
 
-        node.mark(explodeSGFList(values), markerMap[name]);
+        node.setMark(explodeSGFList(values), markerMap[name]);
         return true;
     }
 
@@ -1840,7 +1757,8 @@ JGO.util = JGO.util || {};
      */
     function recurseRecord(jrecord, gameTree) {
         for(var i=0; i<gameTree.sequence.length; i++) {
-            var node = gameTree.sequence[i], jnode = jrecord.createNode();
+            var node = gameTree.sequence[i],
+                jnode = jrecord.createNode(true); // clear parent marks
 
             for(var key in node) {
                 if(node.hasOwnProperty(key)) {
@@ -1904,6 +1822,142 @@ JGO.util = JGO.util || {};
 // Import or create JGO namespace
 var JGO = JGO || {};
 
+(function() {
+    'use strict';
+
+    /**
+     * Create a jGoBoard stones object. This is a facility that can draw
+     * stones and markers on a HTML5 canvas. Only used internally by the
+     * library.
+     *
+     * @param {Object} img Image array.
+     * @constructor
+     * @memberof JGO
+     */
+    JGO.Stones = function(img, options) {
+        var me = this;
+
+        this.stoneR = options.stone.radius;
+        this.gridX = options.grid.x;
+        this.gridY = options.grid.x;
+        this.markX = this.stoneR * 1.1;
+        this.markY = this.stoneR * 1.1;
+        this.circleR = this.stoneR * 0.5;
+        this.triangleR = this.stoneR * 0.9;
+
+        // Create black and white
+        if(img.white && img.black) {
+            this.drawStone = function(ctx, type, ox, oy, scale) {
+                var stone = type == JGO.BLACK ? img.black : img.white;
+
+                if(scale) {
+                    ctx.drawImage(stone, 0, 0, stone.width, stone.height,
+                                  ox - stone.width / 2 * scale,
+                                  oy - stone.height / 2 * scale,
+                                  stone.width * scale, stone.height * scale);
+                } else {
+                    ctx.drawImage(stone, ox - stone.width / 2,
+                                  oy - stone.height / 2);
+                }
+            };
+
+            if(img.shadow) {
+                this.drawShadow = function(ctx, ox, oy, scale) {
+                    var stone = img.shadow;
+
+                    if(scale) {
+                        ctx.drawImage(stone, 0, 0, stone.width, stone.height,
+                                      ox - stone.width / 2 * scale,
+                                      oy - stone.height / 2 * scale,
+                                      stone.width * scale, stone.height * scale);
+                    } else {
+                        ctx.drawImage(stone, ox - stone.width / 2,
+                                      oy - stone.height / 2);
+                    }
+                };
+            } else {
+                this.drawShadow = false;
+            }
+        } else {
+            this.drawStone = function(ctx, type, ox, oy, scale) {
+                ctx.fillStyle = '#000000';
+                ctx.beginPath();
+                ctx.arc(ox, oy, me.stoneR*scale, 2*Math.PI, false);
+                ctx.fill();
+
+                if(type == JGO.WHITE) {
+                    ctx.strokeStyle = '#000000';
+                    ctx.stroke();
+                }
+            };
+
+            this.drawShadow = false;
+        }
+    };
+
+    JGO.Stones.prototype.drawMark = function(ctx, mark, ox, oy) {
+        switch(mark) {
+            case JGO.MARK.SQUARE:
+                ctx.beginPath();
+                ctx.rect(ox - this.markX / 2, oy - this.markY / 2, this.markX, this.markY);
+                ctx.stroke();
+                break;
+
+            case JGO.MARK.CROSS:
+                ctx.beginPath();
+                ctx.moveTo(ox - this.markX / 2, oy + this.markY / 2);
+                ctx.lineTo(ox + this.markX / 2, oy - this.markY / 2);
+                ctx.moveTo(ox - this.markX / 2, oy - this.markY / 2);
+                ctx.lineTo(ox + this.markX / 2, oy + this.markY / 2);
+                ctx.stroke();
+                break;
+
+            case JGO.MARK.TRIANGLE:
+                ctx.beginPath();
+                for(var r=0; r<3; r++) {
+                    ctx.moveTo(ox + this.triangleR * Math.cos(Math.PI * (0.5 + 2*r/3)),
+                               oy - this.triangleR * Math.sin(Math.PI * (0.5 + 2*r/3)));
+                    ctx.lineTo(ox + this.triangleR * Math.cos(Math.PI * (0.5 + 2*(r+1)/3)),
+                               oy - this.triangleR * Math.sin(Math.PI * (0.5 + 2*(r+1)/3)));
+                }
+                ctx.stroke();
+                break;
+
+            case JGO.MARK.CIRCLE:
+                ctx.beginPath();
+                ctx.arc(ox, oy, this.circleR, 2*Math.PI, false);
+                ctx.stroke();
+                break;
+
+            case JGO.MARK.BLACK_TERRITORY:
+                ctx.globalAlpha=1;
+                this.drawStone(ctx, JGO.BLACK, ox, oy, 0.5);
+                break;
+
+            case JGO.MARK.WHITE_TERRITORY:
+                ctx.globalAlpha=1;
+                this.drawStone(ctx, JGO.WHITE, ox, oy, 0.5);
+                break;
+
+            case JGO.MARK.SELECTED:
+                ctx.globalAlpha=0.5;
+                ctx.fillStyle = '#8080FF';
+                //ctx.beginPath();
+                ctx.fillRect(ox - this.gridX / 2, oy - this.gridY / 2,
+                             this.gridX, this.gridY);
+                break;
+
+            default: // Label
+                // For clear intersections, grid is cleared before shadow cast
+                ctx.fillText(mark, ox, oy);
+                break;
+        }
+    };
+})();
+
+// Import or create JGO namespace
+var JGO = JGO || {};
+
 /**
  * jGoBoard utility namespace.
  * @namespace
@@ -1923,13 +1977,16 @@ JGO.util = JGO.util || {};
     JGO.util.loadImages = function(sources, callback) {
         var images = {}, imagesLeft = 0;
 
-        for(var src in sources)
+        for(var src in sources) // count non-false properties as images
             if(sources.hasOwnProperty(src) && sources[src])
                 imagesLeft++;
 
-        var countdown = function() { if(--imagesLeft <= 0) callback(images); };
+        var countdown = function() {
+            if(--imagesLeft <= 0)
+                callback(images);
+        };
 
-        for(src in sources) {
+        for(src in sources) { // load non-false properties to images object
             if(sources.hasOwnProperty(src) && sources[src]) {
                 images[src] = new Image();
                 images[src].onload = countdown;
