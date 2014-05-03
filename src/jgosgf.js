@@ -70,7 +70,7 @@ JGO.util = JGO.util || {};
             'SQ': '#'
         };
 
-        node.mark(explodeSGFList(values), markerMap[name]);
+        node.setMark(explodeSGFList(values), markerMap[name]);
         return true;
     }
 
@@ -367,7 +367,8 @@ JGO.util = JGO.util || {};
      */
     function recurseRecord(jrecord, gameTree) {
         for(var i=0; i<gameTree.sequence.length; i++) {
-            var node = gameTree.sequence[i], jnode = jrecord.createNode();
+            var node = gameTree.sequence[i],
+                jnode = jrecord.createNode(true); // clear parent marks
 
             for(var key in node) {
                 if(node.hasOwnProperty(key)) {

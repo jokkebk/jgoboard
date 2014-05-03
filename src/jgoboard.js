@@ -18,8 +18,9 @@ var JGO = JGO || {};
 
         if(height !== undefined)
             this.height = height;
-        else
+        else { //noinspection JSSuspiciousNameCombination
             this.height = this.width;
+        }
 
         this.listeners = [];
 

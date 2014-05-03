@@ -51,7 +51,125 @@ function move(dir) {
   $('#messages').html(jrecord.getCurrentNode().comment);
 }
 
-$.ajax('demo.sgf', { // fetch demo.sgf
+function Variation(rootNode) {
+  // Variation data
+  this.rootNode = rootNode;
+  this.startMove = 0;
+  this.length = 1;
+  this.parent = null;
+}
+
+Variation.prototype.setParent = function(variation) {
+  this.parent = variation;
+}
+
+Variation.prototype.setStartMove = function(move) {
+  this.startMove = move;
+}
+
+Variation.prototype.addNode = function(node) {
+  this.length++;
+}
+
+Variation.prototype.getLastMove = function() {
+  return this.startMove + this.length - 1;
+}
+
+Variation.prototype.getMoveLane = function(move) {
+  var position = move - this.startMove;
+
+  if(position < 0 || position >= this.length)
+    return -1;
+
+  return this.baseLane + this.down + Math.min(position, this.diagonal);
+}
+
+// Place a new variation on lanes and record its position
+Variation.prototype.place = function(lanes) {
+  // Placing defaults
+  this.baseLane = 0; // where do we start
+  this.down = 0; // how much we go down from base lane
+  this.diagonal = 0; // how many moves will go diagonally left and down
+
+  $('#messages').append('Placing ' + this.length + ' moves (' + this.startMove + '..' + this.getLastMove() + ')<br>');
+  $('#messages').append('[' + lanes.join(', ') + ']<br>');
+
+  if(lanes.length == 0) { // all lanes free
+    lanes.push(this.startMove); // reserve first lane
+    $('#messages').append('VARIATION: Base lane ' + this.baseLane + ' with ' + this.down + '+' + this.diagonal  + ' down+diagonal<br><br>');
+    return; // defaults are OK (base lane, down, diagonal all zero)
+  }
+
+  var curMove = this.startMove; // how long have we fitted the variation
+  var movesLeft = this.length; // how long to go
+
+  this.baseLane = this.parent.getMoveLane(this.startMove);
+  this.diagonal = 1;
+
+  $('#messages').append('Base lane at ' + this.baseLane + '<br>');
+
+  for(var lane = this.baseLane + 1; 1; lane++) {
+    if(lane >= lanes.length)
+      lanes.push(9999); // create a free lane
+
+    var space = lanes[lane] - curMove;
+
+    $('#messages').append('Lane ' + lane + ' with ' + space + ' space<br>');
+
+    if(movesLeft <= space) { // it fits
+      $('#messages').append('Enough space at lane ' + lane + '<br>');
+      break;
+    } else if(space > 0) { // can go diagonally
+      $('#messages').append('Go diagonal<br>');
+      this.diagonal++;
+      curMove++;
+      movesLeft--;
+    } else { // must go down
+      $('#messages').append('Go down<br>');
+      this.down++;
+    }
+  }
+
+  // Reserve space for vertical line before this variation
+  for(var i = 0; i < this.down; i++)
+    lanes[this.baseLane + i + 1] = this.startMove - 1;
+
+  // Reserve space for moves
+  for(var i = 0; i < this.diagonal; i++)
+    lanes[this.baseLane + this.down + i + 1] = this.startMove + i;
+
+  $('#messages').append('VARIATION: Base lane ' + this.baseLane + ' with ' + this.down + '+' + this.diagonal  + ' down+diagonal<br><br>');
+}
+
+function process(jrecord) {
+  var varStack = [new Variation(jrecord.getRootNode())];
+  var lanes = [];
+
+  while(varStack.length > 0) {
+    var variation = varStack.pop(), node = variation.rootNode;
+
+    // Walk through variation and save alternate branches in variation stack
+    while(node.children.length > 0) {
+      for(var i = node.children.length - 1; i > 0; i--) {
+        var subVar = new Variation(node.children[i]);
+        subVar.setParent(variation);
+        subVar.setStartMove(variation.getLastMove()+1);
+        varStack.push(subVar);
+      }
+
+      node = node.children[0];
+      variation.addNode(node);
+    }
+
+    variation.place(lanes);
+
+    //$('#messages').append('Move ' + item.move + ' with ' + item.node.children.length + ' children<br>');
+    //$('#messages').append('    down: ' + item.down + '  diag: ' + item.diag + '<br>');
+
+  }
+}
+
+$.ajax('vars.sgf', { // fetch demo.sgf
   complete: function(resp) {
     var jsetup;
 
@@ -62,6 +180,8 @@ $.ajax('demo.sgf', { // fetch demo.sgf
       alert('Empty SGF or multiple games in one SGF not supported!');
       return;
     }
+
+    process(jrecord);
 
     jsetup = new JGO.Setup(jrecord.jboard, JGO.BOARD.medium);
     jsetup.create('board', function(canvas) {

@@ -14,6 +14,8 @@ var JGO = JGO || {};
      * @memberof JGO
      */
     JGO.Stones = function(img, options) {
+        var me = this;
+
         this.stoneR = options.stone.radius;
         this.gridX = options.grid.x;
         this.gridY = options.grid.x;
@@ -39,7 +41,6 @@ var JGO = JGO || {};
             };
 
             if(img.shadow) {
-                this.isShadow = true;
                 this.drawShadow = function(ctx, ox, oy, scale) {
                     var stone = img.shadow;
 
@@ -54,14 +55,13 @@ var JGO = JGO || {};
                     }
                 };
             } else {
-                this.isShadow = false;
-                this.drawShadow = function(ctx, ox, oy, scale) {};
+                this.drawShadow = false;
             }
         } else {
-            this.drawStone = function(ctx, type, ox, oy) {
+            this.drawStone = function(ctx, type, ox, oy, scale) {
                 ctx.fillStyle = '#000000';
                 ctx.beginPath();
-                ctx.arc(ox, oy, stoneR*scale, 2*Math.PI, false);
+                ctx.arc(ox, oy, me.stoneR*scale, 2*Math.PI, false);
                 ctx.fill();
 
                 if(type == JGO.WHITE) {
@@ -70,8 +70,7 @@ var JGO = JGO || {};
                 }
             };
 
-            this.isShadow = false;
-            this.drawShadow = function(ctx, ox, oy, scale) {};
+            this.drawShadow = false;
         }
     };
 

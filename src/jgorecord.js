@@ -28,14 +28,28 @@ var JGO = JGO || {};
         return this.current;
     };
 
+
+    /**
+    * Get root node.
+    *
+    * @returns {JGO.Node} Root node.
+    */
+    JGO.Record.prototype.getRootNode = function() {
+        return this.root;
+    };
+
     /**
     * Create new empty node under current one.
     *
+    * @param {bool} clearParentMarks True to clear parent node marks.
     * @param {Object} info Node information - ko coordinate, comment, etc.
     * @returns {JGO.Node} New, current node.
     */
-    JGO.Record.prototype.createNode = function(options) {
+    JGO.Record.prototype.createNode = function(clearParentMarks, options) {
         var node = new JGO.Node(this.jboard, this.current, options);
+
+        if(clearParentMarks)
+            node.clearParentMarks();
 
         if(this.root === null)
             this.root = node;

@@ -30,6 +30,22 @@ var JGO = JGO || {};
     };
 
     /**
+    * Helper method to clear parent node's markers. Created to achieve SGF like
+    * stateless marker behavaior.
+    */
+    JGO.Node.prototype.clearParentMarks = function() {
+        if(!this.parent)
+            return;
+
+        for(var i=this.parent.changes.length-1; i>=0; i--) {
+            var item = this.parent.changes[i];
+
+            if('mark' in item)
+                this.setMark(item.c, JGO.MARK.NONE);
+        }
+    };
+
+    /**
     * Helper method to make changes to a board while saving them in the node.
     *
     * @param {Object} c JGO.Coordinate or array of them.

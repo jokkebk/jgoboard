@@ -351,7 +351,7 @@ var JGO = JGO || {};
         }, i1, j1, i2, j2); // provide iteration limits
 
         // Shadows
-        if(this.stones.isShadow) {
+        if(this.stones.drawShadow !== false) {
             jboard.each(function(c, type) {
                 var ox = 0.5 + self.getX(c.i - self.opt.view.xOffset),
                     oy = 0.5 + self.getY(c.j - self.opt.view.yOffset);
@@ -371,19 +371,21 @@ var JGO = JGO || {};
             var markColor;
 
             switch(type) {
-                case JGO.BLACK: case JGO.DIM_BLACK:
-                    self.ctx.globalAlpha = type == JGO.BLACK ? 1 : self.opt.stone.dimAlpha;
-                    self.stones.drawStone(self.ctx, JGO.BLACK, ox, oy);
-                    markColor = self.opt.mark.blackColor; // if we have marks, this is the color
-                    break;
-                case JGO.WHITE: case JGO.DIM_WHITE:
-                    self.ctx.globalAlpha = type == JGO.WHITE ? 1 : self.opt.stone.dimAlpha;
-                    self.stones.drawStone(self.ctx, JGO.WHITE, ox, oy);
-                    markColor = self.opt.mark.whiteColor; // if we have marks, this is the color
-                    break;
-                default:
-                    self.ctx.globalAlpha=1;
-                    markColor = self.opt.mark.clearColor; // if we have marks, this is the color
+            case JGO.BLACK:
+            case JGO.DIM_BLACK:
+                self.ctx.globalAlpha = type == JGO.BLACK ? 1 : self.opt.stone.dimAlpha;
+                self.stones.drawStone(self.ctx, JGO.BLACK, ox, oy);
+                markColor = self.opt.mark.blackColor; // if we have marks, this is the color
+                break;
+            case JGO.WHITE:
+            case JGO.DIM_WHITE:
+                self.ctx.globalAlpha = type == JGO.WHITE ? 1 : self.opt.stone.dimAlpha;
+                self.stones.drawStone(self.ctx, JGO.WHITE, ox, oy);
+                markColor = self.opt.mark.whiteColor; // if we have marks, this is the color
+                break;
+            default:
+                self.ctx.globalAlpha=1;
+                markColor = self.opt.mark.clearColor; // if we have marks, this is the color
             }
 
             // Common settings to all markers
