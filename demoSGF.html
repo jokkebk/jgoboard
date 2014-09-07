@@ -24,6 +24,7 @@
 <pre id="messages"></pre>
 
 <script type="text/javascript" src="dist/jgoboard-latest.js"></script>
+<script type="text/javascript" src="medium/board.js"></script>
 <script type="text/javascript" src="large/board.js"></script>
 <script type="text/javascript">
 var jrecord;
@@ -62,7 +63,7 @@ $.ajax('demo.sgf', {
       return;
     }
 
-    jsetup = new JGO.Setup(jrecord.jboard, JGO.BOARD.largeWalnut);
+    jsetup = new JGO.Setup(jrecord.jboard, JGO.BOARD.mediumBW);
     jsetup.create('board', function(canvas) {
       // Do something
     });

@@ -232,7 +232,7 @@ var JGO = JGO || {};
             if(opt.coordinates && opt.coordinates.top)
                 this.ctx.fillText(JGO.COORDINATES[i + opt.view.xOffset],
                     this.gridLeft + opt.grid.x * i,
-                this.marginTop / 2);
+                    this.marginTop / 2);
             if(opt.coordinates && opt.coordinates.bottom)
                 this.ctx.fillText(JGO.COORDINATES[i + opt.view.xOffset],
                     this.gridLeft + opt.grid.x * i,
@@ -260,6 +260,7 @@ var JGO = JGO || {};
             0, 0, canvas.width, canvas.height);
 
         this.restore = function(x, y, w, h) {
+            x = Math.floor(x); y = Math.floor(y);
             this.ctx.drawImage(this.backup, x, y, w, h, x, y, w, h);
         };
 
@@ -314,6 +315,7 @@ var JGO = JGO || {};
         this.ctx.beginPath();
         this.ctx.rect(x, y, w, h);
         this.ctx.clip(); // only apply redraw to relevant area
+        //alert('Restore' + x + ', ' + y + ' and ' + w + ' x ' + h);
         this.restore(x, y, w, h); // restore background
 
         // Expand redrawn intersections while keeping within viewport
@@ -343,8 +345,9 @@ var JGO = JGO || {};
         }
 
         jboard.each(function(c, type, mark) {
-            var ox = 0.5 + self.getX(c.i - self.opt.view.xOffset),
-                oy = 0.5 + self.getY(c.j - self.opt.view.yOffset);
+            // Note: Use of smt has been disabled here for clear results
+            var ox = self.getX(c.i - self.opt.view.xOffset),
+                oy = self.getY(c.j - self.opt.view.yOffset);
 
             if(type == JGO.CLEAR && mark && isLabel.test(mark))
                 clearFunc(ox, oy);
@@ -353,8 +356,8 @@ var JGO = JGO || {};
         // Shadows
         if(this.stones.drawShadow !== false) {
             jboard.each(function(c, type) {
-                var ox = 0.5 + self.getX(c.i - self.opt.view.xOffset),
-                    oy = 0.5 + self.getY(c.j - self.opt.view.yOffset);
+                var ox = self.getX(c.i - self.opt.view.xOffset),
+                    oy = self.getY(c.j - self.opt.view.yOffset);
 
                 if(type == JGO.BLACK || type == JGO.WHITE) {
                     self.stones.drawShadow(self.ctx,
@@ -366,8 +369,8 @@ var JGO = JGO || {};
 
         // Stones and marks
         jboard.each(function(c, type, mark) {
-            var ox = 0.5 + self.getX(c.i - self.opt.view.xOffset),
-                oy = 0.5 + self.getY(c.j - self.opt.view.yOffset);
+            var ox = (self.getX(c.i - self.opt.view.xOffset)),
+                oy = (self.getY(c.j - self.opt.view.yOffset));
             var markColor;
 
             switch(type) {

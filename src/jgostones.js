@@ -24,20 +24,16 @@ var JGO = JGO || {};
         this.circleR = this.stoneR * 0.5;
         this.triangleR = this.stoneR * 0.9;
 
-        // Create black and white
-        if(img.white && img.black) {
+        if(img.white && img.black) { // Textures
             this.drawStone = function(ctx, type, ox, oy, scale) {
                 var stone = type == JGO.BLACK ? img.black : img.white;
 
-                if(scale) {
-                    ctx.drawImage(stone, 0, 0, stone.width, stone.height,
-                                  ox - stone.width / 2 * scale,
-                                  oy - stone.height / 2 * scale,
-                                  stone.width * scale, stone.height * scale);
-                } else {
-                    ctx.drawImage(stone, ox - stone.width / 2,
-                                  oy - stone.height / 2);
-                }
+                if(!scale) scale = 1;
+                // round x, y for crisp rendering
+                ctx.drawImage(stone, 0, 0, stone.width, stone.height,
+                        Math.round(ox - stone.width / 2 * scale),
+                        Math.round(oy - stone.height / 2 * scale),
+                        stone.width * scale, stone.height * scale);
             };
 
             if(img.shadow) {
@@ -46,20 +42,20 @@ var JGO = JGO || {};
 
                     if(scale) {
                         ctx.drawImage(stone, 0, 0, stone.width, stone.height,
-                                      ox - stone.width / 2 * scale,
-                                      oy - stone.height / 2 * scale,
+                                      Math.round(ox - stone.width / 2 * scale),
+                                      Math.round(oy - stone.height / 2 * scale),
                                       stone.width * scale, stone.height * scale);
                     } else {
-                        ctx.drawImage(stone, ox - stone.width / 2,
-                                      oy - stone.height / 2);
+                        ctx.drawImage(stone,
+                                Math.round(ox - stone.width / 2),
+                                Math.round(oy - stone.height / 2));
                     }
                 };
-            } else {
-                this.drawShadow = false;
-            }
-        } else {
+            } else this.drawShadow = false;
+        } else { // Drawings
             this.drawStone = function(ctx, type, ox, oy, scale) {
-                ctx.fillStyle = '#000000';
+                if(!scale) scale = 1;
+                ctx.fillStyle = (type == JGO.WHITE) ? '#FFFFFF' : '#000000';
                 ctx.beginPath();
                 ctx.arc(ox, oy, me.stoneR*scale, 2*Math.PI, false);
                 ctx.fill();

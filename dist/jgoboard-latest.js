@@ -1,4 +1,4 @@
-/*! jgoboard 3.2.0, (c) Joonas Pihlajamaa. Licensed under CC-BY-NC-4.0, see http://jgoboard.com for details. */
+/*! jgoboard 3.2.1, (c) Joonas Pihlajamaa. Licensed under CC-BY-NC-4.0, see http://jgoboard.com for details. */
 /**
  * Namespace for jGoBoard.
  * @namespace
@@ -653,7 +653,7 @@ var JGO = JGO || {};
             if(opt.coordinates && opt.coordinates.top)
                 this.ctx.fillText(JGO.COORDINATES[i + opt.view.xOffset],
                     this.gridLeft + opt.grid.x * i,
-                this.marginTop / 2);
+                    this.marginTop / 2);
             if(opt.coordinates && opt.coordinates.bottom)
                 this.ctx.fillText(JGO.COORDINATES[i + opt.view.xOffset],
                     this.gridLeft + opt.grid.x * i,
@@ -681,6 +681,7 @@ var JGO = JGO || {};
             0, 0, canvas.width, canvas.height);
 
         this.restore = function(x, y, w, h) {
+            x = Math.floor(x); y = Math.floor(y);
             this.ctx.drawImage(this.backup, x, y, w, h, x, y, w, h);
         };
 
@@ -735,6 +736,7 @@ var JGO = JGO || {};
         this.ctx.beginPath();
         this.ctx.rect(x, y, w, h);
         this.ctx.clip(); // only apply redraw to relevant area
+        //alert('Restore' + x + ', ' + y + ' and ' + w + ' x ' + h);
         this.restore(x, y, w, h); // restore background
 
         // Expand redrawn intersections while keeping within viewport
@@ -764,8 +766,9 @@ var JGO = JGO || {};
         }
 
         jboard.each(function(c, type, mark) {
-            var ox = 0.5 + self.getX(c.i - self.opt.view.xOffset),
-                oy = 0.5 + self.getY(c.j - self.opt.view.yOffset);
+            // Note: Use of smt has been disabled here for clear results
+            var ox = self.getX(c.i - self.opt.view.xOffset),
+                oy = self.getY(c.j - self.opt.view.yOffset);
 
             if(type == JGO.CLEAR && mark && isLabel.test(mark))
                 clearFunc(ox, oy);
@@ -774,8 +777,8 @@ var JGO = JGO || {};
         // Shadows
         if(this.stones.drawShadow !== false) {
             jboard.each(function(c, type) {
-                var ox = 0.5 + self.getX(c.i - self.opt.view.xOffset),
-                    oy = 0.5 + self.getY(c.j - self.opt.view.yOffset);
+                var ox = self.getX(c.i - self.opt.view.xOffset),
+                    oy = self.getY(c.j - self.opt.view.yOffset);
 
                 if(type == JGO.BLACK || type == JGO.WHITE) {
                     self.stones.drawShadow(self.ctx,
@@ -787,8 +790,8 @@ var JGO = JGO || {};
 
         // Stones and marks
         jboard.each(function(c, type, mark) {
-            var ox = 0.5 + self.getX(c.i - self.opt.view.xOffset),
-                oy = 0.5 + self.getY(c.j - self.opt.view.yOffset);
+            var ox = (self.getX(c.i - self.opt.view.xOffset)),
+                oy = (self.getY(c.j - self.opt.view.yOffset));
             var markColor;
 
             switch(type) {
@@ -1845,20 +1848,16 @@ var JGO = JGO || {};
         this.circleR = this.stoneR * 0.5;
         this.triangleR = this.stoneR * 0.9;
 
-        // Create black and white
-        if(img.white && img.black) {
+        if(img.white && img.black) { // Textures
             this.drawStone = function(ctx, type, ox, oy, scale) {
                 var stone = type == JGO.BLACK ? img.black : img.white;
 
-                if(scale) {
-                    ctx.drawImage(stone, 0, 0, stone.width, stone.height,
-                                  ox - stone.width / 2 * scale,
-                                  oy - stone.height / 2 * scale,
-                                  stone.width * scale, stone.height * scale);
-                } else {
-                    ctx.drawImage(stone, ox - stone.width / 2,
-                                  oy - stone.height / 2);
-                }
+                if(!scale) scale = 1;
+                // round x, y for crisp rendering
+                ctx.drawImage(stone, 0, 0, stone.width, stone.height,
+                        Math.round(ox - stone.width / 2 * scale),
+                        Math.round(oy - stone.height / 2 * scale),
+                        stone.width * scale, stone.height * scale);
             };
 
             if(img.shadow) {
@@ -1867,20 +1866,20 @@ var JGO = JGO || {};
 
                     if(scale) {
                         ctx.drawImage(stone, 0, 0, stone.width, stone.height,
-                                      ox - stone.width / 2 * scale,
-                                      oy - stone.height / 2 * scale,
+                                      Math.round(ox - stone.width / 2 * scale),
+                                      Math.round(oy - stone.height / 2 * scale),
                                       stone.width * scale, stone.height * scale);
                     } else {
-                        ctx.drawImage(stone, ox - stone.width / 2,
-                                      oy - stone.height / 2);
+                        ctx.drawImage(stone,
+                                Math.round(ox - stone.width / 2),
+                                Math.round(oy - stone.height / 2));
                     }
                 };
-            } else {
-                this.drawShadow = false;
-            }
-        } else {
+            } else this.drawShadow = false;
+        } else { // Drawings
             this.drawStone = function(ctx, type, ox, oy, scale) {
-                ctx.fillStyle = '#000000';
+                if(!scale) scale = 1;
+                ctx.fillStyle = (type == JGO.WHITE) ? '#FFFFFF' : '#000000';
                 ctx.beginPath();
                 ctx.arc(ox, oy, me.stoneR*scale, 2*Math.PI, false);
                 ctx.fill();
