@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>Board</title>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 </head>
 <body>
 
@@ -12,13 +13,10 @@
 <script type="text/javascript" src="medium/board.js"></script>
 <script type="text/javascript">
 function randomBoard(jboard) {
-  var types = JGO.INTERSECTION.keys(), marks = JGO.MARK.keys(), i;
+  var types = [], marks = [], i;
 
-  for(i=0; i<types.length; i++)
-    types[i] = JGO.INTERSECTION[types[i]]; // map
-
-  for(i=0; i<marks.length; i++)
-    marks[i] = JGO.MARK[marks[i]]; // map
+  $.each(JGO.MARK, function(i,v) { marks.push(v); });
+  $.each(JGO.INTERSECTION, function(i,v) { types.push(v); });
 
   marks = marks.concat(['104', 'A']); // add a few labels
 

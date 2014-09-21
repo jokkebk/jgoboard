@@ -8,15 +8,16 @@ var JGO = JGO || {};
     'use strict';
 
     // Some day everyone will have Object.keys
-    if(!Object.prototype.keys) {
-        Object.prototype.keys = function() {
-            var keys = [];
-            for(var key in this)
-                if(this.hasOwnProperty(key))
-                    keys.push(key);
-            return keys;
-        };
-    }
+    // For some reason this broke jQuery $.ajax()
+    //if(!Object.prototype.keys) {
+    //    Object.prototype.keys = function() {
+    //        var keys = [];
+    //        for(var key in this)
+    //            if(this.hasOwnProperty(key))
+    //                keys.push(key);
+    //        return keys;
+    //    };
+    //}
 
     // Some day everyone will have Array.indexOf
     if(!Array.prototype.indexOf) {
@@ -25,13 +26,6 @@ var JGO = JGO || {};
                 if(this[i] === obj)
                     return i;
             return -1;
-        };
-    }
-
-    // And String.trim
-    if(!String.prototype.trim) {
-        String.prototype.trim = function() {
-            return this.replace(/^\s+|\s+$/g, '');
         };
     }
 

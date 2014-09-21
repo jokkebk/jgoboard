@@ -211,7 +211,7 @@ JGO.util = JGO.util || {};
             token = tokens[i];
 
             if(bracketOpen == -1) { // handling elements outside property values (i.e. square brackets)
-                token = token.trim(); // trim whitespace, it is irrelevant here
+                token = token.replace(/^\s+|\s+$/g, ''); // trim whitespace, it is irrelevant here
                 if(token == '[') // found one
                     bracketOpen = i;
                 else if(token !== '') // we are outside brackets, so just push everything nonempty as it is into 'processed'
