@@ -43,9 +43,9 @@ var JGO = JGO || {};
         /** Cross */
         CROSS: '*',
         /** Black territory */
-        BLACK_TERRITORY: ',',
+        BLACK_TERRITORY: '-',
         /** White territory */
-        WHITE_TERRITORY: '.'
+        WHITE_TERRITORY: '+'
     };
 
     /**

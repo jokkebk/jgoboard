@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Board</title>
+
+  <script type="text/javascript" src="dist/jgoboard-latest.js"></script>
+  <script type="text/javascript" src="medium/board.js"></script>
+  <script type="text/javascript" src="dist/jgoauto.js"></script>
+</head>
+<body>
+
+<h1>Automatic diagrams demo</h1>
+
+<p>jGoBoard can transform HTML div elements into beautiful diagrams
+automatically. This is nice for a go-related blog or website. Just include
+three javascript files and use "jgoboard" tag with your divs. Look at
+this diagram:</p>
+
+<div class="jgoboard">
+  ....
+  oo.x
+  .xxx
+  ....
+</div>
+
+<p>It is easy also to add markers or change the style with custom attributes:</p>
+
+<div class="jgoboard" data-jgostyle="JGO.BOARD.mediumBW">
+  .+ .+ ./ .
+  o2 o# .  xA
+  .  x1 x* x0
+  .  .  .- .-
+</div>
+
+<p>You can also show only parts of the board. In this case you also have to specify board size and top left corner coordinate:</p>
+
+<div class="jgoboard" data-jgostyle="JGO.BOARD.mediumWalnut" data-jgosize="19x19" data-jgotopleft="Q4">
+  ....
+  oo.x
+  .xxx
+  ....
+</div>
+
+<p>Look at the source of this file to see the .js files you need and syntax used for div elements.</p>
+</body>
+</html>

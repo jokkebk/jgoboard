@@ -428,7 +428,7 @@ var JGO = JGO || {};
     /**
      * Create a jGoBoard canvas object.
      *
-     * @param {String} elem Container element id.
+     * @param {Object} elem Container HTML element or its id.
      * @param {Object} opt Options object.
      * @param {JGO.Stones} stones Stone and marker drawing facility.
      * @param {Image} boardTexture Board texture or false if none.
@@ -436,8 +436,10 @@ var JGO = JGO || {};
      * @memberof JGO
      */
     JGO.Canvas = function(elem, opt, stones, boardTexture) {
-        var container = document.getElementById(elem),
-            canvas = document.createElement('canvas'),
+        if(typeof elem === 'string')
+            elem = document.getElementById(elem);
+
+        var canvas = document.createElement('canvas'),
             self = this, i, j;
 
         var padLeft = opt.edge.left ? opt.padding.normal : opt.padding.clipped,
@@ -524,7 +526,7 @@ var JGO = JGO || {};
                 listeners[l].call(self, ev);
         };
 
-        container.appendChild(canvas);
+        elem.appendChild(canvas);
 
         this.ctx = canvas.getContext('2d');
         this.opt = opt;
@@ -891,9 +893,9 @@ var JGO = JGO || {};
         /** Cross */
         CROSS: '*',
         /** Black territory */
-        BLACK_TERRITORY: ',',
+        BLACK_TERRITORY: '-',
         /** White territory */
-        WHITE_TERRITORY: '.'
+        WHITE_TERRITORY: '+'
     };
 
     /**
