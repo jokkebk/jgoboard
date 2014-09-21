@@ -60,7 +60,7 @@ var JGO = JGO || {};
         // Click handler will call all listeners passing the coordinate of click
         // and the click event
         canvas.onclick = function(ev) {
-            var c = self.getCoordinate(ev.pageX, ev.pageY),
+            var c = self.getCoordinate(ev.clientX, ev.clientY),
                 listeners = self.listeners.click;
 
             for(var l=0; l<listeners.length; l++)
@@ -72,7 +72,9 @@ var JGO = JGO || {};
         // Move handler will call all listeners passing the coordinate of move
         // whenever mouse moves over a new intersection
         canvas.onmousemove = function(ev) {
-            var c = self.getCoordinate(ev.pageX, ev.pageY),
+            if(!self.listeners.mousemove.length) return;
+
+            var c = self.getCoordinate(ev.clientX, ev.clientY),
                 listeners = self.listeners.mousemove;
 
             if(c.i < self.opt.view.xOffset ||
@@ -260,7 +262,8 @@ var JGO = JGO || {};
             0, 0, canvas.width, canvas.height);
 
         this.restore = function(x, y, w, h) {
-            x = Math.floor(x); y = Math.floor(y);
+            x = Math.floor(x);
+            y = Math.floor(y);
             this.ctx.drawImage(this.backup, x, y, w, h, x, y, w, h);
         };
 

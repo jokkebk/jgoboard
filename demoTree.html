@@ -51,24 +51,11 @@ function move(dir) {
   $('#messages').html(jrecord.getCurrentNode().comment);
 }
 
-function Variation(rootNode) {
-  // Variation data
+function Variation(rootNode, startMove, parentVar) {
   this.rootNode = rootNode;
-  this.startMove = 0;
   this.length = 1;
-  this.parent = null;
-}
-
-Variation.prototype.setParent = function(variation) {
-  this.parent = variation;
-}
-
-Variation.prototype.setStartMove = function(move) {
-  this.startMove = move;
-}
-
-Variation.prototype.addNode = function(node) {
-  this.length++;
+  this.startMove = startMove || 0;
+  this.parentVar = parentVar || null;
 }
 
 Variation.prototype.getLastMove = function() {
@@ -86,46 +73,38 @@ Variation.prototype.getMoveLane = function(move) {
 
 // Place a new variation on lanes and record its position
 Variation.prototype.place = function(lanes) {
-  // Placing defaults
-  this.baseLane = 0; // where do we start
-  this.down = 0; // how much we go down from base lane
-  this.diagonal = 0; // how many moves will go diagonally left and down
-
-  $('#messages').append('Placing ' + this.length + ' moves (' + this.startMove + '..' + this.getLastMove() + ')<br>');
-  $('#messages').append('[' + lanes.join(', ') + ']<br>');
-
   if(lanes.length == 0) { // all lanes free
+    $('#messages').html('MAIN LINE: ' + this.length + ' moves<br>');
+    this.baseLane = this.down = this.diagonal = 0; // set everything to default
     lanes.push(this.startMove); // reserve first lane
-    $('#messages').append('VARIATION: Base lane ' + this.baseLane + ' with ' + this.down + '+' + this.diagonal  + ' down+diagonal<br><br>');
-    return; // defaults are OK (base lane, down, diagonal all zero)
+    return;
   }
 
-  var curMove = this.startMove; // how long have we fitted the variation
-  var movesLeft = this.length; // how long to go
+  //$('#messages').append('Placing ' + this.length + ' moves to [' + lanes.join(', ') + ']<br>');
 
-  this.baseLane = this.parent.getMoveLane(this.startMove);
+  this.baseLane = this.parentVar.getMoveLane(this.startMove);
+  this.down = 0;
   this.diagonal = 1;
 
-  $('#messages').append('Base lane at ' + this.baseLane + '<br>');
+  var curMove = this.startMove, movesLeft = this.length, space;
 
   for(var lane = this.baseLane + 1; 1; lane++) {
     if(lane >= lanes.length)
       lanes.push(9999); // create a free lane
 
-    var space = lanes[lane] - curMove;
+    space = lanes[lane] - curMove;
+    //$('#messages').append('Lane ' + lane + ' with ' + space + ' space<br>');
 
-    $('#messages').append('Lane ' + lane + ' with ' + space + ' space<br>');
-
-    if(movesLeft <= space) { // it fits
-      $('#messages').append('Enough space at lane ' + lane + '<br>');
+    if(movesLeft <= space) { // we can fit the rest here
+      //$('#messages').append('Enough space at lane ' + lane + '<br>');
       break;
-    } else if(space > 0) { // can go diagonally
-      $('#messages').append('Go diagonal<br>');
+    } else if(space > 0) { // there's room to go diagonally
+      //$('#messages').append('Go diagonal<br>');
       this.diagonal++;
       curMove++;
       movesLeft--;
     } else { // must go down
-      $('#messages').append('Go down<br>');
+      //$('#messages').append('Go down<br>');
       this.down++;
     }
   }
@@ -138,7 +117,7 @@ Variation.prototype.place = function(lanes) {
   for(var i = 0; i < this.diagonal; i++)
     lanes[this.baseLane + this.down + i + 1] = this.startMove + i;
 
-  $('#messages').append('VARIATION: Base lane ' + this.baseLane + ' with ' + this.down + '+' + this.diagonal  + ' down+diagonal<br><br>');
+  $('#messages').append('VARIATION (' + this.startMove + '..' + this.getLastMove() + '): Base lane ' + this.baseLane + ' with ' + this.down + '+' + this.diagonal  + ' down+diagonal<br>');
 }
 
 function process(jrecord) {
@@ -150,22 +129,17 @@ function process(jrecord) {
 
     // Walk through variation and save alternate branches in variation stack
     while(node.children.length > 0) {
-      for(var i = node.children.length - 1; i > 0; i--) {
-        var subVar = new Variation(node.children[i]);
-        subVar.setParent(variation);
-        subVar.setStartMove(variation.getLastMove()+1);
-        varStack.push(subVar);
-      }
+      for(var i = node.children.length - 1; i > 0; i--)
+        varStack.push(new Variation(
+          node.children[i],
+          variation.getLastMove()+1,
+          variation));
 
       node = node.children[0];
-      variation.addNode(node);
+      variation.length++;
     }
 
     variation.place(lanes);
-
-    //$('#messages').append('Move ' + item.move + ' with ' + item.node.children.length + ' children<br>');
-    //$('#messages').append('    down: ' + item.down + '  diag: ' + item.diag + '<br>');
-
   }
 }
 

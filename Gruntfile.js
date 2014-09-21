@@ -8,7 +8,7 @@ module.exports = function(grunt) {
         jshint: {
             files: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.js'],
             options: {
-                jshintrc: true
+                browser: true
             }
         },
         // Use shell command until jsdoc support gets to 3.3.0 (without Java)
