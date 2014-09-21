@@ -73,27 +73,29 @@ function move(dir) {
   $('#variations').html(jrecord.getVariations());
 }
 
-$.ajax('demo.sgf', {
-  complete: function(resp) {
-    var jsetup;
+$(document).ready(function() {
+  $.ajax('demo.sgf', {
+    complete: function(resp) {
+      var jsetup;
 
-    jrecord = JGO.util.loadSGF(resp.responseText);
+      jrecord = JGO.util.loadSGF(resp.responseText);
 
-    var comment = jrecord.getCurrentNode().comment;
-    $('#messages').html(comment ? comment : '');
-    $('#variation').html(jrecord.getVariation()+1);
-    $('#variations').html(jrecord.getVariations());
+      var comment = jrecord.getCurrentNode().comment;
+      $('#messages').html(comment ? comment : '');
+      $('#variation').html(jrecord.getVariation()+1);
+      $('#variations').html(jrecord.getVariations());
 
-    if(!(jrecord instanceof JGO.Record)) {
-      alert('Empty SGF or multiple games in one SGF not supported!');
-      return;
+      if(!(jrecord instanceof JGO.Record)) {
+        alert('Empty SGF or multiple games in one SGF not supported!');
+        return;
+      }
+
+      jsetup = new JGO.Setup(jrecord.jboard, JGO.BOARD.mediumBW);
+      jsetup.create('board', function(canvas) {
+        // Do something
+      });
     }
-
-    jsetup = new JGO.Setup(jrecord.jboard, JGO.BOARD.mediumBW);
-    jsetup.create('board', function(canvas) {
-      // Do something
-    });
-  }
+  });
 });
 </script>
 
