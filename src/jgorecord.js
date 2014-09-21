@@ -60,7 +60,7 @@ var JGO = JGO || {};
     /**
     * Advance to the next node in the game tree.
     *
-    * @param {int} [variation] parameter to specify which variation to select, if there are several branches
+    * @param {int} [variation] parameter to specify which variation to select, if there are several branches.
     * @returns {JGO.Node} New current node or null if at the end of game tree.
     */
     JGO.Record.prototype.next = function(variation) {
@@ -94,6 +94,39 @@ var JGO = JGO || {};
         return this.current;
     };
 
+    /**
+    * Get current variation number (zero-based).
+    *
+    * @returns {int} Current variations.
+    */
+    JGO.Record.prototype.getVariation = function() {
+        if(this.current === null || this.current.parent === null)
+            return 0;
+        return this.current.parent.children.indexOf(this.current);
+    };
+
+    /**
+    * Go to a variation. Uses previous() and next().
+    *
+    * @param {int} [variation] parameter to specify which variation to select, if there are several branches.
+    */
+    JGO.Record.prototype.setVariation = function(variation) {
+        if(this.previous() === null)
+            return null;
+        return this.next(variation);
+    };
+
+    /**
+    * Get number of variations for current node.
+    *
+    * @returns {int} Number of variations.
+    */
+    JGO.Record.prototype.getVariations = function() {
+        if(this.current === null || this.current.parent === null)
+            return 1;
+
+        return this.current.parent.children.length; // "nice"
+    };
 
     /**
     * Go to the beginning of the game tree.

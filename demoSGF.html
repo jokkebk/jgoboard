@@ -7,21 +7,41 @@
     /*body {
       background-color: #eeeeee;
     }*/
+    #messages {
+      border: 1px solid #ddd;
+      background-color: #eee;
+      width: 400px;
+      height: 400px;
+    }
+
+    #controls {
+      border: 1px solid #ddd;
+      background-color: #eee;
+      width: 300px;
+      padding: 4px;
+    }
   </style>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 </head>
 <body>
 
-<div id="board"></div>
+<div style="float: left;">
+  <div id="board"></div>
 
-<p>
-<a href="#" onclick="move(-2); return false;">First</a>
-<a href="#" onclick="move(-1); return false;">Previous</a>
-<a href="#" onclick="move(1); return false;">Next</a>
-<a href="#" onclick="move(2); return false;">Last</a>
-</p>
+  <p id="controls">
+  <a href="#" onclick="move(-2); return false;">First</a>
+  <a href="#" onclick="move(-1); return false;">Previous</a>
+  <a href="#" onclick="move(0); return false;">Variation</a> <span id="variation">1</span> / <span id="variations">1</span>
+  <a href="#" onclick="move(1); return false;">Next</a>
+  <a href="#" onclick="move(2); return false;">Last</a>
+  </p>
+</div>
 
-<pre id="messages"></pre>
+<div style="float: left;">
+  <p id="messages"></p>
+</div>
+
+<div style="clear: both;"></div>
 
 <script type="text/javascript" src="dist/jgoboard-latest.js"></script>
 <script type="text/javascript" src="medium/board.js"></script>
@@ -42,12 +62,18 @@ function move(dir) {
     case 2:
       while(jrecord.next() != null) {}
       break;
-    default:
+    case -2:
       jrecord.first();
+      break;
+    case 0: // cycle variations
+      jrecord.setVariation((jrecord.getVariation() + 1) % jrecord.getVariations());
       break;
   }
 
-  $('#messages').html(jrecord.getCurrentNode().comment);
+  var comment = jrecord.getCurrentNode().comment;
+  $('#messages').html(comment ? comment : '');
+  $('#variation').html(jrecord.getVariation()+1);
+  $('#variations').html(jrecord.getVariations());
 }
 
 $.ajax('demo.sgf', {
@@ -56,7 +82,10 @@ $.ajax('demo.sgf', {
 
     jrecord = JGO.util.loadSGF(resp.responseText);
 
-    $('#messages').html(jrecord.getCurrentNode().comment);
+    var comment = jrecord.getCurrentNode().comment;
+    $('#messages').html(comment ? comment : '');
+    $('#variation').html(jrecord.getVariation()+1);
+    $('#variations').html(jrecord.getVariations());
 
     if(!(jrecord instanceof JGO.Record)) {
       alert('Empty SGF or multiple games in one SGF not supported!');
