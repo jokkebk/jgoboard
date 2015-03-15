@@ -399,7 +399,7 @@ function gameTreeToRecord(gameTree) {
  *
  * @returns {Object} Record object, array of them, or string on error.
  */
-exports.loadSGF = function(sgf) {
+function loadSGF(sgf) {
   var gameTree = parseSGF(sgf);
 
   if(gameTree.sequence.length === 0) { // potentially multiple records
@@ -421,4 +421,6 @@ exports.loadSGF = function(sgf) {
   }
 
   return gameTreeToRecord(gameTree);
-};
+}
+
+module.exports = loadSGF;

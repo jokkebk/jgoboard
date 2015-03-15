@@ -11,5 +11,6 @@ JGO.Setup = require('./setup');
 JGO.Stones = require('./stones');
 JGO.Board = require('./board');
 JGO.util = require('./util');
+JGO.util.loadSGF = require('./sgf');
 
 module.exports = JGO;
