@@ -66,7 +66,7 @@
                 for(c.i = topleft.i; c.i < topleft.i + data[0].length; ++c.i) {
                     var elem = data[c.j - topleft.j][c.i - topleft.i];
                     jboard.setType(c, elem.type);
-                    //if(elem.mark) jboard.setMark(c, elem.mark);
+                    if(elem.mark) jboard.setMark(c, elem.mark);
                 }
             }
         });
