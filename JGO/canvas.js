@@ -350,61 +350,61 @@ Canvas.prototype.draw = function(jboard, i1, j1, i2, j2) {
 
   jboard.each(function(c, type, mark) {
     // Note: Use of smt has been disabled here for clear results
-    var ox = self.getX(c.i - self.opt.view.xOffset),
-    oy = self.getY(c.j - self.opt.view.yOffset);
+    var ox = self.getX(c.i - self.opt.view.xOffset);
+    var oy = self.getY(c.j - self.opt.view.yOffset);
 
-  if(type == C.CLEAR && mark && isLabel.test(mark))
+    if(type == C.CLEAR && mark && isLabel.test(mark))
     clearFunc(ox, oy);
   }, i1, j1, i2, j2); // provide iteration limits
 
   // Shadows
   if(this.stones.drawShadow !== false) {
     jboard.each(function(c, type) {
-      var ox = self.getX(c.i - self.opt.view.xOffset),
-      oy = self.getY(c.j - self.opt.view.yOffset);
+      var ox = self.getX(c.i - self.opt.view.xOffset);
+      var oy = self.getY(c.j - self.opt.view.yOffset);
 
-    if(type == C.BLACK || type == C.WHITE) {
-      self.stones.drawShadow(self.ctx,
-        self.opt.shadow.xOff + ox,
-        self.opt.shadow.yOff + oy);
-    }
+      if(type == C.BLACK || type == C.WHITE) {
+        self.stones.drawShadow(self.ctx,
+          self.opt.shadow.xOff + ox,
+          self.opt.shadow.yOff + oy);
+      }
     }, i1, j1, i2, j2); // provide iteration limits
   }
 
   // Stones and marks
   jboard.each(function(c, type, mark) {
-    var ox = (self.getX(c.i - self.opt.view.xOffset)),
-    oy = (self.getY(c.j - self.opt.view.yOffset));
-  var markColor;
+    var ox = (self.getX(c.i - self.opt.view.xOffset));
+    var oy = (self.getY(c.j - self.opt.view.yOffset));
+    var markColor;
 
-  switch(type) {
-    case C.BLACK:
-    case C.DIM_BLACK:
-      self.ctx.globalAlpha = type == C.BLACK ? 1 : self.opt.stone.dimAlpha;
-      self.stones.drawStone(self.ctx, C.BLACK, ox, oy);
-      markColor = self.opt.mark.blackColor; // if we have marks, this is the color
-      break;
-    case C.WHITE:
-    case C.DIM_WHITE:
-      self.ctx.globalAlpha = type == C.WHITE ? 1 : self.opt.stone.dimAlpha;
-      self.stones.drawStone(self.ctx, C.WHITE, ox, oy);
-      markColor = self.opt.mark.whiteColor; // if we have marks, this is the color
-      break;
-    default:
-      self.ctx.globalAlpha=1;
-      markColor = self.opt.mark.clearColor; // if we have marks, this is the color
-  }
+    switch(type) {
+      case C.BLACK:
+      case C.DIM_BLACK:
+        self.ctx.globalAlpha = type == C.BLACK ? 1 : self.opt.stone.dimAlpha;
+        self.stones.drawStone(self.ctx, C.BLACK, ox, oy);
+        markColor = self.opt.mark.blackColor; // if we have marks, this is the color
+        break;
+      case C.WHITE:
+      case C.DIM_WHITE:
+        self.ctx.globalAlpha = type == C.WHITE ? 1 : self.opt.stone.dimAlpha;
+        self.stones.drawStone(self.ctx, C.WHITE, ox, oy);
+        markColor = self.opt.mark.whiteColor; // if we have marks, this is the color
+        break;
+      default:
+        self.ctx.globalAlpha=1;
+        markColor = self.opt.mark.clearColor; // if we have marks, this is the color
+    }
 
-  // Common settings to all markers
-  self.ctx.lineWidth = self.opt.mark.lineWidth;
-  self.ctx.strokeStyle = markColor;
+    // Common settings to all markers
+    self.ctx.lineWidth = self.opt.mark.lineWidth;
+    self.ctx.strokeStyle = markColor;
 
-  self.ctx.font = self.opt.mark.font;
-  self.ctx.fillStyle = markColor;
-  self.ctx.textAlign = 'center';
-  self.ctx.textBaseline = 'middle';
+    self.ctx.font = self.opt.mark.font;
+    self.ctx.fillStyle = markColor;
+    self.ctx.textAlign = 'center';
+    self.ctx.textBaseline = 'middle';
 
-  if(mark) self.stones.drawMark(self.ctx, mark, ox, oy);
+    if(mark) self.stones.drawMark(self.ctx, mark, ox, oy);
   }, i1, j1, i2, j2); // provide iteration limits
 
   this.ctx.restore(); // also restores globalAlpha
