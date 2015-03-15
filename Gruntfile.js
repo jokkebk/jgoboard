@@ -75,5 +75,5 @@ module.exports = function(grunt) {
 
     // Default task(s).
     //grunt.registerTask('default', ['jshint', 'concat', 'uglify', 'copy']);
-    grunt.registerTask('default', ['jshint', 'browserify']);
+    grunt.registerTask('default', ['jshint', 'browserify', 'uglify', 'copy']);
 };
