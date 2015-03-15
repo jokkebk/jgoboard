@@ -678,7 +678,6 @@ Canvas.prototype.draw = function(jboard, i1, j1, i2, j2) {
   this.ctx.beginPath();
   this.ctx.rect(x, y, w, h);
   this.ctx.clip(); // only apply redraw to relevant area
-  //alert('Restore' + x + ', ' + y + ' and ' + w + ' x ' + h);
   this.restore(x, y, w, h); // restore background
 
   // Expand redrawn intersections while keeping within viewport
