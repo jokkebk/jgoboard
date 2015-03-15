@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: jgostones.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: jgostones.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// Import or create JGO namespace
+var JGO = JGO || {};
+
+(function() {
+    'use strict';
+
+    /**
+     * Create a jGoBoard stones object. This is a facility that can draw
+     * stones and markers on a HTML5 canvas. Only used internally by the
+     * library.
+     *
+     * @param {Object} img Image array.
+     * @constructor
+     * @memberof JGO
+     */
+    JGO.Stones = function(img, options) {
+        var me = this;
+
+        this.stoneR = options.stone.radius;
+        this.gridX = options.grid.x;
+        this.gridY = options.grid.x;
+        this.markX = this.stoneR * 1.1;
+        this.markY = this.stoneR * 1.1;
+        this.circleR = this.stoneR * 0.5;
+        this.triangleR = this.stoneR * 0.9;
+
+        if(img.white &amp;&amp; img.black) { // Textures
+            this.drawStone = function(ctx, type, ox, oy, scale) {
+                var stone = type == JGO.BLACK ? img.black : img.white;
+
+                if(!scale) scale = 1;
+                // round x, y for crisp rendering
+                ctx.drawImage(stone, 0, 0, stone.width, stone.height,
+                        Math.round(ox - stone.width / 2 * scale),
+                        Math.round(oy - stone.height / 2 * scale),
+                        stone.width * scale, stone.height * scale);
+            };
+
+            if(img.shadow) {
+                this.drawShadow = function(ctx, ox, oy, scale) {
+                    var stone = img.shadow;
+
+                    if(scale) {
+                        ctx.drawImage(stone, 0, 0, stone.width, stone.height,
+                                      Math.round(ox - stone.width / 2 * scale),
+                                      Math.round(oy - stone.height / 2 * scale),
+                                      stone.width * scale, stone.height * scale);
+                    } else {
+                        ctx.drawImage(stone,
+                                Math.round(ox - stone.width / 2),
+                                Math.round(oy - stone.height / 2));
+                    }
+                };
+            } else this.drawShadow = false;
+        } else { // Drawings
+            this.drawStone = function(ctx, type, ox, oy, scale) {
+                if(!scale) scale = 1;
+                ctx.fillStyle = (type == JGO.WHITE) ? '#FFFFFF' : '#000000';
+                ctx.beginPath();
+                ctx.arc(ox, oy, me.stoneR*scale, 2*Math.PI, false);
+                ctx.fill();
+
+                if(type == JGO.WHITE) {
+                    ctx.strokeStyle = '#000000';
+                    ctx.stroke();
+                }
+            };
+
+            this.drawShadow = false;
+        }
+    };
+
+    JGO.Stones.prototype.drawMark = function(ctx, mark, ox, oy) {
+        switch(mark) {
+            case JGO.MARK.SQUARE:
+                ctx.beginPath();
+                ctx.rect(ox - this.markX / 2, oy - this.markY / 2, this.markX, this.markY);
+                ctx.stroke();
+                break;
+
+            case JGO.MARK.CROSS:
+                ctx.beginPath();
+                ctx.moveTo(ox - this.markX / 2, oy + this.markY / 2);
+                ctx.lineTo(ox + this.markX / 2, oy - this.markY / 2);
+                ctx.moveTo(ox - this.markX / 2, oy - this.markY / 2);
+                ctx.lineTo(ox + this.markX / 2, oy + this.markY / 2);
+                ctx.stroke();
+                break;
+
+            case JGO.MARK.TRIANGLE:
+                ctx.beginPath();
+                for(var r=0; r&lt;3; r++) {
+                    ctx.moveTo(ox + this.triangleR * Math.cos(Math.PI * (0.5 + 2*r/3)),
+                               oy - this.triangleR * Math.sin(Math.PI * (0.5 + 2*r/3)));
+                    ctx.lineTo(ox + this.triangleR * Math.cos(Math.PI * (0.5 + 2*(r+1)/3)),
+                               oy - this.triangleR * Math.sin(Math.PI * (0.5 + 2*(r+1)/3)));
+                }
+                ctx.stroke();
+                break;
+
+            case JGO.MARK.CIRCLE:
+                ctx.beginPath();
+                ctx.arc(ox, oy, this.circleR, 2*Math.PI, false);
+                ctx.stroke();
+                break;
+
+            case JGO.MARK.BLACK_TERRITORY:
+                ctx.globalAlpha=1;
+                this.drawStone(ctx, JGO.BLACK, ox, oy, 0.5);
+                break;
+
+            case JGO.MARK.WHITE_TERRITORY:
+                ctx.globalAlpha=1;
+                this.drawStone(ctx, JGO.WHITE, ox, oy, 0.5);
+                break;
+
+            case JGO.MARK.SELECTED:
+                ctx.globalAlpha=0.5;
+                ctx.fillStyle = '#8080FF';
+                //ctx.beginPath();
+                ctx.fillRect(ox - this.gridX / 2, oy - this.gridY / 2,
+                             this.gridX, this.gridY);
+                break;
+
+            default: // Label
+                // For clear intersections, grid is cleared before shadow cast
+                ctx.fillText(mark, ox, oy);
+                break;
+        }
+    };
+})();
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="JGO.Board.html">Board</a></li><li><a href="JGO.Canvas.html">Canvas</a></li><li><a href="JGO.Coordinate.html">Coordinate</a></li><li><a href="JGO.Node.html">Node</a></li><li><a href="JGO.Notifier.html">Notifier</a></li><li><a href="JGO.Record.html">Record</a></li><li><a href="JGO.Setup.html">Setup</a></li><li><a href="JGO.Stones.html">Stones</a></li></ul><h3>Namespaces</h3><ul><li><a href="JGO.html">JGO</a></li><li><a href="JGO.util.html">util</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta2</a> on Sun Mar 15 2015 15:38:06 GMT+0200 (FLE Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

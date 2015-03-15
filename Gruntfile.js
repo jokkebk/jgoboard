@@ -6,7 +6,7 @@ module.exports = function(grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         jshint: {
-            files: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.js'],
+            files: ['Gruntfile.js', 'JGO/**/*.js', 'test/**/*.js'],
             options: {
                 browser: true
             }
@@ -14,8 +14,8 @@ module.exports = function(grunt) {
         // Use shell command until jsdoc support gets to 3.3.0 (without Java)
         shell: {
             makeDocs: {
-                //command: 'echo <%= grunt.file.expand("src/*.js").join(" ") %>',
-                command: 'jsdoc -d doc src', // JSDoc doesn't support expansion
+                //command: 'echo <%= grunt.file.expand("JGO/*.js").join(" ") %>',
+                command: 'jsdoc -d doc JGO', // JSDoc doesn't support expansion
                 options: {
                     stdout: true,
                     stderr: true
@@ -29,7 +29,7 @@ module.exports = function(grunt) {
                     'Licensed under <%= pkg.license %>, see <%= pkg.homepage %> for details. */\n'
             },
             dist: {
-                src: [ 'src/jgoinit.js', 'src/*.js' ],
+                src: [ 'JGO/jgoinit.js', 'JGO/*.js' ],
                 dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.js',
             }
         },

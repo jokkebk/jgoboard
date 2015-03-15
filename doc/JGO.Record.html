@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>JSDoc: Class: Record</title>
-    
+
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
     <!--[if lt IE 9]>
@@ -16,76 +16,80 @@
 <body>
 
 <div id="main">
-    
+
     <h1 class="page-title">Class: Record</h1>
+
     
-    
+
 
 
 
 <section>
-    
+
 <header>
-    <h2>
-        <span class="ancestors"><a href="JGO.html">JGO</a>.</span>
     
-    Record
-    </h2>
+        <h2>
+            <span class="ancestors"><a href="JGO.html">JGO</a>.</span>
+        
+        Record
+        </h2>
+        
     
-</header>  
+</header>
 
 <article>
     <div class="container-overview">
     
-    
-    
         
-<dt>
-    <h4 class="name" id="Record"><span class="type-signature"></span>new Record<span class="signature">(width, height)</span><span class="type-signature"></span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        Create a go game record that can handle plays and variations. A JGO.Boardobject is created that will reflect the current position in game record.
-    </div>
-    
 
     
+
+    <h4 class="name" id="Record"><span class="type-signature"></span>new Record<span class="signature">(width, height)</span><span class="type-signature"></span></h4>
+
     
+
+
+
+<div class="description">
+    Create a go game record that can handle plays and variations. A JGO.Boardobject is created that will reflect the current position in game record.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
     
-    
-    
-        <h5>Parameters:</h5>
-        
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>width</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -94,21 +98,21 @@
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last">Board width.</td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
                 <td class="name"><code>height</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -117,133 +121,170 @@
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last">Board height.</td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
-    
-    
-    
+
+
+
+
+
+
 <dl class="details">
-    
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
+
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="jgorecord.js.html">jgorecord.js</a>, <a href="jgorecord.js.html#line16">line 16</a>
     </li></ul></dd>
     
+
     
+
     
-    
-    
-    
+
     
 </dl>
 
-    
-    
 
-    
 
-    
-    
-    
-    
-    
-    
-    
-</dd>
+
+
+
+
+
+
+
+
+
+
+
+
 
     
     </div>
+
     
+
     
+
     
+
+     
+
     
+
     
-    
-    
-    
-    
-    
-    
-    
-    
+
     
         <h3 class="subsection-title">Methods</h3>
+
         
-        <dl>
             
-<dt>
-    <h4 class="name" id="createNode"><span class="type-signature"></span>createNode<span class="signature">(info)</span><span class="type-signature"> &rarr; {<a href="JGO.Node.html">JGO.Node</a>}</span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        Create new empty node under current one.
-    </div>
-    
 
     
+
+    <h4 class="name" id="createNode"><span class="type-signature"></span>createNode<span class="signature">(clearParentMarks, info)</span><span class="type-signature"> &rarr; {<a href="JGO.Node.html">JGO.Node</a>}</span></h4>
+
     
+
+
+
+<div class="description">
+    Create new empty node under current one.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
     
-    
-    
-        <h5>Parameters:</h5>
-        
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>clearParentMarks</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">bool</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">True to clear parent node marks.</td>
+        </tr>
+
+    
+
         <tr>
             
                 <td class="name"><code>info</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -252,66 +293,78 @@
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last">Node information - ko coordinate, comment, etc.</td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
-    
-    
-    
+
+
+
+
+
+
 <dl class="details">
-    
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
+
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="jgorecord.js.html">jgorecord.js</a>, <a href="jgorecord.js.html#line37">line 37</a>
+        <a href="jgorecord.js.html">jgorecord.js</a>, <a href="jgorecord.js.html#line48">line 48</a>
     </li></ul></dd>
     
+
     
+
     
-    
-    
-    
+
     
 </dl>
 
-    
-    
 
-    
 
-    
-    
-    
-    
-    
-    <h5>Returns:</h5>
-    
-            
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
 <div class="param-desc">
     New, current node.
 </div>
@@ -319,169 +372,195 @@
 
 
 <dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type"><a href="JGO.Node.html">JGO.Node</a></span>
 
 
-	</dd>
+    </dd>
 </dl>
 
-        
     
-    
-</dd>
+
+
 
         
             
-<dt>
+
+    
+
     <h4 class="name" id="createSnapshot"><span class="type-signature"></span>createSnapshot<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        Create a snapshot of current JGO.Record state. Will contain board state andcurrent node.
-    </div>
-    
 
     
-    
-    
-    
-    
-    
-    
+
+
+
+<div class="description">
+    Create a snapshot of current JGO.Record state. Will contain board state andcurrent node.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
 <dl class="details">
-    
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
+
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="jgorecord.js.html">jgorecord.js</a>, <a href="jgorecord.js.html#line105">line 105</a>
+        <a href="jgorecord.js.html">jgorecord.js</a>, <a href="jgorecord.js.html#line152">line 152</a>
     </li></ul></dd>
     
+
     
+
     
-    
-    
-    
+
     
 </dl>
 
-    
-    
 
-    
 
-    
-    
-    
-    
-    
-    <h5>Returns:</h5>
-    
-            
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
 <div class="param-desc">
     Snapshot to be used with restoreSnapshot().
 </div>
 
 
 
-        
     
-    
-</dd>
+
+
 
         
             
-<dt>
+
+    
+
     <h4 class="name" id="first"><span class="type-signature"></span>first<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="JGO.Node.html">JGO.Node</a>}</span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        Go to the beginning of the game tree.
-    </div>
-    
 
     
-    
-    
-    
-    
-    
-    
+
+
+
+<div class="description">
+    Go to the beginning of the game tree.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
 <dl class="details">
-    
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
+
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="jgorecord.js.html">jgorecord.js</a>, <a href="jgorecord.js.html#line89">line 89</a>
+        <a href="jgorecord.js.html">jgorecord.js</a>, <a href="jgorecord.js.html#line136">line 136</a>
     </li></ul></dd>
     
+
     
+
     
-    
-    
-    
+
     
 </dl>
 
-    
-    
 
-    
 
-    
-    
-    
-    
-    
-    <h5>Returns:</h5>
-    
-            
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
 <div class="param-desc">
     New current node.
 </div>
@@ -489,90 +568,103 @@
 
 
 <dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type"><a href="JGO.Node.html">JGO.Node</a></span>
 
 
-	</dd>
+    </dd>
 </dl>
 
-        
     
-    
-</dd>
+
+
 
         
             
-<dt>
+
+    
+
     <h4 class="name" id="getCurrentNode"><span class="type-signature"></span>getCurrentNode<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="JGO.Node.html">JGO.Node</a>}</span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        Get current node.
-    </div>
-    
 
     
-    
-    
-    
-    
-    
-    
+
+
+
+<div class="description">
+    Get current node.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
 <dl class="details">
-    
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
+
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="jgorecord.js.html">jgorecord.js</a>, <a href="jgorecord.js.html#line27">line 27</a>
     </li></ul></dd>
     
+
     
+
     
-    
-    
-    
+
     
 </dl>
 
-    
-    
 
-    
 
-    
-    
-    
-    
-    
-    <h5>Returns:</h5>
-    
-            
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
 <div class="param-desc">
     Current node.
 </div>
@@ -580,72 +672,386 @@
 
 
 <dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type"><a href="JGO.Node.html">JGO.Node</a></span>
 
 
-	</dd>
+    </dd>
 </dl>
 
-        
     
-    
-</dd>
+
+
 
         
             
-<dt>
-    <h4 class="name" id="next"><span class="type-signature"></span>next<span class="signature">(<span class="optional">variation</span>)</span><span class="type-signature"> &rarr; {<a href="JGO.Node.html">JGO.Node</a>}</span></h4>
+
     
+
+    <h4 class="name" id="getRootNode"><span class="type-signature"></span>getRootNode<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="JGO.Node.html">JGO.Node</a>}</span></h4>
+
     
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        Advance to the next node in the game tree.
-    </div>
+
+
+
+<div class="description">
+    Get root node.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
     
 
     
+
     
+
     
+
     
+
     
-        <h5>Parameters:</h5>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="jgorecord.js.html">jgorecord.js</a>, <a href="jgorecord.js.html#line37">line 37</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
         
+<div class="param-desc">
+    Root node.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="JGO.Node.html">JGO.Node</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getVariation"><span class="type-signature"></span>getVariation<span class="signature">()</span><span class="type-signature"> &rarr; {int}</span></h4>
+
+    
+
+
+
+<div class="description">
+    Get current variation number (zero-based).
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="jgorecord.js.html">jgorecord.js</a>, <a href="jgorecord.js.html#line102">line 102</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Current variations.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">int</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getVariations"><span class="type-signature"></span>getVariations<span class="signature">()</span><span class="type-signature"> &rarr; {int}</span></h4>
+
+    
+
+
+
+<div class="description">
+    Get number of variations for current node.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="jgorecord.js.html">jgorecord.js</a>, <a href="jgorecord.js.html#line124">line 124</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Number of variations.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">int</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="next"><span class="type-signature"></span>next<span class="signature">(variation<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="JGO.Node.html">JGO.Node</a>}</span></h4>
+
+    
+
+
+
+<div class="description">
+    Advance to the next node in the game tree.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		<th>Argument</th>
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>variation</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -654,76 +1060,88 @@
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
                     &lt;optional><br>
                 
-                    
+
                 
-                    
+
                 
                 </td>
             
+
             
-            
-            
-            <td class="description last">parameter to specify which variation to select, if there are several branches</td>
+
+            <td class="description last">parameter to specify which variation to select, if there are several branches.</td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
-    
-    
-    
+
+
+
+
+
+
 <dl class="details">
-    
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
+
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="jgorecord.js.html">jgorecord.js</a>, <a href="jgorecord.js.html#line52">line 52</a>
+        <a href="jgorecord.js.html">jgorecord.js</a>, <a href="jgorecord.js.html#line66">line 66</a>
     </li></ul></dd>
     
+
     
+
     
-    
-    
-    
+
     
 </dl>
 
-    
-    
 
-    
 
-    
-    
-    
-    
-    
-    <h5>Returns:</h5>
-    
-            
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
 <div class="param-desc">
     New current node or null if at the end of game tree.
 </div>
@@ -731,90 +1149,103 @@
 
 
 <dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type"><a href="JGO.Node.html">JGO.Node</a></span>
 
 
-	</dd>
+    </dd>
 </dl>
 
-        
     
-    
-</dd>
+
+
 
         
             
-<dt>
+
+    
+
     <h4 class="name" id="previous"><span class="type-signature"></span>previous<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="JGO.Node.html">JGO.Node</a>}</span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        Back up a node in the game tree.
-    </div>
-    
 
     
-    
-    
-    
-    
-    
-    
+
+
+
+<div class="description">
+    Back up a node in the game tree.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
 <dl class="details">
-    
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
+
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="jgorecord.js.html">jgorecord.js</a>, <a href="jgorecord.js.html#line73">line 73</a>
+        <a href="jgorecord.js.html">jgorecord.js</a>, <a href="jgorecord.js.html#line87">line 87</a>
     </li></ul></dd>
     
+
     
+
     
-    
-    
-    
+
     
 </dl>
 
-    
-    
 
-    
 
-    
-    
-    
-    
-    
-    <h5>Returns:</h5>
-    
-            
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
 <div class="param-desc">
     New current node or null if at the beginning of game tree.
 </div>
@@ -822,70 +1253,72 @@
 
 
 <dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type"><a href="JGO.Node.html">JGO.Node</a></span>
 
 
-	</dd>
+    </dd>
 </dl>
 
-        
     
-    
-</dd>
+
+
 
         
             
-<dt>
-    <h4 class="name" id="restoreSnapshot"><span class="type-signature"></span>restoreSnapshot<span class="signature">(Snapshot)</span><span class="type-signature"></span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        Restore the JGO.Record to the state contained in snapshot. Use only if youREALLY * know what you are doing, this is mainly for creating JGO.Recordquickly from SGF.
-    </div>
-    
 
     
+
+    <h4 class="name" id="restoreSnapshot"><span class="type-signature"></span>restoreSnapshot<span class="signature">(Snapshot)</span><span class="type-signature"></span></h4>
+
     
+
+
+
+<div class="description">
+    Restore the JGO.Record to the state contained in snapshot. Use only if youREALLY * know what you are doing, this is mainly for creating JGO.Recordquickly from SGF.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
     
-    
-    
-        <h5>Parameters:</h5>
-        
 
 <table class="params">
     <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>Snapshot</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -894,76 +1327,230 @@
 
             
             </td>
+
             
+
             
-            
-            
-            
+
             <td class="description last">created with createSnapshot().</td>
         </tr>
-	
-	
-	</tbody>
+
+    
+    </tbody>
 </table>
-    
-    
-    
+
+
+
+
+
+
 <dl class="details">
-    
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
-    
+
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="jgorecord.js.html">jgorecord.js</a>, <a href="jgorecord.js.html#line116">line 116</a>
+        <a href="jgorecord.js.html">jgorecord.js</a>, <a href="jgorecord.js.html#line163">line 163</a>
     </li></ul></dd>
     
+
     
+
     
-    
-    
-    
+
     
 </dl>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
     
+
+    <h4 class="name" id="setVariation"><span class="type-signature"></span>setVariation<span class="signature">(variation<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Go to a variation. Uses previous() and next().
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>variation</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">int</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">parameter to specify which variation to select, if there are several branches.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
     
 
     
 
     
-    
-    
-    
-    
-    
-    
-</dd>
 
-        </dl>
     
+
     
+
     
+
     
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="jgorecord.js.html">jgorecord.js</a>, <a href="jgorecord.js.html#line113">line 113</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+
     
 </article>
 
-</section>  
+</section>
 
 
 
@@ -971,13 +1558,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="JGO.Board.html">Board</a></li><li><a href="JGO.Canvas.html">Canvas</a></li><li><a href="JGO.Coordinate.html">Coordinate</a></li><li><a href="JGO.Node.html">Node</a></li><li><a href="JGO.Notifier.html">Notifier</a></li><li><a href="JGO.Record.html">Record</a></li><li><a href="JGO.Setup.html">Setup</a></li></ul><h3>Namespaces</h3><ul><li><a href="JGO.html">JGO</a></li><li><a href="JGO.util.html">util</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="JGO.Board.html">Board</a></li><li><a href="JGO.Canvas.html">Canvas</a></li><li><a href="JGO.Coordinate.html">Coordinate</a></li><li><a href="JGO.Node.html">Node</a></li><li><a href="JGO.Notifier.html">Notifier</a></li><li><a href="JGO.Record.html">Record</a></li><li><a href="JGO.Setup.html">Setup</a></li><li><a href="JGO.Stones.html">Stones</a></li></ul><h3>Namespaces</h3><ul><li><a href="JGO.html">JGO</a></li><li><a href="JGO.util.html">util</a></li></ul>
 </nav>
 
-<br clear="both">
+<br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha3</a> on Sat Jan 11 2014 18:00:07 GMT+0200 (FLE Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta2</a> on Sun Mar 15 2015 15:38:06 GMT+0200 (FLE Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

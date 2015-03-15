@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>JSDoc: Source: jgosetup.js</title>
-    
+
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
     <!--[if lt IE 9]>
@@ -16,10 +16,11 @@
 <body>
 
 <div id="main">
-    
+
     <h1 class="page-title">Source: jgosetup.js</h1>
+
     
-    
+
 
 
     
@@ -39,18 +40,18 @@ var JGO = JGO || {};
     * @constructor
     * @memberof JGO
     */
-    JGO.Setup = function(jboard, boardOptions) {
+    JGO.Setup = function(board, boardOptions) {
         var defaults = {
             margin: {color:'white'},
             edge: {top:true, bottom:true, left:true, right:true},
             coordinates: {top:true, bottom:true, left:true, right:true},
             stars: {points: 0 },
-            board: {width:jboard.width, height:jboard.height},
-            view: {xOffset:0, yOffset:0, width:jboard.width, height:jboard.height}
+            board: {width:board.width, height:board.height},
+            view: {xOffset:0, yOffset:0, width:board.width, height:board.height}
         };
 
-        if(jboard.width == jboard.height) {
-            switch(jboard.width) { // square
+        if(board.width == board.height) {
+            switch(board.width) { // square
                 case 9:
                     defaults.stars.points=5;
                     defaults.stars.offset=2;
@@ -63,9 +64,13 @@ var JGO = JGO || {};
             }
         }
 
-        this.jboard = jboard;
-        this.jnotifier = new JGO.Notifier(jboard);
+        this.board = board; // board to follow
+        this.notifier = new JGO.Notifier(board); // board change tracker
         this.options = JGO.extend(defaults, boardOptions); // clone
+
+        // Creating these is postponed until create() or createTree() is called
+        this.stones = false; // stone drawing facility (JGO.Stones)
+        this.boardTexture = false; // board texture
     };
 
     /**
@@ -99,27 +104,35 @@ var JGO = JGO || {};
     };
 
     /**
-    * Create JGO.Canvas based on current settings.
+    * Create JGO.Canvas based on current settings. When textures are used,
+    * image resources need to be loaded, so the function returns and
+    * asynchronously call readyFn after actual initialization.
     *
     * @param {String} elemId The element where to create the canvas in.
-    * @param {function} ready Function to call with canvas once it is ready.
+    * @param {function} readyFn Function to call with canvas once it is ready.
     */
-    JGO.Setup.prototype.create = function(elemId, ready) {
-        var self = this, jboard = this.jboard,
-            options = JGO.extend({}, this.options), instfunc;
+    JGO.Setup.prototype.create = function(elemId, readyFn) {
+        var self = this, options = JGO.extend({}, this.options), instFn;
 
-        instfunc = function(images) {
-            var jcanvas = new JGO.Canvas(elemId, options, images);
-            jcanvas.draw(jboard, 0, 0, jboard.width-1, jboard.height-1);
-            self.jnotifier.addCanvas(jcanvas); // add canvas to listener
-            if(ready)
-                ready(jcanvas);
+        instFn = function(images) {
+            var jcanvas;
+
+            // Stone drawing facility
+            self.stones = new JGO.Stones(images, options);
+            self.boardTexture = images.board;
+
+            jcanvas = new JGO.Canvas(elemId, options, self.stones, self.boardTexture);
+            jcanvas.draw(self.board, 0, 0, self.board.width-1, self.board.height-1);
+
+            self.notifier.addCanvas(jcanvas); // add canvas to listener
+
+            if(readyFn) readyFn(jcanvas);
         };
 
         if(this.options.textures) // at least some textures exist
-            JGO.util.loadImages(this.options.textures, instfunc);
-        else
-            instfunc({black:false,white:false,shadow:false,board:false});
+            JGO.util.loadImages(this.options.textures, instFn);
+        else // blain BW board
+            instFn({black:false,white:false,shadow:false,board:false});
     };
 
 })();
@@ -133,13 +146,13 @@ var JGO = JGO || {};
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="JGO.Board.html">Board</a></li><li><a href="JGO.Canvas.html">Canvas</a></li><li><a href="JGO.Coordinate.html">Coordinate</a></li><li><a href="JGO.Node.html">Node</a></li><li><a href="JGO.Notifier.html">Notifier</a></li><li><a href="JGO.Record.html">Record</a></li><li><a href="JGO.Setup.html">Setup</a></li></ul><h3>Namespaces</h3><ul><li><a href="JGO.html">JGO</a></li><li><a href="JGO.util.html">util</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="JGO.Board.html">Board</a></li><li><a href="JGO.Canvas.html">Canvas</a></li><li><a href="JGO.Coordinate.html">Coordinate</a></li><li><a href="JGO.Node.html">Node</a></li><li><a href="JGO.Notifier.html">Notifier</a></li><li><a href="JGO.Record.html">Record</a></li><li><a href="JGO.Setup.html">Setup</a></li><li><a href="JGO.Stones.html">Stones</a></li></ul><h3>Namespaces</h3><ul><li><a href="JGO.html">JGO</a></li><li><a href="JGO.util.html">util</a></li></ul>
 </nav>
 
-<br clear="both">
+<br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha3</a> on Sat Jan 11 2014 18:00:07 GMT+0200 (FLE Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta2</a> on Sun Mar 15 2015 15:38:06 GMT+0200 (FLE Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
