@@ -37,12 +37,7 @@ var Setup = function(board, boardOptions) {
   }
 
   this.board = board; // board to follow
-  this.notifier = new Notifier(board); // board change tracker
   this.options = util.extend(defaults, boardOptions); // clone
-
-  // Creating these is postponed until create() or createTree() is called
-  this.stones = false; // stone drawing facility (Stones)
-  this.boardTexture = false; // board texture
 };
 
 /**
@@ -80,31 +75,28 @@ Setup.prototype.setOptions = function(options) {
  * image resources need to be loaded, so the function returns and
  * asynchronously call readyFn after actual initialization.
  *
- * @param {String} elemId The element where to create the canvas in.
+ * @param {Object} elemId The element id or HTML Node where to create the canvas in.
  * @param {function} readyFn Function to call with canvas once it is ready.
  */
 Setup.prototype.create = function(elemId, readyFn) {
-  var self = this, options = util.extend({}, this.options), instFn;
+  var options = util.extend({}, this.options); // create a copy
 
-  instFn = function(images) {
-    var jcanvas;
+  var createCallback = function(images) {
+    var jcanvas = new Canvas(elemId, options,
+        new Stones(images, options), images.board);
+    jcanvas.draw(this.board, 0, 0, this.board.width-1, this.board.height-1);
 
-    // Stone drawing facility
-    self.stones = new Stones(images, options);
-    self.boardTexture = images.board;
-
-    jcanvas = new Canvas(elemId, options, self.stones, self.boardTexture);
-    jcanvas.draw(self.board, 0, 0, self.board.width-1, self.board.height-1);
-
-    self.notifier.addCanvas(jcanvas); // add canvas to listener
+    // Track and group later changes with Notifier
+    var notifier = new Notifier(this.board);
+    notifier.addCanvas(jcanvas);
 
     if(readyFn) readyFn(jcanvas);
-  };
+  }.bind(this);
 
   if(this.options.textures) // at least some textures exist
-    util.loadImages(this.options.textures, instFn);
+    util.loadImages(this.options.textures, createCallback);
   else // blain BW board
-    instFn({black:false,white:false,shadow:false,board:false});
+    createCallback({black:false,white:false,shadow:false,board:false});
 };
 
 module.exports = Setup;

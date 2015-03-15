@@ -2,6 +2,7 @@
 
 var C = require('./constants');
 var Coordinate = require('./coordinate');
+var util = require('./util');
 
 /**
  * Create a jGoBoard canvas object.
@@ -107,7 +108,7 @@ var Canvas = function(elem, opt, stones, boardTexture) {
   elem.appendChild(canvas);
 
   this.ctx = canvas.getContext('2d');
-  this.opt = opt;
+  this.opt = util.extend({}, opt); // make a copy just in case
   this.stones = stones;
   this.boardTexture = boardTexture;
 

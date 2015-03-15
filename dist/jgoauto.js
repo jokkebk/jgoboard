@@ -58,18 +58,17 @@
         jsetup.view(topleft.i, topleft.j, data[0].length, data.length);
 
         div.innerHTML = '';
+        var c = new JGO.Coordinate();
 
-        jsetup.create(div, function(canvas) {
-            var c = new JGO.Coordinate();
-
-            for(c.j = topleft.j; c.j < topleft.j + data.length; ++c.j) {
-                for(c.i = topleft.i; c.i < topleft.i + data[0].length; ++c.i) {
-                    var elem = data[c.j - topleft.j][c.i - topleft.i];
-                    jboard.setType(c, elem.type);
-                    if(elem.mark) jboard.setMark(c, elem.mark);
-                }
+        for(c.j = topleft.j; c.j < topleft.j + data.length; ++c.j) {
+            for(c.i = topleft.i; c.i < topleft.i + data[0].length; ++c.i) {
+                var elem = data[c.j - topleft.j][c.i - topleft.i];
+                jboard.setType(c, elem.type);
+                if(elem.mark) jboard.setMark(c, elem.mark);
             }
-        });
+        }
+
+        jsetup.create(div);
     }
 
     window.onload = function() {

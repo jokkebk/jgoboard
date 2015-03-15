@@ -361,6 +361,7 @@ module.exports = Board;
 
 var C = require('./constants');
 var Coordinate = require('./coordinate');
+var util = require('./util');
 
 /**
  * Create a jGoBoard canvas object.
@@ -466,7 +467,7 @@ var Canvas = function(elem, opt, stones, boardTexture) {
   elem.appendChild(canvas);
 
   this.ctx = canvas.getContext('2d');
-  this.opt = opt;
+  this.opt = util.extend({}, opt); // make a copy just in case
   this.stones = stones;
   this.boardTexture = boardTexture;
 
@@ -784,7 +785,7 @@ Canvas.prototype.addListener = function(event, callback) {
 
 module.exports = Canvas;
 
-},{"./constants":3,"./coordinate":4}],3:[function(require,module,exports){
+},{"./constants":3,"./coordinate":4,"./util":12}],3:[function(require,module,exports){
 'use strict';
 
 var util = require('./util');
@@ -1044,6 +1045,8 @@ module.exports = Node;
 },{"./constants":3,"./util":12}],7:[function(require,module,exports){
 'use strict';
 
+var util = require('./util');
+
 /**
  * A change notifier class that can listen to changes in a Board and keep
  * multiple Canvas board views up to date.
@@ -1052,31 +1055,32 @@ module.exports = Node;
  * @constructor
  */
 var Notifier = function(jboard) {
-  var self = this;
+  this.updateScheduled = false; // set on first change
+  this.canvases = []; // canvases to notify on changes
+
+  console.log('<p>Notifier created at ' + util.imageLoads + '</p>');
+
   var changeFunc = function(coord) {
-    if(self.changed) { // not the first change
-      self.min.i = Math.min(self.min.i, coord.i);
-      self.min.j = Math.min(self.min.j, coord.j);
-      self.max.i = Math.max(self.max.i, coord.i);
-      self.max.j = Math.max(self.max.j, coord.j);
+    if(this.updateScheduled) { // update already scheduled
+      this.min.i = Math.min(this.min.i, coord.i);
+      this.min.j = Math.min(this.min.j, coord.j);
+      this.max.i = Math.max(this.max.i, coord.i);
+      this.max.j = Math.max(this.max.j, coord.j);
       return;
     }
 
-    self.min = coord.copy();
-    self.max = coord.copy();
-    self.changed = true;
+    this.min = coord.copy();
+    this.max = coord.copy();
+    this.updateScheduled = true;
 
     setTimeout(function() { // schedule update in the end
-      for(var c=0; c<self.canvases.length; c++)
-      self.canvases[c].draw(jboard, self.min.i, self.min.j,
-        self.max.i, self.max.j);
+      for(var c=0; c<this.canvases.length; c++)
+        this.canvases[c].draw(jboard, this.min.i, this.min.j,
+          this.max.i, this.max.j);
 
-    self.changed = false; // changes updated, scheduled function run
-    }, 0);
-  };
-
-  this.changed = false; // indicator to set on first change
-  this.canvases = []; // canvases to notify on changes
+      this.updateScheduled = false; // changes updated, scheduled function run
+    }.bind(this), 0);
+  }.bind(this);
 
   jboard.addListener(changeFunc, changeFunc);
 };
@@ -1092,7 +1096,7 @@ Notifier.prototype.addCanvas = function(jcanvas) {
 
 module.exports = Notifier;
 
-},{}],8:[function(require,module,exports){
+},{"./util":12}],8:[function(require,module,exports){
 'use strict';
 
 var Board = require('./board');
@@ -1300,12 +1304,7 @@ var Setup = function(board, boardOptions) {
   }
 
   this.board = board; // board to follow
-  this.notifier = new Notifier(board); // board change tracker
   this.options = util.extend(defaults, boardOptions); // clone
-
-  // Creating these is postponed until create() or createTree() is called
-  this.stones = false; // stone drawing facility (Stones)
-  this.boardTexture = false; // board texture
 };
 
 /**
@@ -1343,31 +1342,28 @@ Setup.prototype.setOptions = function(options) {
  * image resources need to be loaded, so the function returns and
  * asynchronously call readyFn after actual initialization.
  *
- * @param {String} elemId The element where to create the canvas in.
+ * @param {Object} elemId The element id or HTML Node where to create the canvas in.
  * @param {function} readyFn Function to call with canvas once it is ready.
  */
 Setup.prototype.create = function(elemId, readyFn) {
-  var self = this, options = util.extend({}, this.options), instFn;
+  var options = util.extend({}, this.options); // create a copy
 
-  instFn = function(images) {
-    var jcanvas;
+  var createCallback = function(images) {
+    var jcanvas = new Canvas(elemId, options,
+        new Stones(images, options), images.board);
+    jcanvas.draw(this.board, 0, 0, this.board.width-1, this.board.height-1);
 
-    // Stone drawing facility
-    self.stones = new Stones(images, options);
-    self.boardTexture = images.board;
-
-    jcanvas = new Canvas(elemId, options, self.stones, self.boardTexture);
-    jcanvas.draw(self.board, 0, 0, self.board.width-1, self.board.height-1);
-
-    self.notifier.addCanvas(jcanvas); // add canvas to listener
+    // Track and group later changes with Notifier
+    var notifier = new Notifier(this.board);
+    notifier.addCanvas(jcanvas);
 
     if(readyFn) readyFn(jcanvas);
-  };
+  }.bind(this);
 
   if(this.options.textures) // at least some textures exist
-    util.loadImages(this.options.textures, instFn);
+    util.loadImages(this.options.textures, createCallback);
   else // blain BW board
-    instFn({black:false,white:false,shadow:false,board:false});
+    createCallback({black:false,white:false,shadow:false,board:false});
 };
 
 module.exports = Setup;
@@ -1943,6 +1939,7 @@ var Coordinate = require('./coordinate');
  * @param {function} callback A callback function to call with image dict.
  * @memberof util
  */
+exports.imageLoads = 0;
 exports.loadImages = function(sources, callback) {
   var images = {}, imagesLeft = 0;
 
@@ -1951,6 +1948,7 @@ exports.loadImages = function(sources, callback) {
       imagesLeft++;
 
   var countdown = function() {
+    exports.imageLoads++;
     if(--imagesLeft <= 0)
       callback(images);
   };

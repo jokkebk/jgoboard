@@ -74,5 +74,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-browserify');
 
     // Default task(s).
-    grunt.registerTask('default', ['jshint', 'browserify', 'uglify', 'copy']);
+    //grunt.registerTask('default', ['jshint', 'browserify', 'uglify', 'copy']);
+    grunt.registerTask('default', ['browserify', 'copy']);
 };

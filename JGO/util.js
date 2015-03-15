@@ -9,6 +9,7 @@ var Coordinate = require('./coordinate');
  * @param {function} callback A callback function to call with image dict.
  * @memberof util
  */
+exports.imageLoads = 0;
 exports.loadImages = function(sources, callback) {
   var images = {}, imagesLeft = 0;
 
@@ -17,6 +18,7 @@ exports.loadImages = function(sources, callback) {
       imagesLeft++;
 
   var countdown = function() {
+    exports.imageLoads++;
     if(--imagesLeft <= 0)
       callback(images);
   };
