@@ -1,2 +1,3 @@
 'use strict';
-JGO = require('./JGO'); // expose as global object
+var JGO = require('./JGO');
+window.JGO = JGO; // expose as global object

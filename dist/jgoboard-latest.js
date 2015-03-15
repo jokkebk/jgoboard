@@ -1588,6 +1588,7 @@ exports.extend = function(dest, src) {
 
 },{"./coordinate":4}],12:[function(require,module,exports){
 'use strict';
-JGO = require('./JGO'); // expose as global object
+var JGO = require('./JGO');
+window.JGO = JGO; // expose as global object
 
 },{"./JGO":5}]},{},[12]);
