@@ -1,66 +1,81 @@
-// Import or create JGO namespace
-var JGO = JGO || {};
+'use strict';
+
+var Coordinate = require('./coordinate');
 
 /**
- * jGoBoard utility namespace.
- * @namespace
+ * Load images and defined by object and invoke callback when completed.
+ *
+ * @param {Object} sources A dictionary of sources to load.
+ * @param {function} callback A callback function to call with image dict.
+ * @memberof util
  */
-JGO.util = JGO.util || {};
+exports.loadImages = function(sources, callback) {
+  var images = {}, imagesLeft = 0;
 
-(function() {
-    'use strict';
+  for(var src in sources) // count non-false properties as images
+    if(sources.hasOwnProperty(src) && sources[src])
+      imagesLeft++;
 
-    /**
-     * Load images and defined by object and invoke callback when completed.
-     *
-     * @param {Object} sources A dictionary of sources to load.
-     * @param {function} callback A callback function to call with image dict.
-     * @memberof JGO.util
-     */
-    JGO.util.loadImages = function(sources, callback) {
-        var images = {}, imagesLeft = 0;
+  var countdown = function() {
+    if(--imagesLeft <= 0)
+      callback(images);
+  };
 
-        for(var src in sources) // count non-false properties as images
-            if(sources.hasOwnProperty(src) && sources[src])
-                imagesLeft++;
+  for(src in sources) { // load non-false properties to images object
+    if(sources.hasOwnProperty(src) && sources[src]) {
+      /* global Image */
+      images[src] = new Image();
+      images[src].onload = countdown;
+      images[src].src = sources[src];
+    }
+  }
+};
 
-        var countdown = function() {
-            if(--imagesLeft <= 0)
-                callback(images);
-        };
+/**
+ * Helper function to create coordinates for standard handicap placement.
+ *
+ * @param {int} size Board size (9, 13, 19 supported).
+ * @param {itn} num Number of handicap stones.
+ * @returns {Array} Array of Coordinate objects.
+ * @memberof util
+ */
+exports.getHandicapCoordinates = function(size, num) {
+  // Telephone dial style numbering
+  var handicapPlaces = [[], [], [3,7], [3,7,9], [1,3,7,9], [1,3,5,7,9],
+      [1,3,4,6,7,9], [1,3,4,5,6,7,9], [1,2,3,4,6,7,8,9],
+      [1,2,3,4,5,6,7,8,9]];
+  var places = handicapPlaces[num], offset = (size <= 9 ? 2 : 3),
+      step = (size - 1) / 2 - offset, coords = [];
 
-        for(src in sources) { // load non-false properties to images object
-            if(sources.hasOwnProperty(src) && sources[src]) {
-                images[src] = new Image();
-                images[src].onload = countdown;
-                images[src].src = sources[src];
-            }
-        }
-    };
+  if(places) {
+    for(var n=0; n<places.length; n++) {
+      var i = (places[n]-1) % 3, j = Math.floor((places[n]-1) / 3);
+      coords.push(new Coordinate(offset+i*step, offset+j*step));
+    }
+  }
 
-    /**
-    * Helper function to create coordinates for standard handicap placement.
-    *
-    * @param {int} size Board size (9, 13, 19 supported).
-    * @param {itn} num Number of handicap stones.
-    * @returns {Array} Array of JGO.Coordinate objects.
-    */
-    JGO.util.getHandicapCoordinates = function(size, num) {
-        // Telephone dial style numbering
-        var handicapPlaces = [[], [], [3,7], [3,7,9], [1,3,7,9], [1,3,5,7,9],
-            [1,3,4,6,7,9], [1,3,4,5,6,7,9], [1,2,3,4,6,7,8,9],
-            [1,2,3,4,5,6,7,8,9]];
-        var places = handicapPlaces[num], offset = (size <= 9 ? 2 : 3),
-            step = (size - 1) / 2 - offset, coords = [];
+  return coords;
+};
 
-        if(places) {
-            for(var n=0; n<places.length; n++) {
-                var i = (places[n]-1) % 3, j = Math.floor((places[n]-1) / 3);
-                coords.push(new JGO.Coordinate(offset+i*step, offset+j*step));
-            }
-        }
+/**
+ * Deep extend an object.
+ *
+ * @function extend
+ * @param {Object} dest Destination object to extend.
+ * @param {Object} src Source object which properties will be copied.
+ * @returns {Object} Extended destination object.
+ * @memberof util
+ */
+exports.extend = function(dest, src) {
+  for(var key in src) {
+    if(src.hasOwnProperty(key)) {
+      if(typeof src[key] === 'object') {
+        if(!dest[key] || (typeof dest[key] !== 'object'))
+          dest[key] = {}; // create/overwrite if necessary
+        exports.extend(dest[key], src[key]);
+      } else dest[key] = src[key];
+    }
+  }
 
-        return coords;
-    };
-
-})();
+  return dest;
+};

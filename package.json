@@ -26,7 +26,9 @@
   "homepage": "http://jgoboard.com",
   "license": "CC-BY-NC-4.0",
   "devDependencies": {
+    "browserify": "latest",
     "grunt": "^0.4.5",
+    "grunt-browserify": "^3.5.0",
     "grunt-contrib-concat": "^0.5.0",
     "grunt-contrib-copy": "^0.5.0",
     "grunt-contrib-jshint": "^0.10.0",

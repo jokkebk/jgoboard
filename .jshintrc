@@ -17,9 +17,6 @@
     "unused": true, // warn about unused variables
     "strict": true, // strict mode
     "trailing": true, // we hate trailing whitespace
-
-    //"maxlen": 80, // not sure if this is wise
-    //"sub": true, // this would suppress warnings about x['y'] (not x.y)
-
-    "browser": true
+    "node": true, // understand Node.js require, exports and module globals
+    "browser": false // Few globals defined on per-access basis
 }

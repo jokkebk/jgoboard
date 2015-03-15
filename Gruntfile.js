@@ -5,12 +5,15 @@ module.exports = function(grunt) {
     // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+
+        // Do hinting/linting with 'grunt jshint'
         jshint: {
             files: ['Gruntfile.js', 'JGO/**/*.js', 'test/**/*.js'],
             options: {
-                browser: true
+                jshintrc: true
             }
         },
+
         // Use shell command until jsdoc support gets to 3.3.0 (without Java)
         shell: {
             makeDocs: {
@@ -22,6 +25,14 @@ module.exports = function(grunt) {
                 }
             }
         },
+
+        browserify: {
+          dist: {
+            src: 'main.js',
+            dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.js'
+          }
+        },
+
         concat: {
             options: {
                 separator: '\n',
@@ -33,6 +44,7 @@ module.exports = function(grunt) {
                 dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.js',
             }
         },
+
         uglify: {
             options: {
                 banner: '<%= concat.options.banner %>'
@@ -43,6 +55,7 @@ module.exports = function(grunt) {
                 }
             }
         },
+
         copy: {
             main: {
                 src: 'dist/<%= pkg.name %>-<%= pkg.version %>.js',
@@ -58,8 +71,9 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     //grunt.loadNpmTasks('grunt-jsdoc');
     grunt.loadNpmTasks('grunt-shell');
+    grunt.loadNpmTasks('grunt-browserify');
 
     // Default task(s).
-    grunt.registerTask('default', ['jshint', 'concat', 'uglify', 'copy']);
-
+    //grunt.registerTask('default', ['jshint', 'concat', 'uglify', 'copy']);
+    grunt.registerTask('default', ['jshint', 'browserify']);
 };
