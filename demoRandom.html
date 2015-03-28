@@ -3,7 +3,6 @@
 <head>
   <meta charset="utf-8">
   <title>Board</title>
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 </head>
 <body>
 
@@ -12,11 +11,17 @@
 <script type="text/javascript" src="dist/jgoboard-latest.js"></script>
 <script type="text/javascript" src="medium/board.js"></script>
 <script type="text/javascript">
-function randomBoard(jboard) {
-  var types = [], marks = [], i;
+function forEach(obj, func) {
+  for(var v in obj)
+    if(obj.hasOwnProperty(v))
+      func(v, obj[v]);
+}
 
-  $.each(JGO.MARK, function(i,v) { marks.push(v); });
-  $.each(JGO.INTERSECTION, function(i,v) { types.push(v); });
+function randomBoard(jboard) {
+  var types = [], marks = [], v;
+
+  forEach(JGO.MARK, function(k,v) { marks.push(v) });
+  forEach(JGO.INTERSECTION, function(k,v) { types.push(v) });
 
   marks = marks.concat(['104', 'A']); // add a few labels
 
