@@ -74,11 +74,11 @@ function move(dir) {
 }
 
 $(document).ready(function() {
-  $.ajax('demo.sgf', {
+  $.ajax('http://static.jgoboard.com/sgf/shusaku.sgf', {
     complete: function(resp) {
       var jsetup;
 
-      jrecord = JGO.util.loadSGF(resp.responseText);
+      jrecord = JGO.sgf.load(resp.responseText);
 
       var comment = jrecord.getCurrentNode().comment;
       $('#messages').html(comment ? comment : '');
