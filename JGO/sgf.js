@@ -1,5 +1,10 @@
 'use strict';
 
+/**
+ * SGF loading module.
+ * @module sgf
+ */
+
 var Coordinate = require('./coordinate');
 var Record = require('./record');
 var C = require('./constants');
@@ -27,7 +32,7 @@ var fieldMap = {
   'WT': 'whiteTeam'
 };
 
-/**
+/*
  * Helper function to handle single coordinates as well as coordinate lists.
  *
  * @param {object} propValues A property value array containing a mix of coordinates (aa) and lists (aa:bb)
@@ -162,7 +167,7 @@ var SGFProperties = {
   'WT': sgfInfo
 };
 
-/**
+/*
  * Parse SGF string into object tree representation:
  *
  * tree = { sequence: [ <node(s)> ], leaves: [ <subtree(s), if any> ] }
@@ -332,7 +337,7 @@ function parseSGF(sgf) {
   return currentRoot;
 }
 
-/**
+/*
  * Apply SGF nodes recursively to create a game tree.
  * @returns true on success, false on error. Error message in ERROR.
  */
@@ -368,7 +373,7 @@ function recurseRecord(jrecord, gameTree) {
   return true;
 }
 
-/**
+/*
  * Convert game tree to a record.
  * @returns {Object} Record or false on failure. Error stored in ERROR.
  */
@@ -395,11 +400,11 @@ function gameTreeToRecord(gameTree) {
 }
 
 /**
- * Parse SGF and return Record object(s).
+ * Parse SGF and return {@link Record} object(s).
  *
  * @returns {Object} Record object, array of them, or string on error.
  */
-function loadSGF(sgf) {
+exports.load = function(sgf) {
   var gameTree = parseSGF(sgf);
 
   if(gameTree.sequence.length === 0) { // potentially multiple records
@@ -422,5 +427,3 @@ function loadSGF(sgf) {
 
   return gameTreeToRecord(gameTree);
 }
-
-module.exports = loadSGF;

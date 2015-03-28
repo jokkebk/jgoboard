@@ -13,8 +13,6 @@ var Notifier = function(jboard) {
   this.updateScheduled = false; // set on first change
   this.canvases = []; // canvases to notify on changes
 
-  console.log('<p>Notifier created at ' + util.imageLoads + '</p>');
-
   var changeFunc = function(coord) {
     if(this.updateScheduled) { // update already scheduled
       this.min.i = Math.min(this.min.i, coord.i);

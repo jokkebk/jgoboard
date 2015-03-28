@@ -1,6 +1,98 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
+/**
+ * Automatic div module.
+ * @module autodiv
+ */
+
+function process(div) {
+  var lines = div.innerHTML.split('\n'), data = [];
+
+  // Handle div contents as diagram contents
+  for(var i = 0, len = lines.length; i < len; ++i) {
+    var elems = [], line = lines[i];
+
+    for(var j = 0, len2 = line.length; j < len2; ++j) {
+      switch(line[j]) {
+        case '.':
+          elems.push({type: JGO.CLEAR}); break;
+        case 'o':
+          elems.push({type: JGO.WHITE}); break;
+        case 'x':
+          elems.push({type: JGO.BLACK}); break;
+        case ' ':
+          break; // ignore whitespace
+        default: // assume marker
+          if(!elems.length) break; // no intersection yet
+          // Append to mark so x123 etc. are possible
+          if(elems[elems.length - 1].mark)
+            elems[elems.length - 1].mark += line[j];
+          else
+            elems[elems.length - 1].mark = line[j];
+      }
+    }
+
+    if(elems.length) data.push(elems);
+  }
+
+  // Handle special jgo-* attributes
+  var style, width, height, topleft = new JGO.Coordinate();
+
+  if(div.getAttribute('data-jgostyle'))
+    style = eval(div.getAttribute('data-jgostyle'));
+  else
+    style = JGO.BOARD.medium;
+
+  if(div.getAttribute('data-jgosize')) {
+    var size = div.getAttribute('data-jgosize');
+
+    if(size.indexOf('x') != -1) {
+      width = parseInt(size.substring(0, size.indexOf('x')));
+      height = parseInt(size.substr(size.indexOf('x')+1));
+    } else width = height = parseInt(size);
+  } else {
+    if(!data.length) return; // no size or data, no board
+
+    height = data.length;
+    width = data[0].length;
+  }
+
+  var jboard = new JGO.Board(width, height);
+  var jsetup = new JGO.Setup(jboard, style);
+
+  if(div.getAttribute('data-jgotopleft'))
+    topleft = jboard.getCoordinate(div.getAttribute('data-jgotopleft'));
+
+  jsetup.view(topleft.i, topleft.j, width-topleft.i, height-topleft.j);
+
+  div.innerHTML = '';
+  var c = new JGO.Coordinate();
+
+  for(c.j = topleft.j; c.j < topleft.j + data.length; ++c.j) {
+    for(c.i = topleft.i; c.i < topleft.i + data[0].length; ++c.i) {
+      var elem = data[c.j - topleft.j][c.i - topleft.i];
+      jboard.setType(c, elem.type);
+      if(elem.mark) jboard.setMark(c, elem.mark);
+    }
+  }
+
+  jsetup.create(div);
+}
+
+/**
+ * Find all div elements with class 'jgoboard' and initialize them.
+ */
+exports.init = function(document) {
+  var matches = document.querySelectorAll("div.jgoboard");
+
+  for(var i = 0, len = matches.length; i < len; ++i)
+    process(matches[i]);
+}
+
+},{}],2:[function(require,module,exports){
+'use strict';
+
 var Coordinate = require('./coordinate');
 var C = require('./constants');
 var util = require('./util');
@@ -356,7 +448,7 @@ Board.prototype.playMove = function(coord, stone, ko) {
 
 module.exports = Board;
 
-},{"./constants":3,"./coordinate":4,"./util":12}],2:[function(require,module,exports){
+},{"./constants":4,"./coordinate":5,"./util":13}],3:[function(require,module,exports){
 'use strict';
 
 var C = require('./constants');
@@ -785,7 +877,7 @@ Canvas.prototype.addListener = function(event, callback) {
 
 module.exports = Canvas;
 
-},{"./constants":3,"./coordinate":4,"./util":12}],3:[function(require,module,exports){
+},{"./constants":4,"./coordinate":5,"./util":13}],4:[function(require,module,exports){
 'use strict';
 
 var util = require('./util');
@@ -840,7 +932,7 @@ exports.MARK = {
  */
 exports.COORDINATES = 'ABCDEFGHJKLMNOPQRSTUVWXYZ'.split('');
 
-},{"./util":12}],4:[function(require,module,exports){
+},{"./util":13}],5:[function(require,module,exports){
 'use strict';
 
 var SGFLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
@@ -911,7 +1003,7 @@ Coordinate.prototype.copy = function() {
 
 module.exports = Coordinate;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 'use strict';
 
 var JGO = require('./constants'); // base for JGO object
@@ -925,11 +1017,12 @@ JGO.Setup = require('./setup');
 JGO.Stones = require('./stones');
 JGO.Board = require('./board');
 JGO.util = require('./util');
-JGO.util.loadSGF = require('./sgf');
+JGO.sgf = require('./sgf');
+JGO.auto = require('./auto');
 
 module.exports = JGO;
 
-},{"./board":1,"./canvas":2,"./constants":3,"./coordinate":4,"./node":6,"./notifier":7,"./record":8,"./setup":9,"./sgf":10,"./stones":11,"./util":12}],6:[function(require,module,exports){
+},{"./auto":1,"./board":2,"./canvas":3,"./constants":4,"./coordinate":5,"./node":7,"./notifier":8,"./record":9,"./setup":10,"./sgf":11,"./stones":12,"./util":13}],7:[function(require,module,exports){
 'use strict';
 
 var util = require('./util');
@@ -1042,7 +1135,7 @@ Node.prototype.revert = function() {
 
 module.exports = Node;
 
-},{"./constants":3,"./util":12}],7:[function(require,module,exports){
+},{"./constants":4,"./util":13}],8:[function(require,module,exports){
 'use strict';
 
 var util = require('./util');
@@ -1057,8 +1150,6 @@ var util = require('./util');
 var Notifier = function(jboard) {
   this.updateScheduled = false; // set on first change
   this.canvases = []; // canvases to notify on changes
-
-  console.log('<p>Notifier created at ' + util.imageLoads + '</p>');
 
   var changeFunc = function(coord) {
     if(this.updateScheduled) { // update already scheduled
@@ -1096,7 +1187,7 @@ Notifier.prototype.addCanvas = function(jcanvas) {
 
 module.exports = Notifier;
 
-},{"./util":12}],8:[function(require,module,exports){
+},{"./util":13}],9:[function(require,module,exports){
 'use strict';
 
 var Board = require('./board');
@@ -1264,7 +1355,7 @@ Record.prototype.restoreSnapshot = function(raw) {
 
 module.exports = Record;
 
-},{"./board":1,"./node":6}],9:[function(require,module,exports){
+},{"./board":2,"./node":7}],10:[function(require,module,exports){
 'use strict';
 
 var Notifier = require('./notifier');
@@ -1368,8 +1459,13 @@ Setup.prototype.create = function(elemId, readyFn) {
 
 module.exports = Setup;
 
-},{"./canvas":2,"./notifier":7,"./stones":11,"./util":12}],10:[function(require,module,exports){
+},{"./canvas":3,"./notifier":8,"./stones":12,"./util":13}],11:[function(require,module,exports){
 'use strict';
+
+/**
+ * SGF loading module.
+ * @module sgf
+ */
 
 var Coordinate = require('./coordinate');
 var Record = require('./record');
@@ -1398,7 +1494,7 @@ var fieldMap = {
   'WT': 'whiteTeam'
 };
 
-/**
+/*
  * Helper function to handle single coordinates as well as coordinate lists.
  *
  * @param {object} propValues A property value array containing a mix of coordinates (aa) and lists (aa:bb)
@@ -1533,7 +1629,7 @@ var SGFProperties = {
   'WT': sgfInfo
 };
 
-/**
+/*
  * Parse SGF string into object tree representation:
  *
  * tree = { sequence: [ <node(s)> ], leaves: [ <subtree(s), if any> ] }
@@ -1703,7 +1799,7 @@ function parseSGF(sgf) {
   return currentRoot;
 }
 
-/**
+/*
  * Apply SGF nodes recursively to create a game tree.
  * @returns true on success, false on error. Error message in ERROR.
  */
@@ -1739,7 +1835,7 @@ function recurseRecord(jrecord, gameTree) {
   return true;
 }
 
-/**
+/*
  * Convert game tree to a record.
  * @returns {Object} Record or false on failure. Error stored in ERROR.
  */
@@ -1766,11 +1862,11 @@ function gameTreeToRecord(gameTree) {
 }
 
 /**
- * Parse SGF and return Record object(s).
+ * Parse SGF and return {@link Record} object(s).
  *
  * @returns {Object} Record object, array of them, or string on error.
  */
-function loadSGF(sgf) {
+exports.load = function(sgf) {
   var gameTree = parseSGF(sgf);
 
   if(gameTree.sequence.length === 0) { // potentially multiple records
@@ -1794,9 +1890,7 @@ function loadSGF(sgf) {
   return gameTreeToRecord(gameTree);
 }
 
-module.exports = loadSGF;
-
-},{"./constants":3,"./coordinate":4,"./record":8}],11:[function(require,module,exports){
+},{"./constants":4,"./coordinate":5,"./record":9}],12:[function(require,module,exports){
 'use strict';
 
 var C = require('./constants');
@@ -1927,8 +2021,13 @@ Stones.prototype.drawMark = function(ctx, mark, ox, oy) {
 
 module.exports = Stones;
 
-},{"./constants":3}],12:[function(require,module,exports){
+},{"./constants":4}],13:[function(require,module,exports){
 'use strict';
+
+/**
+ * Utility function module.
+ * @module util
+ */
 
 var Coordinate = require('./coordinate');
 
@@ -1937,9 +2036,7 @@ var Coordinate = require('./coordinate');
  *
  * @param {Object} sources A dictionary of sources to load.
  * @param {function} callback A callback function to call with image dict.
- * @memberof util
  */
-exports.imageLoads = 0;
 exports.loadImages = function(sources, callback) {
   var images = {}, imagesLeft = 0;
 
@@ -1948,7 +2045,6 @@ exports.loadImages = function(sources, callback) {
       imagesLeft++;
 
   var countdown = function() {
-    exports.imageLoads++;
     if(--imagesLeft <= 0)
       callback(images);
   };
@@ -1969,7 +2065,6 @@ exports.loadImages = function(sources, callback) {
  * @param {int} size Board size (9, 13, 19 supported).
  * @param {itn} num Number of handicap stones.
  * @returns {Array} Array of Coordinate objects.
- * @memberof util
  */
 exports.getHandicapCoordinates = function(size, num) {
   // Telephone dial style numbering
@@ -1996,7 +2091,6 @@ exports.getHandicapCoordinates = function(size, num) {
  * @param {Object} dest Destination object to extend.
  * @param {Object} src Source object which properties will be copied.
  * @returns {Object} Extended destination object.
- * @memberof util
  */
 exports.extend = function(dest, src) {
   for(var key in src) {
@@ -2012,9 +2106,9 @@ exports.extend = function(dest, src) {
   return dest;
 };
 
-},{"./coordinate":4}],13:[function(require,module,exports){
+},{"./coordinate":5}],14:[function(require,module,exports){
 'use strict';
 var JGO = require('./JGO');
 window.JGO = JGO; // expose as global object
 
-},{"./JGO":5}]},{},[13]);
+},{"./JGO":6}]},{},[14]);

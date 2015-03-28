@@ -3,19 +3,14 @@
 <head>
   <meta charset="utf-8">
   <title>Board</title>
-
-  <script type="text/javascript" src="dist/jgoboard-latest.js"></script>
-  <script type="text/javascript" src="large/board.js"></script>
-  <script type="text/javascript" src="medium/board.js"></script>
-  <script type="text/javascript" src="dist/jgoauto.js"></script>
 </head>
 <body>
 
 <h1>Automatic diagrams demo</h1>
 
 <p>jGoBoard can transform HTML div elements into beautiful diagrams
-automatically. This is nice for a go-related blog or website. Just include
-three javascript files and use "jgoboard" tag with your divs. Look at
+automatically. This is nice for a go-related blog or website. Just use
+"jgoboard" tag with your divs and add a few script tags after them. Look at
 this diagram:</p>
 
 <div class="jgoboard">
@@ -46,6 +41,18 @@ this diagram:</p>
   .  .  .  .  .  .  .  .
 </div>
 
+<p>There is now also a simple player component available (farewell Eidogo :)</p>
+
+<div class="jgoboard" data-jgosize="19x19">
+</div>
+
 <p>Look at the source of this file to see the .js files you need and syntax used for div elements.</p>
+
+<script type="text/javascript" src="dist/jgoboard-latest.js"></script>
+<script type="text/javascript" src="large/board.js"></script>
+<script type="text/javascript" src="medium/board.js"></script>
+<!-- This needs to happen after all divs are loaded, so put it below the divs -->
+<script type="text/javascript">JGO.auto.init(document);</script>
+
 </body>
 </html>

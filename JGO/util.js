@@ -1,5 +1,10 @@
 'use strict';
 
+/**
+ * Utility function module.
+ * @module util
+ */
+
 var Coordinate = require('./coordinate');
 
 /**
@@ -7,9 +12,7 @@ var Coordinate = require('./coordinate');
  *
  * @param {Object} sources A dictionary of sources to load.
  * @param {function} callback A callback function to call with image dict.
- * @memberof util
  */
-exports.imageLoads = 0;
 exports.loadImages = function(sources, callback) {
   var images = {}, imagesLeft = 0;
 
@@ -18,7 +21,6 @@ exports.loadImages = function(sources, callback) {
       imagesLeft++;
 
   var countdown = function() {
-    exports.imageLoads++;
     if(--imagesLeft <= 0)
       callback(images);
   };
@@ -39,7 +41,6 @@ exports.loadImages = function(sources, callback) {
  * @param {int} size Board size (9, 13, 19 supported).
  * @param {itn} num Number of handicap stones.
  * @returns {Array} Array of Coordinate objects.
- * @memberof util
  */
 exports.getHandicapCoordinates = function(size, num) {
   // Telephone dial style numbering
@@ -66,7 +67,6 @@ exports.getHandicapCoordinates = function(size, num) {
  * @param {Object} dest Destination object to extend.
  * @param {Object} src Source object which properties will be copied.
  * @returns {Object} Extended destination object.
- * @memberof util
  */
 exports.extend = function(dest, src) {
   for(var key in src) {
