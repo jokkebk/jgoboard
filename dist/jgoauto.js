@@ -18,9 +18,13 @@
                         elems.push({type: JGO.BLACK}); break;
                     case ' ':
                         break; // ignore whitespace
-                    default:
-                        if(elems.length) // assume marker
-                            elems[elems.length - 1].mark = line[j];
+                    default: // assume marker
+                        if(!elems.length) break; // no intersection yet
+                        // Append to mark so x123 etc. are possible
+                        if(elems[elems.length - 1].mark)
+                          elems[elems.length - 1].mark += line[j];
+                        else
+                          elems[elems.length - 1].mark = line[j];
                 }
             }
 
