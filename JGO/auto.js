@@ -1,12 +1,14 @@
 'use strict';
 
+var request = require('superagent');
+
 /**
  * Automatic div module.
  * @module autodiv
  */
 
-function process(div) {
-  var lines = div.innerHTML.split('\n'), data = [];
+function parseMarkup(str) {
+  var lines = str.split('\n'), data = [];
 
   // Handle div contents as diagram contents
   for(var i = 0, len = lines.length; i < len; ++i) {
@@ -35,8 +37,19 @@ function process(div) {
     if(elems.length) data.push(elems);
   }
 
+  return data;
+}
+
+// Array of loaded boards
+var boards = [];
+
+// Available attributes:
+// data-jgostyle: Evaluated and used as board style
+// data-jgosize: Used as board size unless data-jgosgf is defined
+// data-jgoview: Used to define viewport
+function process(div) {
   // Handle special jgo-* attributes
-  var style, width, height, topleft = new JGO.Coordinate();
+  var style, width, height, TL, BR; // last two are viewport
 
   if(div.getAttribute('data-jgostyle'))
     style = eval(div.getAttribute('data-jgostyle'));
@@ -50,7 +63,14 @@ function process(div) {
       width = parseInt(size.substring(0, size.indexOf('x')));
       height = parseInt(size.substr(size.indexOf('x')+1));
     } else width = height = parseInt(size);
-  } else {
+  }
+
+  //if(div.getAttribute('data-jgosgf'))
+
+  var data = parseMarkup(div.innerHTML);
+  div.innerHTML = '';
+
+  if(!width) { // Size still missing
     if(!data.length) return; // no size or data, no board
 
     height = data.length;
@@ -60,17 +80,22 @@ function process(div) {
   var jboard = new JGO.Board(width, height);
   var jsetup = new JGO.Setup(jboard, style);
 
-  if(div.getAttribute('data-jgotopleft'))
-    topleft = jboard.getCoordinate(div.getAttribute('data-jgotopleft'));
+  if(div.getAttribute('data-jgoview')) {
+    var tup = div.getAttribute('data-jgoview').split('-');
+    TL = jboard.getCoordinate(tup[0]);
+    BR = jboard.getCoordinate(tup[1]);
+  } else {
+    TL = new JGO.Coordinate(0,0);
+    BR = new JGO.Coordinate(width-1, height-1);
+  }
 
-  jsetup.view(topleft.i, topleft.j, width-topleft.i, height-topleft.j);
+  jsetup.view(TL.i, TL.j, width-TL.i, height-TL.j);
 
-  div.innerHTML = '';
   var c = new JGO.Coordinate();
 
-  for(c.j = topleft.j; c.j < topleft.j + data.length; ++c.j) {
-    for(c.i = topleft.i; c.i < topleft.i + data[0].length; ++c.i) {
-      var elem = data[c.j - topleft.j][c.i - topleft.i];
+  for(c.j = TL.j; c.j <= BR.j; ++c.j) {
+    for(c.i = TL.i; c.i <= BR.i; ++c.i) {
+      var elem = data[c.j - TL.j][c.i - TL.i];
       jboard.setType(c, elem.type);
       if(elem.mark) jboard.setMark(c, elem.mark);
     }
