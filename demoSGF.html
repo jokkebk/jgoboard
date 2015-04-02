@@ -35,9 +35,11 @@
   <p id="controls">
   <a href="#" onclick="move(-2); return false;"><i class="fa fa-fast-backward"></i></a>
   <a href="#" onclick="move(-1); return false;"><i class="fa fa-step-backward"></i></a>
-  <a href="#" onclick="move(0); return false;"><i title="variation" class="fa fa-arrows-v"></i></a> <span id="variation">1</span> / <span id="variations">1</span>
+  Move: <strong id="move">1</strong>
   <a href="#" onclick="move(1); return false;"><i class="fa fa-step-forward"></i></a>
   <a href="#" onclick="move(2); return false;"><i class="fa fa-fast-forward"></i></a>
+  Variation:
+  <a href="#" onclick="move(0); return false;"><i title="variation" class="fa fa-arrows-v"></i></a> <span id="variation">1</span> / <span id="variations">1</span>
   </p>
 </div>
 
@@ -51,7 +53,7 @@
 <script type="text/javascript" src="medium/board.js"></script>
 <script type="text/javascript" src="large/board.js"></script>
 <script type="text/javascript">
-var jrecord;
+var jrecord, moveNum = 1;
 
 function move(dir) {
   var node, vars = jrecord.getVariations();
@@ -59,15 +61,19 @@ function move(dir) {
   switch(dir) {
     case -1:
       jrecord.previous();
+      moveNum--;
       break;
     case 1:
       jrecord.next();
+      moveNum++;
       break;
     case 2:
-      while(jrecord.next() != null) {}
+      while(jrecord.next() != null)
+        moveNum++;
       break;
     case -2:
       jrecord.first();
+      moveNum = 0;
       break;
     case 0: // cycle variations
       jrecord.setVariation((jrecord.getVariation() + 1) % jrecord.getVariations());
@@ -75,6 +81,7 @@ function move(dir) {
   }
 
   var comment = jrecord.getCurrentNode().comment;
+  $('#move').html(moveNum);
   $('#messages').html(comment ? comment : '');
   $('#variation').html(jrecord.getVariation()+1);
   $('#variations').html(jrecord.getVariations());
@@ -85,7 +92,7 @@ $(document).ready(function() {
     complete: function(resp) {
       var jsetup;
 
-      jrecord = JGO.sgf.load(resp.responseText);
+      jrecord = JGO.sgf.load(resp.responseText, true);
 
       var comment = jrecord.getCurrentNode().comment;
       $('#messages').html(comment ? comment : '');

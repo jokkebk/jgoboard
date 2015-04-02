@@ -347,7 +347,7 @@ Board.prototype.playMove = function(coord, stone, ko) {
 
   // Check for ko. Note that captures were not removed so there should
   // be zero liberties around this stone in case of a ko.
-  if(captures.length == 1 && !this.filter(adjacent, C.CLEAR).length)
+  if(captures.length == 1 && this.filter(adjacent, C.CLEAR).length == 0)
     return { success: true, captures: captures, ko: captures[0].copy() };
 
   return { success: true, captures: captures, ko: false };

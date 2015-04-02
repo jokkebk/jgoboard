@@ -62,7 +62,7 @@ function explodeSGFList(propValues) {
   return coords;
 }
 
-function sgfMove(node, name, values) {
+function sgfMove(node, name, values, moveMarks) {
   var coord, player, opponent, play;
 
   if(name == 'B') {
@@ -75,24 +75,29 @@ function sgfMove(node, name, values) {
 
   coord = (values[0].length == 2) ? new Coordinate(values[0]) : null;
 
-  play = node.jboard.playMove(coord, player); // Just ignore ko
+  play = node.jboard.playMove(coord, player);
+
+  if(moveMarks && play.ko)
+      node.setMark(play.ko, C.MARK.SQUARE);
 
   if(play.success && coord !== null) {
     node.setType(coord, player); // play stone
     node.setType(play.captures, C.CLEAR); // clear opponent's stones
+    if(moveMarks)
+      node.setMark(coord, C.MARK.CIRCLE);
   } else ERROR = play.error;
 
   return play.success;
 }
 
-function sgfSetup(node, name, values) {
+function sgfSetup(node, name, values, moveMarks) {
   var setupMap = {'AB': C.BLACK, 'AW': C.WHITE, 'AE': C.CLEAR};
 
   node.setType(explodeSGFList(values), setupMap[name]);
   return true;
 }
 
-function sgfMarker(node, name, values) {
+function sgfMarker(node, name, values, moveMarks) {
   var markerMap = {
     'TW': ',',
     'TB': '.',
@@ -106,17 +111,17 @@ function sgfMarker(node, name, values) {
   return true;
 }
 
-function sgfComment(node, name, values) {
+function sgfComment(node, name, values, moveMarks) {
   node.comment = values[0];
   return true;
 }
 
-function sgfHandicap(node, name, values) {
+function sgfHandicap(node, name, values, moveMarks) {
   node.info.handicap = values[0];
   return true;
 }
 
-function sgfLabel(node, name, values) {
+function sgfLabel(node, name, values, moveMarks) {
   for(var i=0; i<values.length; i++) {
     var v = values[i], tuple = v.split(':');
 
@@ -125,7 +130,7 @@ function sgfLabel(node, name, values) {
   return true;
 }
 
-function sgfInfo(node, name, values) {
+function sgfInfo(node, name, values, moveMarks) {
   var field = fieldMap[name];
 
   node.info[field] = values[0];
@@ -341,7 +346,7 @@ function parseSGF(sgf) {
  * Apply SGF nodes recursively to create a game tree.
  * @returns true on success, false on error. Error message in ERROR.
  */
-function recurseRecord(jrecord, gameTree) {
+function recurseRecord(jrecord, gameTree, moveMarks) {
   for(var i=0; i<gameTree.sequence.length; i++) {
     var node = gameTree.sequence[i],
       jnode = jrecord.createNode(true); // clear parent marks
@@ -351,7 +356,7 @@ function recurseRecord(jrecord, gameTree) {
         if(!(key in SGFProperties))
           continue;
 
-        if(!SGFProperties[key](jnode, key, node[key])) {
+        if(!SGFProperties[key](jnode, key, node[key], moveMarks)) {
           ERROR = 'Error while parsing node ' + key + ': ' + ERROR;
           return false;
         }
@@ -364,7 +369,7 @@ function recurseRecord(jrecord, gameTree) {
 
     snapshot = jrecord.createSnapshot();
 
-    if(!recurseRecord(jrecord, subTree))
+    if(!recurseRecord(jrecord, subTree, moveMarks))
       return false; // fall through on errors
 
     jrecord.restoreSnapshot(snapshot);
@@ -377,7 +382,7 @@ function recurseRecord(jrecord, gameTree) {
  * Convert game tree to a record.
  * @returns {Object} Record or false on failure. Error stored in ERROR.
  */
-function gameTreeToRecord(gameTree) {
+function gameTreeToRecord(gameTree, moveMarks) {
   var jrecord, root = gameTree.sequence[0], width = 19, height = 19;
 
   if('SZ' in root) {
@@ -391,7 +396,7 @@ function gameTreeToRecord(gameTree) {
 
   jrecord = new Record(width, height);
 
-  if(!recurseRecord(jrecord, gameTree))
+  if(!recurseRecord(jrecord, gameTree, moveMarks))
     return false;
 
   jrecord.first(); // rewind to start
@@ -402,9 +407,11 @@ function gameTreeToRecord(gameTree) {
 /**
  * Parse SGF and return {@link Record} object(s).
  *
+ * @param {String} sgf The SGF file as a string.
+ * @param {bool} moveMarks Create move and ko marks in the record.
  * @returns {Object} Record object, array of them, or string on error.
  */
-exports.load = function(sgf) {
+exports.load = function(sgf, moveMarks) {
   var gameTree = parseSGF(sgf);
 
   if(gameTree.sequence.length === 0) { // potentially multiple records
@@ -414,7 +421,7 @@ exports.load = function(sgf) {
       return 'Empty game tree!';
 
     for(var i=0; i<gameTree.leaves.length; i++) {
-      var rec = gameTreeToRecord(gameTree);
+      var rec = gameTreeToRecord(gameTree, moveMarks);
 
       if(!rec)
         return ERROR;
@@ -425,5 +432,5 @@ exports.load = function(sgf) {
     return ret;
   }
 
-  return gameTreeToRecord(gameTree);
+  return gameTreeToRecord(gameTree, moveMarks);
 }
