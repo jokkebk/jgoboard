@@ -54,36 +54,36 @@ var Canvas = function(elem, opt, images) {
         scaledY = (pageY - bounds.top) * canvas.height / (bounds.bottom - bounds.top);
 
     return new Coordinate(
-        Math.floor((scaledX-self.marginLeft-padLeft)/opt.grid.x) + opt.view.xOffset,
-        Math.floor((scaledY-self.marginTop-padTop)/opt.grid.y) + opt.view.yOffset);
-  };
+        Math.floor((scaledX-this.marginLeft-padLeft)/opt.grid.x) + opt.view.xOffset,
+        Math.floor((scaledY-this.marginTop-padTop)/opt.grid.y) + opt.view.yOffset);
+  }.bind(this);
 
   // Click handler will call all listeners passing the coordinate of click
   // and the click event
   canvas.onclick = function(ev) {
-    var c = self.getCoordinate(ev.clientX, ev.clientY),
-        listeners = self.listeners.click;
+    var c = this.getCoordinate(ev.clientX, ev.clientY),
+        listeners = this.listeners.click;
 
     for(var l=0; l<listeners.length; l++)
-      listeners[l].call(self, c.copy(), ev);
-  };
+      listeners[l].call(this, c.copy(), ev);
+  }.bind(this);
 
   var lastMove = new Coordinate(-1,-1);
 
   // Move handler will call all listeners passing the coordinate of move
   // whenever mouse moves over a new intersection
   canvas.onmousemove = function(ev) {
-    if(!self.listeners.mousemove.length) return;
+    if(!this.listeners.mousemove.length) return;
 
-    var c = self.getCoordinate(ev.clientX, ev.clientY),
-        listeners = self.listeners.mousemove;
+    var c = this.getCoordinate(ev.clientX, ev.clientY),
+        listeners = this.listeners.mousemove;
 
-    if(c.i < self.opt.view.xOffset ||
-        c.i >= self.opt.view.xOffset + self.opt.view.width)
+    if(c.i < this.opt.view.xOffset ||
+        c.i >= this.opt.view.xOffset + this.opt.view.width)
       c.i = -1;
 
-    if(c.j < self.opt.view.yOffset ||
-        c.j >= self.opt.view.yOffset + self.opt.view.height)
+    if(c.j < this.opt.view.yOffset ||
+        c.j >= this.opt.view.yOffset + this.opt.view.height)
       c.j = -1;
 
     if(lastMove.equals(c))
@@ -92,17 +92,17 @@ var Canvas = function(elem, opt, images) {
       lastMove = c.copy();
 
     for(var l=0; l<listeners.length; l++)
-      listeners[l].call(self, c.copy(), ev);
-  };
+      listeners[l].call(this, c.copy(), ev);
+  }.bind(this);
 
   // Mouseout handler will again call all listeners of that event, no
   // coordinates will be passed of course, only the event
   canvas.onmouseout = function(ev) {
-    var listeners = self.listeners.mouseout;
+    var listeners = this.listeners.mouseout;
 
     for(var l=0; l<listeners.length; l++)
-      listeners[l].call(self, ev);
-  };
+      listeners[l].call(this, ev);
+  }.bind(this);
 
   elem.appendChild(canvas);
 

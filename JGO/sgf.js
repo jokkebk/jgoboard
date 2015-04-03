@@ -76,10 +76,11 @@ function sgfMove(node, name, values, moveMarks) {
   coord = (values[0].length == 2) ? new Coordinate(values[0]) : null;
 
   play = node.jboard.playMove(coord, player);
+  node.info.captures[player] += play.captures.length; // tally captures
 
   if(moveMarks && play.ko)
       node.setMark(play.ko, C.MARK.SQUARE);
-
+  
   if(play.success && coord !== null) {
     node.setType(coord, player); // play stone
     node.setType(play.captures, C.CLEAR); // clear opponent's stones
@@ -112,7 +113,7 @@ function sgfMarker(node, name, values, moveMarks) {
 }
 
 function sgfComment(node, name, values, moveMarks) {
-  node.comment = values[0];
+  node.info.comment = values[0];
   return true;
 }
 

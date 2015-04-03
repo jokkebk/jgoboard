@@ -11,8 +11,8 @@ h2 {
 #comments {
     border: 1px solid #ddd;
     background-color: #fefefe;
-    width: 400px;
-    height: 300px;
+    width: 300px;
+    height: 250px;
     overflow: auto;
 }
 

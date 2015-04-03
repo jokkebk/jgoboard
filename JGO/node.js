@@ -20,10 +20,9 @@ var Node = function(jboard, parent, info) {
 
   if(parent) {
     parent.children.push(this); // register child
-    this.captures = util.extend({}, parent.captures); // inherit
+    this.info.captures = util.extend({}, parent.info.captures);
   } else {
-    this.captures = {};
-    this.captures[C.WHITE] = this.captures[C.BLACK] = 0;
+    this.info.captures = {1: 0, 2: 0}; // C.BLACK, C.WHITE
   }
 };
 
