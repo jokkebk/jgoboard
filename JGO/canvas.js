@@ -108,7 +108,7 @@ var Canvas = function(elem, opt, images) {
 
   this.ctx = canvas.getContext('2d');
   this.opt = util.extend({}, opt); // make a copy just in case
-  this.stones = new Stones(opt);
+  this.stones = new Stones(opt, images);
   this.images = images;
 
   // Fill margin with correct color
@@ -353,6 +353,7 @@ Canvas.prototype.draw = function(jboard, i1, j1, i2, j2) {
     }.bind(this);
   }
 
+  // Clear board grid under markers when needed
   jboard.each(function(c, type, mark) {
     // Note: Use of smt has been disabled here for clear results
     var ox = this.getX(c.i - this.opt.view.xOffset);
@@ -363,24 +364,17 @@ Canvas.prototype.draw = function(jboard, i1, j1, i2, j2) {
   }.bind(this), i1, j1, i2, j2); // provide iteration limits
 
   // Shadows
-  if(this.images.shadow) {
-    jboard.each(function(c, type) {
-      var type = jboard.getType(c);
-      var ox = this.getX(c.i - this.opt.view.xOffset);
-      var oy = this.getY(c.j - this.opt.view.yOffset);
+  jboard.each(function(c, type) {
+    var type = jboard.getType(c);
+    var ox = this.getX(c.i - this.opt.view.xOffset);
+    var oy = this.getY(c.j - this.opt.view.yOffset);
 
-      if(type == C.BLACK || type == C.WHITE) {
-        var stone = this.images.shadow;
-        var scale = 1;
-        //this.ctx.drawImage(this.images.shadow, 260, 260);
-            //Math.round(ox - stone.width / 2 * scale),
-            //Math.round(oy - stone.height / 2 * scale));
-        this.stones.drawShadow(this.ctx, this.images.shadow,
+    if(type == C.BLACK || type == C.WHITE) {
+      this.stones.drawShadow(this.ctx,
           this.opt.shadow.xOff + ox,
           this.opt.shadow.yOff + oy);
-      }
-    }.bind(this), i1, j1, i2, j2); // provide iteration limits
-  }
+    }
+  }.bind(this), i1, j1, i2, j2); // provide iteration limits
 
   // Stones and marks
   jboard.each(function(c, type, mark) {
@@ -392,13 +386,13 @@ Canvas.prototype.draw = function(jboard, i1, j1, i2, j2) {
       case C.BLACK:
       case C.DIM_BLACK:
         this.ctx.globalAlpha = type == C.BLACK ? 1 : this.opt.stone.dimAlpha;
-        this.stones.drawStone(this.ctx, this.images.black, ox, oy);
+        this.stones.drawStone(this.ctx, type, ox, oy);
         markColor = this.opt.mark.blackColor; // if we have marks, this is the color
         break;
       case C.WHITE:
       case C.DIM_WHITE:
         this.ctx.globalAlpha = type == C.WHITE ? 1 : this.opt.stone.dimAlpha;
-        this.stones.drawStone(this.ctx, this.images.white, ox, oy);
+        this.stones.drawStone(this.ctx, type, ox, oy);
         markColor = this.opt.mark.whiteColor; // if we have marks, this is the color
         break;
       default:

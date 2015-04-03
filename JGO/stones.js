@@ -10,7 +10,7 @@ var C = require('./constants');
  * @param {Object} options Options array.
  * @constructor
  */
-var Stones = function(options) {
+var Stones = function(options, images) {
   this.stoneR = options.stone.radius;
   this.gridX = options.grid.x;
   this.gridY = options.grid.x;
@@ -18,10 +18,12 @@ var Stones = function(options) {
   this.markY = this.stoneR * 1.1;
   this.circleR = this.stoneR * 0.5;
   this.triangleR = this.stoneR * 0.9;
+  this.images = images;
 };
 
-Stones.prototype.drawStone = function(ctx, stone, ox, oy, scale) {
+Stones.prototype.drawStone = function(ctx, type, ox, oy, scale) {
   if(!scale) scale = 1;
+  var stone = (type == C.BLACK) ? this.images.black : this.images.white;
 
   if(!stone) { // BW
     ctx.fillStyle = (type == C.WHITE) ? '#FFFFFF' : '#000000';
@@ -42,7 +44,8 @@ Stones.prototype.drawStone = function(ctx, stone, ox, oy, scale) {
   }
 };
 
-Stones.prototype.drawShadow = function(ctx, shadow, ox, oy, scale) {
+Stones.prototype.drawShadow = function(ctx, ox, oy, scale) {
+  var shadow = this.images.shadow;
   if(!shadow) return;
   if(!scale) scale = 1;
 
