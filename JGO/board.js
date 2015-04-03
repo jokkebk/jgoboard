@@ -75,13 +75,12 @@ Board.prototype.toString = function(c) {
 /**
  * Simple iteration over all coordinates.
  *
- * @param {func} func The iterator method, which is called with the coordinate
- * and intersection object.
+ * @param {func} func The iterator method, which is called with the
+ * coordinate, type and mark parameters.
  * @param {int} [i1] Column start.
  * @param {int} [j1] Row start.
  * @param {int} [i2] Colunm end.
  * @param {int} [j2] Row end.
- * context of board object and passed coordinate and newVal as parameter.
  */
 Board.prototype.each = function(func, i1, j1, i2, j2) {
   var c = new Coordinate();
@@ -93,8 +92,7 @@ Board.prototype.each = function(func, i1, j1, i2, j2) {
 
   for(c.j=j1; c.j<=j2; c.j++)
     for(c.i=i1; c.i<=i2; c.i++)
-      func.call(this, c.copy(),
-          this.stones[c.i][c.j], this.marks[c.i][c.j]);
+      func(c.copy(), this.stones[c.i][c.j], this.marks[c.i][c.j]);
 };
 
 /**
@@ -104,7 +102,7 @@ Board.prototype.clear = function() {
   this.each(function(c) {
     this.setType(c, C.CLEAR);
     this.setMark(c, C.MARK.NONE);
-  });
+  }.bind(this));
 };
 
 /**

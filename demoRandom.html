@@ -26,8 +26,8 @@ function randomBoard(jboard) {
   marks = marks.concat(['104', 'A']); // add a few labels
 
   jboard.each(function(coord) {
-    this.setType(coord, types[Math.floor(Math.random()*types.length)])
-    this.setMark(coord, marks[Math.floor(Math.random()*marks.length)])
+    jboard.setType(coord, types[Math.floor(Math.random()*types.length)])
+    jboard.setMark(coord, marks[Math.floor(Math.random()*marks.length)])
   });
 }
 

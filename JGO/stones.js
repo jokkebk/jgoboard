@@ -7,12 +7,10 @@ var C = require('./constants');
  * stones and markers on a HTML5 canvas. Only used internally by the
  * library.
  *
- * @param {Object} img Image array.
+ * @param {Object} options Options array.
  * @constructor
  */
-var Stones = function(img, options) {
-  var me = this;
-
+var Stones = function(options) {
   this.stoneR = options.stone.radius;
   this.gridX = options.grid.x;
   this.gridY = options.grid.x;
@@ -20,51 +18,38 @@ var Stones = function(img, options) {
   this.markY = this.stoneR * 1.1;
   this.circleR = this.stoneR * 0.5;
   this.triangleR = this.stoneR * 0.9;
+};
 
-  if(img.white && img.black) { // Textures
-    this.drawStone = function(ctx, type, ox, oy, scale) {
-      var stone = type == C.BLACK ? img.black : img.white;
+Stones.prototype.drawStone = function(ctx, stone, ox, oy, scale) {
+  if(!scale) scale = 1;
 
-      if(!scale) scale = 1;
-      // round x, y for crisp rendering
-      ctx.drawImage(stone, 0, 0, stone.width, stone.height,
-          Math.round(ox - stone.width / 2 * scale),
-          Math.round(oy - stone.height / 2 * scale),
-          stone.width * scale, stone.height * scale);
-    };
+  if(!stone) { // BW
+    ctx.fillStyle = (type == C.WHITE) ? '#FFFFFF' : '#000000';
+    ctx.beginPath();
+    ctx.arc(ox, oy, this.stoneR*scale, 2*Math.PI, false);
+    ctx.fill();
 
-    if(img.shadow) {
-      this.drawShadow = function(ctx, ox, oy, scale) {
-        var stone = img.shadow;
-
-        if(scale) {
-          ctx.drawImage(stone, 0, 0, stone.width, stone.height,
-              Math.round(ox - stone.width / 2 * scale),
-              Math.round(oy - stone.height / 2 * scale),
-              stone.width * scale, stone.height * scale);
-        } else {
-          ctx.drawImage(stone,
-              Math.round(ox - stone.width / 2),
-              Math.round(oy - stone.height / 2));
-        }
-      };
-    } else this.drawShadow = false;
-  } else { // Drawings
-    this.drawStone = function(ctx, type, ox, oy, scale) {
-      if(!scale) scale = 1;
-      ctx.fillStyle = (type == C.WHITE) ? '#FFFFFF' : '#000000';
-      ctx.beginPath();
-      ctx.arc(ox, oy, me.stoneR*scale, 2*Math.PI, false);
-      ctx.fill();
-
-      if(type == C.WHITE) {
-        ctx.strokeStyle = '#000000';
-        ctx.stroke();
-      }
-    };
-
-    this.drawShadow = false;
+    if(type == C.WHITE) {
+      ctx.strokeStyle = '#000000';
+      ctx.stroke();
+    }
+  } else {
+    // round x, y for crisp rendering
+    ctx.drawImage(stone, 0, 0, stone.width, stone.height,
+        Math.round(ox - stone.width / 2 * scale),
+        Math.round(oy - stone.height / 2 * scale),
+        stone.width * scale, stone.height * scale);
   }
+};
+
+Stones.prototype.drawShadow = function(ctx, shadow, ox, oy, scale) {
+  if(!shadow) return;
+  if(!scale) scale = 1;
+
+  ctx.drawImage(shadow, 0, 0, shadow.width, shadow.height,
+      Math.round(ox - shadow.width / 2 * scale),
+      Math.round(oy - shadow.height / 2 * scale),
+      shadow.width * scale, shadow.height * scale);
 };
 
 Stones.prototype.drawMark = function(ctx, mark, ox, oy) {

@@ -20,9 +20,10 @@ exports.loadImages = function(sources, callback) {
     if(sources.hasOwnProperty(src) && sources[src])
       imagesLeft++;
 
-  var countdown = function() {
-    if(--imagesLeft <= 0)
+  var countdown = function(ev) {
+    if(--imagesLeft <= 0) {
       callback(images);
+    }
   };
 
   for(src in sources) { // load non-false properties to images object

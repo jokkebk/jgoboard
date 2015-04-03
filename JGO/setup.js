@@ -82,8 +82,8 @@ Setup.prototype.create = function(elemId, readyFn) {
   var options = util.extend({}, this.options); // create a copy
 
   var createCallback = function(images) {
-    var jcanvas = new Canvas(elemId, options,
-        new Stones(images, options), images.board);
+    var jcanvas = new Canvas(elemId, options, images);
+
     jcanvas.draw(this.board, 0, 0, this.board.width-1, this.board.height-1);
 
     // Track and group later changes with Notifier

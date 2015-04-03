@@ -36,7 +36,7 @@ jsetup.create('board', function(canvas) {
       case states.select1:
         leftCoord = rightCoord = coord.i;
         topCoord = bottomCoord = coord.j;
-        jboard.each(function(c) { this.setMark(c, JGO.MARK.SELECTED); }, leftCoord, topCoord, rightCoord, bottomCoord);
+        jboard.each(function(c) { jboard.setMark(c, JGO.MARK.SELECTED); }, leftCoord, topCoord, rightCoord, bottomCoord);
         state = states.select2;
         break;
       case states.select2:
@@ -48,7 +48,7 @@ jsetup.create('board', function(canvas) {
         if(topCoord > bottomCoord) { t = topCoord; topCoord = bottomCoord; bottomCoord = t; }
         if(leftCoord > rightCoord) { t = leftCoord; leftCoord = rightCoord; rightCoord = t; }
 
-        jboard.each(function(c) { this.setMark(c, JGO.MARK.SELECTED); }, leftCoord, topCoord, rightCoord, bottomCoord);
+        jboard.each(function(c) { jboard.setMark(c, JGO.MARK.SELECTED); }, leftCoord, topCoord, rightCoord, bottomCoord);
         state = states.edit;
         $('#message').html('Selection done! From ' + leftCoord + ',' + topCoord + ' to ' + rightCoord + ',' + bottomCoord);
         break;
@@ -57,7 +57,7 @@ jsetup.create('board', function(canvas) {
 });
 
 function clearSelection() {
-  jboard.each(function(c) { this.setMark(c, JGO.MARK.NONE); }, leftCoord, topCoord, rightCoord, bottomCoord);
+  jboard.each(function(c) { jboard.setMark(c, JGO.MARK.NONE); }, leftCoord, topCoord, rightCoord, bottomCoord);
 }
 
 function beginSelect() {

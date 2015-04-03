@@ -1,0 +1,30 @@
+body {
+    font-family: "Lucida Grande",Verdana,"Bitstream Vera Sans",Arial,sans-serif;
+    font-size: 12px;
+    color: #444;
+}
+
+h2 {
+    font-weight: normal;
+}
+
+#comments {
+    border: 1px solid #ddd;
+    background-color: #fefefe;
+    width: 400px;
+    height: 300px;
+    overflow: auto;
+}
+
+#controls {
+    border: 1px solid #ddd;
+    background-color: #eee;
+    width: 300px;
+    padding: 4px;
+    margin: 0 auto;
+}
+
+#controls a {
+    padding: 0 4px;
+    color: black;
+}

@@ -2,6 +2,7 @@
 
 var C = require('./constants');
 var Coordinate = require('./coordinate');
+var Stones = require('./stones');
 var util = require('./util');
 
 /**
@@ -9,17 +10,15 @@ var util = require('./util');
  *
  * @param {Object} elem Container HTML element or its id.
  * @param {Object} opt Options object.
- * @param {Stones} stones Stone and marker drawing facility.
- * @param {Image} boardTexture Board texture or false if none.
+ * @param {Object} images Set of images (or false values) for drawing.
  * @constructor
  */
-var Canvas = function(elem, opt, stones, boardTexture) {
+var Canvas = function(elem, opt, images) {
   /* global document */
   if(typeof elem === 'string')
     elem = document.getElementById(elem);
 
-  var canvas = document.createElement('canvas'),
-      self = this, i, j;
+  var canvas = document.createElement('canvas'), i, j;
 
   var padLeft = opt.edge.left ? opt.padding.normal : opt.padding.clipped,
       padRight = opt.edge.right ? opt.padding.normal : opt.padding.clipped,
@@ -109,14 +108,14 @@ var Canvas = function(elem, opt, stones, boardTexture) {
 
   this.ctx = canvas.getContext('2d');
   this.opt = util.extend({}, opt); // make a copy just in case
-  this.stones = stones;
-  this.boardTexture = boardTexture;
+  this.stones = new Stones(opt);
+  this.images = images;
 
   // Fill margin with correct color
   this.ctx.fillStyle = opt.margin.color;
   this.ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  if(this.boardTexture) {
+  if(this.images.board) {
     // Prepare to draw board with shadow
     this.ctx.save();
     this.ctx.shadowColor = opt.boardShadow.color;
@@ -136,7 +135,7 @@ var Canvas = function(elem, opt, stones, boardTexture) {
         canvas.height - clipTop - clipBottom);
     this.ctx.clip();
 
-    this.ctx.drawImage(this.boardTexture, 0, 0,
+    this.ctx.drawImage(this.images.board, 0, 0,
         this.boardWidth, this.boardHeight,
         this.marginLeft, this.marginTop,
         this.boardWidth, this.boardHeight);
@@ -273,6 +272,14 @@ var Canvas = function(elem, opt, stones, boardTexture) {
   this.ctx.beginPath();
   this.ctx.rect(this.marginLeft, this.marginTop, this.boardWidth, this.boardHeight);
   this.ctx.clip();
+
+  // Fix Chromium bug with image glitches unless they are drawn once
+  // https://code.google.com/p/chromium/issues/detail?id=469906
+  if(this.images.black) this.ctx.drawImage(this.images.black, 10, 10);
+  if(this.images.white) this.ctx.drawImage(this.images.white, 10, 10);
+  if(this.images.shadow) this.ctx.drawImage(this.images.shadow, 10, 10);
+  // Sucks but works
+  this.restore(this.marginLeft, this.marginTop, this.boardWidth, this.boardHeight);
 };
 
 /**
@@ -301,7 +308,6 @@ Canvas.prototype.getY = function(j) {
  * @param {number} j2 Ending row to be redrawn (inclusive).
  */
 Canvas.prototype.draw = function(jboard, i1, j1, i2, j2) {
-  var self = this;
   i1 = Math.max(i1, this.opt.view.xOffset);
   j1 = Math.max(j1, this.opt.view.yOffset);
   i2 = Math.min(i2, this.opt.view.xOffset + this.opt.view.width - 1);
@@ -316,7 +322,6 @@ Canvas.prototype.draw = function(jboard, i1, j1, i2, j2) {
       h = this.opt.grid.y * (j2 - j1 + 2);
 
   this.ctx.save();
-
   this.ctx.beginPath();
   this.ctx.rect(x, y, w, h);
   this.ctx.clip(); // only apply redraw to relevant area
@@ -335,77 +340,94 @@ Canvas.prototype.draw = function(jboard, i1, j1, i2, j2) {
       clearW = stoneR * 1.5, clearH = stoneR * 1.2, clearFunc;
 
   // Clear grid for labels on clear intersections before casting shadows
-  if(this.boardTexture) { // there is a board texture
+  if(this.images.board) { // there is a board texture
     clearFunc = function(ox, oy) {
-      self.ctx.drawImage(self.boardTexture,
-          ox - self.marginLeft - clearW / 2, oy - self.marginTop - clearH / 2, clearW, clearH,
+      this.ctx.drawImage(this.images.board,
+          ox - this.marginLeft - clearW / 2, oy - this.marginTop - clearH / 2, clearW, clearH,
           ox - clearW / 2, oy - clearH / 2, clearW, clearH);
-    };
+    }.bind(this);
   } else { // no board texture
     this.ctx.fillStyle = this.opt.margin.color;
     clearFunc = function(ox, oy) {
-      self.ctx.fillRect(ox - clearW / 2, oy - clearH / 2, clearW, clearH);
-    };
+      this.ctx.fillRect(ox - clearW / 2, oy - clearH / 2, clearW, clearH);
+    }.bind(this);
   }
 
   jboard.each(function(c, type, mark) {
     // Note: Use of smt has been disabled here for clear results
-    var ox = self.getX(c.i - self.opt.view.xOffset);
-    var oy = self.getY(c.j - self.opt.view.yOffset);
+    var ox = this.getX(c.i - this.opt.view.xOffset);
+    var oy = this.getY(c.j - this.opt.view.yOffset);
 
     if(type == C.CLEAR && mark && isLabel.test(mark))
     clearFunc(ox, oy);
-  }, i1, j1, i2, j2); // provide iteration limits
+  }.bind(this), i1, j1, i2, j2); // provide iteration limits
 
   // Shadows
-  if(this.stones.drawShadow !== false) {
+  if(this.images.shadow) {
     jboard.each(function(c, type) {
-      var ox = self.getX(c.i - self.opt.view.xOffset);
-      var oy = self.getY(c.j - self.opt.view.yOffset);
+      var type = jboard.getType(c);
+      var ox = this.getX(c.i - this.opt.view.xOffset);
+      var oy = this.getY(c.j - this.opt.view.yOffset);
 
       if(type == C.BLACK || type == C.WHITE) {
-        self.stones.drawShadow(self.ctx,
-          self.opt.shadow.xOff + ox,
-          self.opt.shadow.yOff + oy);
+        var stone = this.images.shadow;
+        var scale = 1;
+        //this.ctx.drawImage(this.images.shadow, 260, 260);
+            //Math.round(ox - stone.width / 2 * scale),
+            //Math.round(oy - stone.height / 2 * scale));
+        this.stones.drawShadow(this.ctx, this.images.shadow,
+          this.opt.shadow.xOff + ox,
+          this.opt.shadow.yOff + oy);
       }
-    }, i1, j1, i2, j2); // provide iteration limits
+    }.bind(this), i1, j1, i2, j2); // provide iteration limits
   }
 
   // Stones and marks
   jboard.each(function(c, type, mark) {
-    var ox = (self.getX(c.i - self.opt.view.xOffset));
-    var oy = (self.getY(c.j - self.opt.view.yOffset));
+    var ox = (this.getX(c.i - this.opt.view.xOffset));
+    var oy = (this.getY(c.j - this.opt.view.yOffset));
     var markColor;
 
     switch(type) {
       case C.BLACK:
       case C.DIM_BLACK:
-        self.ctx.globalAlpha = type == C.BLACK ? 1 : self.opt.stone.dimAlpha;
-        self.stones.drawStone(self.ctx, C.BLACK, ox, oy);
-        markColor = self.opt.mark.blackColor; // if we have marks, this is the color
+        this.ctx.globalAlpha = type == C.BLACK ? 1 : this.opt.stone.dimAlpha;
+        this.stones.drawStone(this.ctx, this.images.black, ox, oy);
+        markColor = this.opt.mark.blackColor; // if we have marks, this is the color
         break;
       case C.WHITE:
       case C.DIM_WHITE:
-        self.ctx.globalAlpha = type == C.WHITE ? 1 : self.opt.stone.dimAlpha;
-        self.stones.drawStone(self.ctx, C.WHITE, ox, oy);
-        markColor = self.opt.mark.whiteColor; // if we have marks, this is the color
+        this.ctx.globalAlpha = type == C.WHITE ? 1 : this.opt.stone.dimAlpha;
+        this.stones.drawStone(this.ctx, this.images.white, ox, oy);
+        markColor = this.opt.mark.whiteColor; // if we have marks, this is the color
         break;
       default:
-        self.ctx.globalAlpha=1;
-        markColor = self.opt.mark.clearColor; // if we have marks, this is the color
+        this.ctx.globalAlpha=1;
+        markColor = this.opt.mark.clearColor; // if we have marks, this is the color
     }
 
     // Common settings to all markers
-    self.ctx.lineWidth = self.opt.mark.lineWidth;
-    self.ctx.strokeStyle = markColor;
+    this.ctx.lineWidth = this.opt.mark.lineWidth;
+    this.ctx.strokeStyle = markColor;
 
-    self.ctx.font = self.opt.mark.font;
-    self.ctx.fillStyle = markColor;
-    self.ctx.textAlign = 'center';
-    self.ctx.textBaseline = 'middle';
+    this.ctx.font = this.opt.mark.font;
+    this.ctx.fillStyle = markColor;
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
 
-    if(mark) self.stones.drawMark(self.ctx, mark, ox, oy);
-  }, i1, j1, i2, j2); // provide iteration limits
+    if(mark) this.stones.drawMark(this.ctx, mark, ox, oy);
+  }.bind(this), i1, j1, i2, j2); // provide iteration limits
+
+  var test = function(stone, ox, oy) {
+    var scale = 1;
+    this.ctx.drawImage(stone, 0, 0, stone.width, stone.height,
+        Math.round(ox - stone.width / 2 * scale),
+        Math.round(oy - stone.height / 2 * scale),
+        stone.width * scale, stone.height * scale);
+  }.bind(this);
+  //test(this.images.black, 250, 250);
+  //test(this.images.white, 270, 270);
+  //test(this.images.shadow, 280, 280);
 
   this.ctx.restore(); // also restores globalAlpha
 };
