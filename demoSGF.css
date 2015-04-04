@@ -2,6 +2,13 @@ body {
     font-family: "Lucida Grande",Verdana,"Bitstream Vera Sans",Arial,sans-serif;
     font-size: 12px;
     color: #444;
+    width: 100%;
+    text-align: center;
+}
+
+#main {
+    width: 900px;
+    margin: 0 auto;
 }
 
 h2 {
@@ -16,15 +23,16 @@ h2 {
     overflow: auto;
 }
 
-#controls {
+.controls {
     border: 1px solid #ddd;
     background-color: #eee;
-    width: 300px;
     padding: 4px;
     margin: 0 auto;
+    border-radius: 8px;
+    margin-bottom: 1em;
 }
 
-#controls a {
+.controls a {
     padding: 0 4px;
     color: black;
 }

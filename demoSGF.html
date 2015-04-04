@@ -2,17 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>SGF Player Demo</title>
-  <link rel="stylesheet" href="demos.css" type="text/css">
+  <title>jGoBoard SGF Player Demo</title>
+  <link rel="stylesheet" href="demoSGF.css" type="text/css">
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 </head>
 <body>
+<div id="main">
+
+<p class="controls">
+URL: <input id="url" type="text"> <button onclick="loadURL($('#url').val());">Load</button>
+File: <input id="file" type="file"> <button onclick="loadFile();">Load</button>
+</p>
 
 <div style="float: left; text-align: center">
   <div id="board"></div>
 
-  <p id="controls">
+  <p class="controls" style="width: 300px;">
   <a href="#" onclick="move(-2); return false;"><i class="fa fa-fast-backward"></i></a>
   <a href="#" onclick="move(-1); return false;"><i class="fa fa-step-backward"></i></a>
   Move: <strong id="move">1</strong>
@@ -23,7 +29,7 @@
   </p>
 </div>
 
-<div style="float: left; padding: 1em;">
+<div style="float: left; padding: 1em; text-align: left;">
   <h2>Game information</h2>
   <p id="information"></p>
   <p>
@@ -39,21 +45,19 @@
 <script type="text/javascript" src="dist/jgoboard-latest.js"></script>
 <script type="text/javascript" src="medium/board.js"></script>
 <script type="text/javascript">
-var jrecord, moveNum = 1;
+var jrecord, moveNum = 0; // moveNum > 1 means SGF loaded
 
 function move(dir) {
+  if(!moveNum) return; // disable movement until SGF loaded
   switch(dir) {
     case -1:
-      if(jrecord.previous())
-        moveNum--;
+      if(jrecord.previous()) moveNum--;
       break;
     case 1:
-      if(jrecord.next())
-        moveNum++;
+      if(jrecord.next()) moveNum++;
       break;
     case 2:
-      while(jrecord.next() != null)
-        moveNum++;
+      while(jrecord.next() != null) moveNum++;
       break;
     case -2:
       jrecord.first();
@@ -75,7 +79,7 @@ function move(dir) {
 }
 
 function updateGameInfo(info) {
-  var html = [];
+  var html = "";
 
   if("black" in info) {
     html += "Black: <strong>" + info.black;
@@ -92,39 +96,51 @@ function updateGameInfo(info) {
   var additional = [["result", "Result"]];
 
   $.each(additional, function(i, tup) {
-    if(tup[0] in info)
+      if(tup[0] in info)
       html += tup[1] + ": <strong>" + info[tup[0]] + "</strong><br>";
-  });
+      });
 
   $('#information').html(html);
 }
 
 $(document).ready(function() {
-  $.ajax('http://static.jgoboard.com/sgf/shusaku.sgf', {
-    complete: function(resp) {
-      var jsetup;
-
-      jrecord = JGO.sgf.load(resp.responseText, true);
-      updateGameInfo(jrecord.getRootNode().info);
-      move(0); // Will update move, comment and variation info
-
-      if(!(jrecord instanceof JGO.Record)) {
-        alert('Empty SGF or multiple games in one SGF not supported!');
-        return;
-      }
-
-      jsetup = new JGO.Setup(jrecord.jboard, JGO.BOARD.medium);
-      jsetup.create('board', function(canvas) {
-        // Add keyboard navigation (left/right)
-        $("body").keydown(function(e) {
-          if(e.keyCode == 37) move(-1);
-          else if(e.keyCode == 39) move(1);
-        });
-      });
-    }
+  $("body").keydown(function(e) { // left/right arrow navigation
+    if(e.keyCode == 37) move(-1);
+    else if(e.keyCode == 39) move(1);
   });
 });
+
+function loadURL(url) {
+  $.ajax('http://static.jgoboard.com/get_sgf.php', {
+    dataType: 'jsonp', data: {url: url}, complete: function(resp) {
+    var jsetup;
+
+    jrecord = JGO.sgf.load(resp.responseJSON, true);
+    updateGameInfo(jrecord.getRootNode().info);
+    move(0); // Will update move, comment and variation info
+
+    if(!(jrecord instanceof JGO.Record)) {
+      alert('Empty SGF or multiple games in one SGF not supported!');
+      return;
+    }
+
+    jsetup = new JGO.Setup(jrecord.jboard, JGO.BOARD.medium);
+    jsetup.create('board', function(canvas) {
+      moveNum = 1; // enable movement
+      canvas.addListener('click', function(c) {
+        if(c.i < 10) move(-1); // back
+        if(c.i > 10) move(1); // forward
+      });
+    });
+  }
+  });
+}
+
+function loadFile() {
+  alert("Not implemented yet!");
+}
 </script>
 
+</div>
 </body>
 </html>
