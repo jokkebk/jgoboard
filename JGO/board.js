@@ -41,15 +41,25 @@ var Board = function(width, height) {
 };
 
 /**
- * Add listener to the board. Listeners are called in the context of board
- * object and passed coordinate, new value and old value as parameters when
- * changes happen.
+ * Add listener to the board. Listeners are passed an event object with
+ * event type ('type' or 'mark'), coordinate and board members, and new
+ * and old values as newVal and oldVal. Event object should be
+ * considered read only.
  *
- * @param {func} typef A type change listener callback.
- * @param {func} markf A mark change listener callback.
+ * @param {function} func A listener callback.
  */
-Board.prototype.addListener = function(typef, markf) {
-  this.listeners.push({type: typef, mark: markf});
+Board.prototype.addListener = function(func) {
+  this.listeners.push(func);
+};
+
+/**
+ * Remove listener from the board.
+ *
+ * @param {function} func A listener callback.
+ */
+Board.prototype.removeListener = function(func) {
+  var index = this.listeners.indexOf(func);
+  if(index != -1) this.listeners.splice(index, 1);
 };
 
 /**
@@ -119,8 +129,9 @@ Board.prototype.setType = function(c, t) {
 
     this.stones[c.i][c.j] = t;
 
-    for(var l=0; l<this.listeners.length; ++l) // notify listeners
-      this.listeners[l].type.call(this, c, t, old);
+    var ev = { type: 'type', coordinate: c, board: this,
+      oldVal: old, newVal: t };
+    this.listeners.forEach(function(l) { l(ev); });
   } else if(c instanceof Array) {
     for(var i=0, len=c.length; i<len; ++i)
       this.setType(c[i], t); // use ourself to avoid duplicate code
@@ -142,8 +153,9 @@ Board.prototype.setMark = function(c, m) {
 
     this.marks[c.i][c.j] = m;
 
-    for(var l=0; l<this.listeners.length; ++l) // notify listeners
-      this.listeners[l].mark.call(this, c, m, old);
+    var ev = { type: 'mark', coordinate: c, board: this,
+      oldVal: old, newVal: m };
+    this.listeners.forEach(function(l) { l(ev); });
   } else if(c instanceof Array) {
     for(var i=0, len=c.length; i<len; ++i)
       this.setMark(c[i], m); // use ourself to avoid duplicate code
@@ -345,7 +357,7 @@ Board.prototype.playMove = function(coord, stone, ko) {
 
   // Check for ko. Note that captures were not removed so there should
   // be zero liberties around this stone in case of a ko.
-  if(captures.length == 1 && this.filter(adjacent, C.CLEAR).length == 0)
+  if(captures.length == 1 && this.filter(adjacent, C.CLEAR).length === 0)
     return { success: true, captures: captures, ko: captures[0].copy() };
 
   return { success: true, captures: captures, ko: false };

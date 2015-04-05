@@ -23,7 +23,7 @@ var Stones = function(options, images) {
 
 Stones.prototype.drawStone = function(ctx, type, ox, oy, scale) {
   if(!scale) scale = 1;
-  var stone = (type == C.BLACK) ? this.images.black : this.images.white;
+  var stone = (type == C.BLACK || type == C.DIM_BLACK) ? this.images.black : this.images.white;
 
   if(!stone) { // BW
     ctx.fillStyle = (type == C.WHITE) ? '#FFFFFF' : '#000000';

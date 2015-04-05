@@ -262,11 +262,6 @@ var Canvas = function(elem, opt, images) {
       0, 0, canvas.width, canvas.height,
       0, 0, canvas.width, canvas.height);
 
-  this.restore = function(x, y, w, h) {
-    x = Math.floor(x);
-    y = Math.floor(y);
-    this.ctx.drawImage(this.backup, x, y, w, h, x, y, w, h);
-  };
 
   // Clip further drawing to board only
   this.ctx.beginPath();
@@ -280,6 +275,15 @@ var Canvas = function(elem, opt, images) {
   if(this.images.shadow) this.ctx.drawImage(this.images.shadow, 10, 10);
   // Sucks but works
   this.restore(this.marginLeft, this.marginTop, this.boardWidth, this.boardHeight);
+};
+
+/**
+ * Restore portion of canvas.
+ */
+Canvas.prototype.restore = function(x, y, w, h) {
+  x = Math.floor(x);
+  y = Math.floor(y);
+  this.ctx.drawImage(this.backup, x, y, w, h, x, y, w, h);
 };
 
 /**
@@ -365,7 +369,6 @@ Canvas.prototype.draw = function(jboard, i1, j1, i2, j2) {
 
   // Shadows
   jboard.each(function(c, type) {
-    var type = jboard.getType(c);
     var ox = this.getX(c.i - this.opt.view.xOffset);
     var oy = this.getY(c.j - this.opt.view.yOffset);
 
@@ -411,17 +414,6 @@ Canvas.prototype.draw = function(jboard, i1, j1, i2, j2) {
 
     if(mark) this.stones.drawMark(this.ctx, mark, ox, oy);
   }.bind(this), i1, j1, i2, j2); // provide iteration limits
-
-  var test = function(stone, ox, oy) {
-    var scale = 1;
-    this.ctx.drawImage(stone, 0, 0, stone.width, stone.height,
-        Math.round(ox - stone.width / 2 * scale),
-        Math.round(oy - stone.height / 2 * scale),
-        stone.width * scale, stone.height * scale);
-  }.bind(this);
-  //test(this.images.black, 250, 250);
-  //test(this.images.white, 270, 270);
-  //test(this.images.shadow, 280, 280);
 
   this.ctx.restore(); // also restores globalAlpha
 };

@@ -18,6 +18,15 @@ var Record = function(width, height) {
 };
 
 /**
+ * Get board object.
+ *
+ * @returns {Board} Board object.
+ */
+Record.prototype.getBoard = function() {
+  return this.jboard;
+};
+
+/**
  * Get current node.
  *
  * @returns {Node} Current node.
@@ -153,10 +162,10 @@ Record.prototype.createSnapshot = function() {
 
 /**
  * Restore the Record to the state contained in snapshot. Use only if you
- * REALLY * know what you are doing, this is mainly for creating Record
+ * REALLY know what you are doing, this is mainly for creating Record
  * quickly from SGF.
  *
- * @param {Object} Snapshot created with createSnapshot().
+ * @param {Object} raw Snapshot created with createSnapshot().
  */
 Record.prototype.restoreSnapshot = function(raw) {
   this.jboard.setRaw(raw.jboard);

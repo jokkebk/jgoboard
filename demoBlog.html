@@ -44,7 +44,7 @@ specify board size, and top left corner and bottom right coordinates:</p>
 
 <p>There is now also a simple player component available (farewell Eidogo :)</p>
 
-<div class="jgoboard" data-jgosize="19x19" data-jgosgf="demo.sgf">
+<div class="jgoboard_todo" data-jgosize="19x19" data-jgosgf="demo.sgf">
 </div>
 
 <p>Look at the source of this file to see the .js files you need and syntax used for div elements.</p>
@@ -53,7 +53,7 @@ specify board size, and top left corner and bottom right coordinates:</p>
 <script type="text/javascript" src="large/board.js"></script>
 <script type="text/javascript" src="medium/board.js"></script>
 <!-- This needs to happen after all divs are loaded, so put it below the divs -->
-<script type="text/javascript">JGO.auto.init(document);</script>
+<script type="text/javascript">JGO.auto.init(document, JGO);</script>
 
 </body>
 </html>

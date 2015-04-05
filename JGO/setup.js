@@ -2,7 +2,6 @@
 
 var Notifier = require('./notifier');
 var Canvas = require('./canvas');
-var Stones = require('./stones');
 var util = require('./util');
 
 /**
@@ -37,6 +36,7 @@ var Setup = function(board, boardOptions) {
   }
 
   this.board = board; // board to follow
+  this.notifier = new Notifier(this.board); // notifier to canvas
   this.options = util.extend(defaults, boardOptions); // clone
 };
 
@@ -71,6 +71,16 @@ Setup.prototype.setOptions = function(options) {
 };
 
 /**
+ * Get {@link Notifier} object created by this class. Can be used to
+ * change the board the canvas listens to.
+ *
+ * @returns {Notifier} Canvas notifier.
+ */
+Setup.prototype.getNotifier = function() {
+  return this.notifier;
+};
+
+/**
  * Create Canvas based on current settings. When textures are used,
  * image resources need to be loaded, so the function returns and
  * asynchronously call readyFn after actual initialization.
@@ -87,8 +97,7 @@ Setup.prototype.create = function(elemId, readyFn) {
     jcanvas.draw(this.board, 0, 0, this.board.width-1, this.board.height-1);
 
     // Track and group later changes with Notifier
-    var notifier = new Notifier(this.board);
-    notifier.addCanvas(jcanvas);
+    this.notifier.addCanvas(jcanvas);
 
     if(readyFn) readyFn(jcanvas);
   }.bind(this);

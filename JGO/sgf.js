@@ -91,14 +91,14 @@ function sgfMove(node, name, values, moveMarks) {
   return play.success;
 }
 
-function sgfSetup(node, name, values, moveMarks) {
+function sgfSetup(node, name, values) {
   var setupMap = {'AB': C.BLACK, 'AW': C.WHITE, 'AE': C.CLEAR};
 
   node.setType(explodeSGFList(values), setupMap[name]);
   return true;
 }
 
-function sgfMarker(node, name, values, moveMarks) {
+function sgfMarker(node, name, values) {
   var markerMap = {
     'TW': ',',
     'TB': '.',
@@ -112,17 +112,17 @@ function sgfMarker(node, name, values, moveMarks) {
   return true;
 }
 
-function sgfComment(node, name, values, moveMarks) {
+function sgfComment(node, name, values) {
   node.info.comment = values[0];
   return true;
 }
 
-function sgfHandicap(node, name, values, moveMarks) {
+function sgfHandicap(node, name, values) {
   node.info.handicap = values[0];
   return true;
 }
 
-function sgfLabel(node, name, values, moveMarks) {
+function sgfLabel(node, name, values) {
   for(var i=0; i<values.length; i++) {
     var v = values[i], tuple = v.split(':');
 
@@ -131,7 +131,7 @@ function sgfLabel(node, name, values, moveMarks) {
   return true;
 }
 
-function sgfInfo(node, name, values, moveMarks) {
+function sgfInfo(node, name, values) {
   var field = fieldMap[name];
 
   node.info[field] = values[0];
@@ -434,4 +434,4 @@ exports.load = function(sgf, moveMarks) {
   }
 
   return gameTreeToRecord(gameTree, moveMarks);
-}
+};

@@ -1,6 +1,7 @@
 'use strict';
 
-var request = require('superagent');
+//var request = require('superagent');
+var C = require('./constants');
 
 /**
  * Automatic div module.
@@ -17,11 +18,11 @@ function parseMarkup(str) {
     for(var j = 0, len2 = line.length; j < len2; ++j) {
       switch(line[j]) {
         case '.':
-          elems.push({type: JGO.CLEAR}); break;
+          elems.push({type: C.CLEAR}); break;
         case 'o':
-          elems.push({type: JGO.WHITE}); break;
+          elems.push({type: C.WHITE}); break;
         case 'x':
-          elems.push({type: JGO.BLACK}); break;
+          elems.push({type: C.BLACK}); break;
         case ' ':
           break; // ignore whitespace
         default: // assume marker
@@ -41,20 +42,20 @@ function parseMarkup(str) {
 }
 
 // Array of loaded boards
-var boards = [];
+//var boards = [];
 
 // Available attributes:
 // data-jgostyle: Evaluated and used as board style
 // data-jgosize: Used as board size unless data-jgosgf is defined
 // data-jgoview: Used to define viewport
-function process(div) {
+function process(JGO, div) {
   // Handle special jgo-* attributes
   var style, width, height, TL, BR; // last two are viewport
 
-  if(div.getAttribute('data-jgostyle'))
+  if(div.getAttribute('data-jgostyle')) {
+    /*jshint evil:true  */
     style = eval(div.getAttribute('data-jgostyle'));
-  else
-    style = JGO.BOARD.medium;
+  } else style = JGO.BOARD.medium;
 
   if(div.getAttribute('data-jgosize')) {
     var size = div.getAttribute('data-jgosize');
@@ -107,9 +108,9 @@ function process(div) {
 /**
  * Find all div elements with class 'jgoboard' and initialize them.
  */
-exports.init = function(document) {
-  var matches = document.querySelectorAll("div.jgoboard");
+exports.init = function(document, JGO) {
+  var matches = document.querySelectorAll('div.jgoboard');
 
   for(var i = 0, len = matches.length; i < len; ++i)
-    process(matches[i]);
-}
+    process(JGO, matches[i]);
+};
