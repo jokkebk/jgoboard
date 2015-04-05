@@ -1422,6 +1422,31 @@ Record.prototype.restoreSnapshot = function(raw) {
   this.current = raw.current;
 };
 
+/**
+ * Normalize record so the longest variation is the first.
+ *
+ * @param {Node} node The node to start with. Defaults to root if unset.
+ * @returns int Length of longest subsequence.
+ */
+Record.prototype.normalize = function(node) {
+  var i, len, maxLen = 0, maxI = 0;
+
+  if(!node) node = this.getRootNode();
+
+  for(i=0; i<node.children.length; i++) {
+    len = this.normalize(node.children[i]);
+    if(maxLen < len) { maxLen = len; maxI = i; }
+  }
+
+  if(maxI) { // If needed, swap longest first
+    i = node.children[0];
+    node.children[0] = node.children[maxI];
+    node.children[maxI] = i;
+  }
+
+  return maxLen + 1; // longest subsequence plus this
+}
+
 module.exports = Record;
 
 },{"./board":2,"./node":7}],10:[function(require,module,exports){

@@ -21,7 +21,7 @@ File: <input id="file" type="file"> <button onclick="loadFile();">Load</button>
   <p class="controls" style="width: 300px;">
   <a href="#" onclick="move(-2); return false;"><i class="fa fa-fast-backward"></i></a>
   <a href="#" onclick="move(-1); return false;"><i class="fa fa-step-backward"></i></a>
-  Move: <strong id="move">1</strong>
+  Move: <strong id="move">1</strong> / <strong id="moves">1</strong>
   <a href="#" onclick="move(1); return false;"><i class="fa fa-step-forward"></i></a>
   <a href="#" onclick="move(2); return false;"><i class="fa fa-fast-forward"></i></a>
   Variation: <strong id="variation">1</strong> / <strong id="variations"></strong>
@@ -45,7 +45,7 @@ File: <input id="file" type="file"> <button onclick="loadFile();">Load</button>
 <script type="text/javascript" src="dist/jgoboard-latest.js"></script>
 <script type="text/javascript" src="medium/board.js"></script>
 <script type="text/javascript">
-var moveNum = 1;
+var moveNum = 1, moves = 1;
 var jrecord = false, jnotifier;
 
 function move(dir) {
@@ -137,6 +137,7 @@ function loadSGF(sgf) {
     return;
   }
 
+  $('#moves').html(jrecord.normalize()); // longest sequence first
   notifier.changeBoard(jrecord.getBoard());
   updateGameInfo(jrecord.getRootNode().info);
   moveNum = 1;
