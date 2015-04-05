@@ -123,6 +123,10 @@ $(document).ready(function() {
       if(c.i > 10) move(1); // forward
     });
   });
+
+  var url = window.location.toString(); // check if url query parameter is set
+	var matches = url.match(/\?url=(.+)$/); // only allowed parameter is url=<url>
+  if(matches) loadURL(matches[1]); // load straight away
 });
 
 function loadSGF(sgf) {
