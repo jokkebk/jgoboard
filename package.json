@@ -1,6 +1,6 @@
 {
   "name": "jgoboard",
-  "version": "3.4.1",
+  "version": "3.4.2",
   "description": "jGoBoard javascript go board library",
   "main": "src/jgoinit.js",
   "directories": {
