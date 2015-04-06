@@ -11,20 +11,20 @@
 <div id="main">
 
 <p class="controls">
-URL: <input id="url" type="text"> <button onclick="loadURL($('#url').val());">Load</button>
-File: <input id="file" type="file"> <button onclick="loadFile();">Load</button>
+<input id="url" placeholder="enter SGF URL here" type="text"> <button onclick="loadURL($('#url').val());">Load URL</button>
+<input style="padding-left: 2em;" id="file" type="file"> <button onclick="loadFile();">Load file</button>
 </p>
 
-<div style="float: left; text-align: center">
+<div style="float: left;">
   <div id="board"></div>
 
-  <p class="controls" style="width: 300px;">
+  <p class="controls" style="width: 480px;">
   <a href="#" onclick="move(-2); return false;"><i class="fa fa-fast-backward"></i></a>
   <a href="#" onclick="move(-1); return false;"><i class="fa fa-step-backward"></i></a>
   Move: <strong id="move">1</strong> / <strong id="moves">1</strong>
   <a href="#" onclick="move(1); return false;"><i class="fa fa-step-forward"></i></a>
   <a href="#" onclick="move(2); return false;"><i class="fa fa-fast-forward"></i></a>
-  Variation: <strong id="variation">1</strong> / <strong id="variations"></strong>
+  Variation: <strong id="variation">1</strong> / <strong id="variations">1</strong>
   <a href="#" onclick="move(10); return false;"><i title="variation" class="fa fa-arrows-v"></i></a>
   </p>
 </div>
