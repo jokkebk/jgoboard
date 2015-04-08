@@ -100,12 +100,12 @@ function sgfSetup(node, name, values) {
 
 function sgfMarker(node, name, values) {
   var markerMap = {
-    'TW': ',',
-    'TB': '.',
-    'CR': '0',
-    'TR': '/',
-    'MA': '*',
-    'SQ': '#'
+    'TW': C.MARK.WHITE_TERRITORY,
+    'TB': C.MARK.BLACK_TERRITORY,
+    'CR': C.MARK.CIRCLE,
+    'TR': C.MARK.TRIANGLE,
+    'MA': C.MARK.CROSS,
+    'SQ': C.MARK.SQUARE
   };
 
   node.setMark(explodeSGFList(values), markerMap[name]);
