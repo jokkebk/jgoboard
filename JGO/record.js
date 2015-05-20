@@ -195,6 +195,6 @@ Record.prototype.normalize = function(node) {
   }
 
   return maxLen + 1; // longest subsequence plus this
-}
+};
 
 module.exports = Record;

@@ -4,15 +4,25 @@ body {
     color: #444;
     width: 100%;
     text-align: center;
+    margin: 0;
+    padding: 0;
 }
 
 #main {
-    width: 900px;
-    margin: 0 auto;
+    margin: 1em auto;
+    text-align: left;
 }
 
 h2 {
     font-weight: normal;
+}
+
+#board {
+    -moz-user-select     : none;
+    -khtml-user-select   : none;
+    -webkit-user-select  : none;
+    -o-user-select       : none;
+    user-select          : none;
 }
 
 #comments {
@@ -24,15 +34,24 @@ h2 {
 }
 
 .controls {
-    border: 1px solid #ddd;
-    background-color: #eee;
+    border: 1px solid #eee;
+    background-color: #f8f8f8;
     padding: 4px;
     margin: 0 auto;
-    border-radius: 8px;
+    border-radius: 10px;
     margin-bottom: 1em;
+    font-size: 16px;
+    text-align: center;
+    color: #666;
 }
 
-.controls a {
+.controls strong {
+    display: inline-block;
+    width: 36px;
+}
+
+.controls .fa {
     padding: 0 4px;
-    color: black;
+    font-size: 125%;
+    color: #666;
 }

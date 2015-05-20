@@ -10,67 +10,74 @@
 <body>
 <div id="main">
 
-<p class="controls">
-URL: <input id="url" type="text"> <button onclick="loadURL($('#url').val());">Load</button>
-File: <input id="file" type="file"> <button onclick="loadFile();">Load</button>
+<p id="menu" class="controls" style="width: 900px;">
+<input id="url" placeholder="enter SGF URL here" type="text"> <button onclick="loadURL($('#url').val());">Load URL</button>
+<input style="padding-left: 2em;" id="file" type="file"> <button onclick="loadFile();">Load file</button>
 </p>
 
-<div style="float: left; text-align: center">
-  <div id="board"></div>
+<div style="text-align: center; width: 100%">
+<div style="display: inline-block;">
+  <div style="float: left;">
+    <div id="board"></div>
 
-  <p class="controls" style="width: 400px; font-size: 120%">
-  <a href="#" onclick="move(-2); return false;"><i class="fa fa-fast-backward"></i></a>
-  <a href="#" onclick="move(-1); return false;"><i class="fa fa-step-backward"></i></a>
-  Move: <strong id="move">1</strong> / <strong id="moves">1</strong>
-  <a href="#" onclick="move(1); return false;"><i class="fa fa-step-forward"></i></a>
-  <a href="#" onclick="move(2); return false;"><i class="fa fa-fast-forward"></i></a>
-  Variation: <strong id="variation">1</strong> / <strong id="variations">1</strong>
-  <a href="#" onclick="move(10); return false;"><i title="variation" class="fa fa-arrows-v"></i></a>
-  </p>
+    <p class="controls" style="width: 500px;">
+    <a href="#" onclick="move(0); return false;"><i class="fa fa-fast-backward"></i></a>
+    <a href="#" onclick="move(-10); return false;"><i class="fa fa-backward"></i></a>
+    <a href="#" onclick="move(-1); return false;"><i class="fa fa-step-backward"></i></a>
+    <strong id="move">1</strong> / <strong id="moves">1</strong>
+    <a href="#" onclick="move(1); return false;"><i class="fa fa-step-forward"></i></a>
+    <a href="#" onclick="move(10); return false;"><i class="fa fa-forward"></i></a>
+    <a href="#" onclick="move(1000); return false;"><i class="fa fa-fast-forward"></i></a>
+    Variation: <strong id="variation">1</strong> / <strong id="variations">1</strong>
+    <a href="#" onclick="nextVariation(); return false;"><i title="variation" class="fa fa-arrows-v"></i></a>
+    </p>
+  </div>
+
+  <div id="infopane" style="float: left; padding: 1em; text-align: left;">
+    <h2>Game information</h2>
+    <p id="information"></p>
+    <p>
+    Black captures: <strong id="black_captures"></strong><br>
+    White captures: <strong id="white_captures"></strong>
+    </p>
+    <h2>Comments</h2>
+    <p id="comments"></p>
+  </div>
+
+  <div style="clear: both;"></div>
 </div>
-
-<div style="float: left; padding: 1em; text-align: left;">
-  <h2>Game information</h2>
-  <p id="information"></p>
-  <p>
-  Black captures: <strong id="black_captures"></strong><br>
-  White captures: <strong id="white_captures"></strong>
-  </p>
-  <h2>Comments</h2>
-  <p id="comments"></p>
 </div>
-
-<div style="clear: both;"></div>
 
 <script type="text/javascript" src="dist/jgoboard-latest.js"></script>
 <script type="text/javascript" src="medium/board.js"></script>
+<script type="text/javascript" src="large/board.js"></script>
 <script type="text/javascript">
-var moveNum = 1, moves = 1;
+var moveNum = 0, moves = 0, gotoMove = 0;
 var jrecord = false, jnotifier;
 
-function move(dir) {
+function move(dir) { // dir=0 has special meaning "beginning"
   if(!jrecord) return; // disable movement until SGF loaded
 
-  switch(dir) {
-    case -1:
-      if(jrecord.previous()) moveNum--;
-      break;
-    case 1:
-      if(jrecord.next()) moveNum++;
-      break;
-    case 2:
-      while(jrecord.next() != null) moveNum++;
-      break;
-    case -2:
-      jrecord.first();
-      moveNum = 1;
-      break;
-    case 10: // cycle variations
-      jrecord.setVariation((jrecord.getVariation() + 1) % jrecord.getVariations());
-      break;
-    default: // Do nothing
+  if(dir == 0) {
+    jrecord.first();
+    moveNum = 0;
   }
+  while(dir < 0) {
+    if(!jrecord.previous()) break;
+    moveNum--; dir++;
+  }
+  while(dir > 0) {
+    if(!jrecord.next()) break;
+    moveNum++; dir--;
+  }
+  updateInfo();
+}
 
+function nextVariation() {
+  jrecord.setVariation((jrecord.getVariation() + 1) % jrecord.getVariations());
+}
+
+function updateInfo() {
   var info = jrecord.getCurrentNode().info;
   $('#move').html(moveNum);
   $('#comments').html(info.comment ? info.comment.replace(/\n/g, '<br>') : '');
@@ -105,14 +112,31 @@ function updateGameInfo(info) {
   $('#information').html(html);
 }
 
+function getParams() { // VERY simple query parameter parse
+  var params = {}, url = window.location.toString();
+  if(url.indexOf('?') !== -1) {
+    url.substr(url.indexOf('?')+1).split('&').forEach(function(pair) {
+        var pos = pair.indexOf('=');
+        if(pos === -1) return; // skip if no equals sign
+        params[pair.substr(0, pos)] = pair.substr(pos+1);
+    });
+  }
+  return params;
+}
+
 $(document).ready(function() {
   $("body").keydown(function(e) { // left/right arrow navigation
     if(e.keyCode == 37) move(-1);
     else if(e.keyCode == 39) move(1);
   });
 
-  var jboard = new JGO.Board(19, 19); // hardcoded size
-  var jsetup = new JGO.Setup(jboard, JGO.BOARD.medium);
+  var params = getParams(); // parse URL parameters
+  var jboard = new JGO.Board(19, 19), jsetup; // hardcoded size
+
+  if('board' in params && params.board in JGO.BOARD)
+    jsetup = new JGO.Setup(jboard, JGO.BOARD[params.board]);
+  else
+    jsetup = new JGO.Setup(jboard, JGO.BOARD.medium);
 
   // we can use this to change the board to listen to
   notifier = jsetup.getNotifier();
@@ -124,9 +148,10 @@ $(document).ready(function() {
     });
   });
 
-  var url = window.location.toString(); // check if url query parameter is set
-	var matches = url.match(/\?url=(.+)$/); // only allowed parameter is url=<url>
-  if(matches) loadURL(matches[1]); // load straight away
+  if('hidemenu' in params) $('#menu').hide();
+  if('hideinfo' in params) $('#infopane').hide();
+  if('move' in params) gotoMove = parseInt(params.move);
+  if('url' in params) loadURL(params.url); // load straight away
 });
 
 function loadSGF(sgf) {
@@ -137,11 +162,12 @@ function loadSGF(sgf) {
     return;
   }
 
-  $('#moves').html(jrecord.normalize()); // longest sequence first
+  $('#moves').html(jrecord.normalize()-1); // longest sequence first
   notifier.changeBoard(jrecord.getBoard());
   updateGameInfo(jrecord.getRootNode().info);
-  moveNum = 1;
-  move(0); // Will update move, comment and variation info
+  moveNum = 0;
+  move(gotoMove); // also updates game info
+  gotoMove = 0;
 }
 
 function loadURL(url) {
