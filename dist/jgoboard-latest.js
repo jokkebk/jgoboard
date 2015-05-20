@@ -1445,7 +1445,7 @@ Record.prototype.normalize = function(node) {
   }
 
   return maxLen + 1; // longest subsequence plus this
-}
+};
 
 module.exports = Record;
 
@@ -1639,6 +1639,10 @@ function sgfMove(node, name, values, moveMarks) {
   }
 
   coord = (values[0].length == 2) ? new Coordinate(values[0]) : null;
+
+  // Apparently, IGS wants to use outside-board coordinates for pass
+  if(coord.i >= node.jboard.width || coord.j >= node.jboard.height)
+    coord = null; // Thank you, IGS
 
   play = node.jboard.playMove(coord, player);
   node.info.captures[player] += play.captures.length; // tally captures
