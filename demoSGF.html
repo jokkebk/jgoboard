@@ -157,6 +157,11 @@ $(document).ready(function() {
 function loadSGF(sgf) {
   jrecord = JGO.sgf.load(sgf, true);
 
+  if(typeof jrecord == 'string') {
+    alert('Error loading SGF: ' + jrecord);
+    return;
+  }
+
   if(!(jrecord instanceof JGO.Record)) {
     alert('Empty SGF or multiple games in one SGF not supported!');
     return;

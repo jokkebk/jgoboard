@@ -1984,6 +1984,9 @@ function gameTreeToRecord(gameTree, moveMarks) {
 exports.load = function(sgf, moveMarks) {
   var gameTree = parseSGF(sgf);
 
+  if(gameTree === false)
+    return ERROR;
+
   if(gameTree.sequence.length === 0) { // potentially multiple records
     var ret = [];
 
