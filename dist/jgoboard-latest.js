@@ -1641,7 +1641,7 @@ function sgfMove(node, name, values, moveMarks) {
   coord = (values[0].length == 2) ? new Coordinate(values[0]) : null;
 
   // Apparently, IGS wants to use outside-board coordinates for pass
-  if(coord.i >= node.jboard.width || coord.j >= node.jboard.height)
+  if(coord !== null && (coord.i >= node.jboard.width || coord.j >= node.jboard.height))
     coord = null; // Thank you, IGS
 
   play = node.jboard.playMove(coord, player);
