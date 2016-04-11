@@ -234,7 +234,7 @@ Board.prototype.filter = function(c, t) {
   var ret = [];
   for(var i=0, len=c.length; i<len; ++i)
     if(this.stones[c[i].i][c[i].j] == t)
-      ret.push(c);
+      ret.push(c[i]);
   return ret;
 };
 
@@ -356,7 +356,7 @@ Board.prototype.playMove = function(coord, stone, ko) {
     if(this.getType(c) == oppType) { // potential capture
       var g = this.getGroup(c);
 
-      if(this.filter(g.neighbors, C.CLEAR).length == 1) {
+      if(this.filter(g.neighbors, C.CLEAR).length === 1) {
         captures = captures.concat(g.group);
         // save captured coordinates so we don't capture them twice
         for(var j=0; j<g.group.length; j++)
