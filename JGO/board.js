@@ -361,8 +361,10 @@ Board.prototype.playMove = function(coord, stone, ko) {
       errorMsg: 'Suicide is not allowed!' };
 
   // Check for ko. Note that captures were not removed so there should
-  // be zero liberties around this stone in case of a ko.
-  if(captures.length == 1 && this.filter(adjacent, C.CLEAR).length === 0)
+  // be zero liberties around this stone in case of a ko. Also, if the
+  // adjacent intersections contain stones of same color, it is not ko.
+  if(captures.length == 1 && this.filter(adjacent, C.CLEAR).length === 0
+      && this.filter(adjacent, stone).length === 0)
     return { success: true, captures: captures, ko: captures[0].copy() };
 
   return { success: true, captures: captures, ko: false };
