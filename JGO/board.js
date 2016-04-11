@@ -311,6 +311,17 @@ Board.prototype.setRaw = function(raw) {
 };
 
 /**
+ * Clone a board. This will only copy stones and marks, not listeners!
+ *
+ * @returns {Object} Cloned board.
+ */
+Board.prototype.clone = function() {
+  var board = new Board();
+  board.setRaw(this.getRaw());
+  return board;
+};
+
+/**
  * Calculate impact of a move on board. Returns a data structure outlining
  * validness of move (success & errorMsg) and possible captures and ko
  * coordinate.
