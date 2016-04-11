@@ -206,7 +206,7 @@ Board.prototype.getMark = function(c) {
  * Get neighboring coordinates on board.
  *
  * @param {Coordinate} c The coordinate
- * @returns {Array} The array of adjacent coordinates of given type (may be an empty array)
+ * @returns {Array} The array of adjacent coordinates (2-4)
  */
 Board.prototype.getAdjacent = function(c) {
   var coordinates = [], i = c.i, j = c.j;
