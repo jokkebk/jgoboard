@@ -323,7 +323,7 @@ Board.prototype.setRaw = function(raw) {
  */
 Board.prototype.playMove = function(coord, stone, ko) {
   var oppType = (stone == C.BLACK ? C.WHITE : C.BLACK),
-      captures = [], adjacent;
+      captures = [], adjacent, captured = {};
 
   if(!coord) // pass
     return { success: true, captures: [], ko: false };
@@ -340,12 +340,17 @@ Board.prototype.playMove = function(coord, stone, ko) {
 
   for(var i=0; i<adjacent.length; i++) {
     var c = adjacent[i];
+    if(c.toString() in captured) continue; // avoid double capture
 
     if(this.getType(c) == oppType) { // potential capture
       var g = this.getGroup(c);
 
-      if(this.filter(g.neighbors, C.CLEAR).length == 1)
+      if(this.filter(g.neighbors, C.CLEAR).length == 1) {
         captures = captures.concat(g.group);
+        // save captured coordinates so we don't capture them twice
+        for(var j=0; j<g.group.length; j++)
+          captured[g.group[j].toString()] = true; 
+      }
     }
   }
 
