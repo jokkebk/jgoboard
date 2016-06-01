@@ -285,8 +285,8 @@ Canvas.prototype.restore = function(x, y, w, h) {
   y = Math.floor(y);
   x = Math.max(x, 0);
   y = Math.max(y, 0);
-  w = Math.min(w, this.backup.width);
-  h = Math.min(h, this.backup.height);
+  w = Math.min(w, this.backup.width - x);
+  h = Math.min(h, this.backup.height - y);
   try {
     this.ctx.drawImage(this.backup, x, y, w, h, x, y, w, h);
   }
