@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <title>jGoBoard SGF Player Demo</title>
   <link rel="stylesheet" href="demoSGF.css" type="text/css">
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 </head>
 <body>
 <div id="main">
@@ -176,7 +176,7 @@ function loadSGF(sgf) {
 }
 
 function loadURL(url) {
-  $.ajax('http://static.jgoboard.com/get_sgf.php', {
+  $.ajax('https://jgoboard.com/get_sgf.php', {
     dataType: 'jsonp', data: {url: url}, complete: function(resp) {
       loadSGF(resp.responseJSON);
     }
