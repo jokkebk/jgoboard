@@ -206,7 +206,7 @@ Board.prototype.getMark = function(c) {
  * Get neighboring coordinates on board.
  *
  * @param {Coordinate} c The coordinate
- * @returns {Array} The array of adjacent coordinates of given type (may be an empty array)
+ * @returns {Array} The array of adjacent coordinates (2-4)
  */
 Board.prototype.getAdjacent = function(c) {
   var coordinates = [], i = c.i, j = c.j;
@@ -234,7 +234,7 @@ Board.prototype.filter = function(c, t) {
   var ret = [];
   for(var i=0, len=c.length; i<len; ++i)
     if(this.stones[c[i].i][c[i].j] == t)
-      ret.push(c);
+      ret.push(c[i]);
   return ret;
 };
 
@@ -311,6 +311,17 @@ Board.prototype.setRaw = function(raw) {
 };
 
 /**
+ * Clone a board. This will only copy stones and marks, not listeners!
+ *
+ * @returns {Object} Cloned board.
+ */
+Board.prototype.clone = function() {
+  var board = new Board();
+  board.setRaw(this.getRaw());
+  return board;
+};
+
+/**
  * Calculate impact of a move on board. Returns a data structure outlining
  * validness of move (success & errorMsg) and possible captures and ko
  * coordinate.
@@ -323,7 +334,7 @@ Board.prototype.setRaw = function(raw) {
  */
 Board.prototype.playMove = function(coord, stone, ko) {
   var oppType = (stone == C.BLACK ? C.WHITE : C.BLACK),
-      captures = [], adjacent;
+      captures = [], adjacent, captured = {};
 
   if(!coord) // pass
     return { success: true, captures: [], ko: false };
@@ -340,12 +351,17 @@ Board.prototype.playMove = function(coord, stone, ko) {
 
   for(var i=0; i<adjacent.length; i++) {
     var c = adjacent[i];
+    if(c.toString() in captured) continue; // avoid double capture
 
     if(this.getType(c) == oppType) { // potential capture
       var g = this.getGroup(c);
 
-      if(this.filter(g.neighbors, C.CLEAR).length == 1)
+      if(this.filter(g.neighbors, C.CLEAR).length === 1) {
         captures = captures.concat(g.group);
+        // save captured coordinates so we don't capture them twice
+        for(var j=0; j<g.group.length; j++)
+          captured[g.group[j].toString()] = true; 
+      }
     }
   }
 
@@ -356,8 +372,10 @@ Board.prototype.playMove = function(coord, stone, ko) {
       errorMsg: 'Suicide is not allowed!' };
 
   // Check for ko. Note that captures were not removed so there should
-  // be zero liberties around this stone in case of a ko.
-  if(captures.length == 1 && this.filter(adjacent, C.CLEAR).length === 0)
+  // be zero liberties around this stone in case of a ko. Also, if the
+  // adjacent intersections contain stones of same color, it is not ko.
+  if(captures.length == 1 && this.filter(adjacent, C.CLEAR).length === 0
+      && this.filter(adjacent, stone).length === 0)
     return { success: true, captures: captures, ko: captures[0].copy() };
 
   return { success: true, captures: captures, ko: false };
