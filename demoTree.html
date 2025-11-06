@@ -142,7 +142,7 @@ $.ajax('vars.sgf', { // fetch demo.sgf
   complete: function(resp) {
     var jsetup;
 
-    jrecord = JGO.util.loadSGF(resp.responseText);
+    jrecord = JGO.sgf.load(resp.responseText);
     move(0); // sets comment
 
     if(!(jrecord instanceof JGO.Record)) {
