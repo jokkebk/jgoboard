@@ -1,0 +1,195 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build all artifacts
+      run: npm run build
+
+    - name: Get version from tag
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.get_version.outputs.VERSION }}
+        release_name: Release ${{ steps.get_version.outputs.VERSION }}
+        draft: false
+        prerelease: false
+        body: |
+          ## jGoBoard ${{ steps.get_version.outputs.VERSION }}
+
+          ### Download Files
+          Download the files you need from the assets below:
+
+          **For modern ES modules:**
+          - `jgoboard.js` - Full version with source map
+          - `jgoboard.min.js` - Minified version
+
+          **For CommonJS (Node.js):**
+          - `jgoboard.cjs` - Full version
+          - `jgoboard.min.cjs` - Minified version
+
+          **For browsers (UMD):**
+          - `jgoboard.umd.js` - Full version
+          - `jgoboard.umd.min.js` - Minified version
+
+          **TypeScript support:**
+          - `index.d.ts` - Type definitions
+
+    # Upload all dist files as release assets
+    - name: Upload jgoboard.js
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/jgoboard.js
+        asset_name: jgoboard.js
+        asset_content_type: application/javascript
+
+    - name: Upload jgoboard.min.js
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/jgoboard.min.js
+        asset_name: jgoboard.min.js
+        asset_content_type: application/javascript
+
+    - name: Upload jgoboard.cjs
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/jgoboard.cjs
+        asset_name: jgoboard.cjs
+        asset_content_type: application/javascript
+
+    - name: Upload jgoboard.min.cjs
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/jgoboard.min.cjs
+        asset_name: jgoboard.min.cjs
+        asset_content_type: application/javascript
+
+    - name: Upload jgoboard.umd.js
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/jgoboard.umd.js
+        asset_name: jgoboard.umd.js
+        asset_content_type: application/javascript
+
+    - name: Upload jgoboard.umd.min.js
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/jgoboard.umd.min.js
+        asset_name: jgoboard.umd.min.js
+        asset_content_type: application/javascript
+
+    - name: Upload source maps
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/jgoboard.js.map
+        asset_name: jgoboard.js.map
+        asset_content_type: application/json
+
+    - name: Upload jgoboard.min.js.map
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/jgoboard.min.js.map
+        asset_name: jgoboard.min.js.map
+        asset_content_type: application/json
+
+    - name: Upload jgoboard.cjs.map
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/jgoboard.cjs.map
+        asset_name: jgoboard.cjs.map
+        asset_content_type: application/json
+
+    - name: Upload jgoboard.min.cjs.map
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/jgoboard.min.cjs.map
+        asset_name: jgoboard.min.cjs.map
+        asset_content_type: application/json
+
+    - name: Upload jgoboard.umd.js.map
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/jgoboard.umd.js.map
+        asset_name: jgoboard.umd.js.map
+        asset_content_type: application/json
+
+    - name: Upload jgoboard.umd.min.js.map
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/jgoboard.umd.min.js.map
+        asset_name: jgoboard.umd.min.js.map
+        asset_content_type: application/json
+
+    - name: Upload TypeScript definitions
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/index.d.ts
+        asset_name: index.d.ts
+        asset_content_type: text/plain
