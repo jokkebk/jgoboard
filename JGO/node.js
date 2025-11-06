@@ -9,18 +9,18 @@ import C from './constants.js';
  * @param {Object} info Node information - ko coordinate, comment, etc.
  * @constructor
  */
-const Node = function(jboard, parent, info) {
+const Node = function (jboard, parent, info) {
   this.jboard = jboard;
   this.parent = parent;
   this.info = info ? util.extend({}, info) : {};
   this.children = [];
   this.changes = [];
 
-  if(parent) {
+  if (parent) {
     parent.children.push(this); // register child
     this.info.captures = util.extend({}, parent.info.captures);
   } else {
-    this.info.captures = {1: 0, 2: 0}; // C.BLACK, C.WHITE
+    this.info.captures = { 1: 0, 2: 0 }; // C.BLACK, C.WHITE
   }
 };
 
@@ -28,15 +28,13 @@ const Node = function(jboard, parent, info) {
  * Helper method to clear parent node's markers. Created to achieve SGF like
  * stateless marker behavaior.
  */
-Node.prototype.clearParentMarks = function() {
-  if(!this.parent)
-    return;
+Node.prototype.clearParentMarks = function () {
+  if (!this.parent) return;
 
-  for(var i=this.parent.changes.length-1; i>=0; i--) {
+  for (var i = this.parent.changes.length - 1; i >= 0; i--) {
     var item = this.parent.changes[i];
 
-    if('mark' in item)
-      this.setMark(item.c, C.MARK.NONE);
+    if ('mark' in item) this.setMark(item.c, C.MARK.NONE);
   }
 };
 
@@ -46,15 +44,14 @@ Node.prototype.clearParentMarks = function() {
  * @param {Object} c Coordinate or array of them.
  * @param {int} val Type.
  */
-Node.prototype.setType = function(c, val) {
-  if(c instanceof Array) {
-    for(var i=0, len=c.length; i<len; ++i)
-      this.setType(c[i], val); // avoid repeating ourselves
+Node.prototype.setType = function (c, val) {
+  if (c instanceof Array) {
+    for (var i = 0, len = c.length; i < len; ++i) this.setType(c[i], val); // avoid repeating ourselves
     return;
   }
 
   // Store both change and previous value to enable reversion
-  this.changes.push({c: c.copy(), type: val, old: this.jboard.getType(c)});
+  this.changes.push({ c: c.copy(), type: val, old: this.jboard.getType(c) });
   this.jboard.setType(c, val);
 };
 
@@ -64,44 +61,38 @@ Node.prototype.setType = function(c, val) {
  * @param {Object} c Coordinate or array of them.
  * @param {int} val Mark.
  */
-Node.prototype.setMark = function(c, val) {
-  if(c instanceof Array) {
-    for(var i=0, len=c.length; i<len; ++i)
-      this.setMark(c[i], val); // avoid repeating ourselves
+Node.prototype.setMark = function (c, val) {
+  if (c instanceof Array) {
+    for (var i = 0, len = c.length; i < len; ++i) this.setMark(c[i], val); // avoid repeating ourselves
     return;
   }
 
   // Store both change and previous value to enable reversion
-  this.changes.push({c: c.copy(), mark: val, old: this.jboard.getMark(c)});
+  this.changes.push({ c: c.copy(), mark: val, old: this.jboard.getMark(c) });
   this.jboard.setMark(c, val);
 };
-
 
 /**
  * Apply changes of this node to board.
  */
-Node.prototype.apply = function() {
-  for(var i=0; i<this.changes.length; i++) {
+Node.prototype.apply = function () {
+  for (var i = 0; i < this.changes.length; i++) {
     var item = this.changes[i];
 
-    if('type' in item)
-      this.jboard.setType(item.c, item.type);
-    else
-      this.jboard.setMark(item.c, item.mark);
+    if ('type' in item) this.jboard.setType(item.c, item.type);
+    else this.jboard.setMark(item.c, item.mark);
   }
 };
 
 /**
  * Revert changes of this node to board.
  */
-Node.prototype.revert = function() {
-  for(var i=this.changes.length-1; i>=0; i--) {
+Node.prototype.revert = function () {
+  for (var i = this.changes.length - 1; i >= 0; i--) {
     var item = this.changes[i];
 
-    if('type' in item)
-      this.jboard.setType(item.c, item.old);
-    else
-      this.jboard.setMark(item.c, item.old);
+    if ('type' in item) this.jboard.setType(item.c, item.old);
+    else this.jboard.setMark(item.c, item.old);
   }
 };
 

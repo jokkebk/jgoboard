@@ -9,7 +9,7 @@ import Node from './node.js';
  * @param {int} height Board height.
  * @constructor
  */
-var Record = function(width, height) {
+var Record = function (width, height) {
   this.jboard = new Board(width, height ? height : width);
   this.root = this.current = null;
   this.info = {}; // game information
@@ -20,7 +20,7 @@ var Record = function(width, height) {
  *
  * @returns {Board} Board object.
  */
-Record.prototype.getBoard = function() {
+Record.prototype.getBoard = function () {
   return this.jboard;
 };
 
@@ -29,17 +29,16 @@ Record.prototype.getBoard = function() {
  *
  * @returns {Node} Current node.
  */
-Record.prototype.getCurrentNode = function() {
+Record.prototype.getCurrentNode = function () {
   return this.current;
 };
-
 
 /**
  * Get root node.
  *
  * @returns {Node} Root node.
  */
-Record.prototype.getRootNode = function() {
+Record.prototype.getRootNode = function () {
   return this.root;
 };
 
@@ -50,14 +49,12 @@ Record.prototype.getRootNode = function() {
  * @param {Object} info Node information - ko coordinate, comment, etc.
  * @returns {Node} New, current node.
  */
-Record.prototype.createNode = function(clearParentMarks, options) {
+Record.prototype.createNode = function (clearParentMarks, options) {
   var node = new Node(this.jboard, this.current, options);
 
-  if(clearParentMarks)
-    node.clearParentMarks();
+  if (clearParentMarks) node.clearParentMarks();
 
-  if(this.root === null)
-    this.root = node;
+  if (this.root === null) this.root = node;
 
   return (this.current = node);
 };
@@ -68,15 +65,12 @@ Record.prototype.createNode = function(clearParentMarks, options) {
  * @param {int} [variation] parameter to specify which variation to select, if there are several branches.
  * @returns {Node} New current node or null if at the end of game tree.
  */
-Record.prototype.next = function(variation) {
-  if(this.current === null)
-    return null;
+Record.prototype.next = function (variation) {
+  if (this.current === null) return null;
 
-  if(!variation)
-    variation = 0;
+  if (!variation) variation = 0;
 
-  if(variation >= this.current.children.length)
-    return null;
+  if (variation >= this.current.children.length) return null;
 
   this.current = this.current.children[variation];
   this.current.apply(this.jboard);
@@ -89,9 +83,8 @@ Record.prototype.next = function(variation) {
  *
  * @returns {Node} New current node or null if at the beginning of game tree.
  */
-Record.prototype.previous = function() {
-  if(this.current === null || this.current.parent === null)
-    return null; // empty or no parent
+Record.prototype.previous = function () {
+  if (this.current === null || this.current.parent === null) return null; // empty or no parent
 
   this.current.revert(this.jboard);
   this.current = this.current.parent;
@@ -104,9 +97,8 @@ Record.prototype.previous = function() {
  *
  * @returns {int} Current variations.
  */
-Record.prototype.getVariation = function() {
-  if(this.current === null || this.current.parent === null)
-    return 0;
+Record.prototype.getVariation = function () {
+  if (this.current === null || this.current.parent === null) return 0;
   return this.current.parent.children.indexOf(this.current);
 };
 
@@ -115,9 +107,8 @@ Record.prototype.getVariation = function() {
  *
  * @param {int} [variation] parameter to specify which variation to select, if there are several branches.
  */
-Record.prototype.setVariation = function(variation) {
-  if(this.previous() === null)
-    return null;
+Record.prototype.setVariation = function (variation) {
+  if (this.previous() === null) return null;
   return this.next(variation);
 };
 
@@ -126,9 +117,8 @@ Record.prototype.setVariation = function(variation) {
  *
  * @returns {int} Number of variations.
  */
-Record.prototype.getVariations = function() {
-  if(this.current === null || this.current.parent === null)
-    return 1;
+Record.prototype.getVariations = function () {
+  if (this.current === null || this.current.parent === null) return 1;
 
   return this.current.parent.children.length; // "nice"
 };
@@ -138,12 +128,11 @@ Record.prototype.getVariations = function() {
  *
  * @returns {Node} New current node.
  */
-Record.prototype.first = function() {
+Record.prototype.first = function () {
   this.current = this.root;
   this.jboard.clear();
 
-  if(this.current !== null)
-    this.current.apply(this.jboard);
+  if (this.current !== null) this.current.apply(this.jboard);
 
   return this.current;
 };
@@ -154,8 +143,8 @@ Record.prototype.first = function() {
  *
  * @returns Snapshot to be used with restoreSnapshot().
  */
-Record.prototype.createSnapshot = function() {
-  return {jboard: this.jboard.getRaw(), current: this.current};
+Record.prototype.createSnapshot = function () {
+  return { jboard: this.jboard.getRaw(), current: this.current };
 };
 
 /**
@@ -165,7 +154,7 @@ Record.prototype.createSnapshot = function() {
  *
  * @param {Object} raw Snapshot created with createSnapshot().
  */
-Record.prototype.restoreSnapshot = function(raw) {
+Record.prototype.restoreSnapshot = function (raw) {
   this.jboard.setRaw(raw.jboard);
   this.current = raw.current;
 };
@@ -176,17 +165,24 @@ Record.prototype.restoreSnapshot = function(raw) {
  * @param {Node} node The node to start with. Defaults to root if unset.
  * @returns int Length of longest subsequence.
  */
-Record.prototype.normalize = function(node) {
-  var i, len, maxLen = 0, maxI = 0;
+Record.prototype.normalize = function (node) {
+  var i,
+    len,
+    maxLen = 0,
+    maxI = 0;
 
-  if(!node) node = this.getRootNode();
+  if (!node) node = this.getRootNode();
 
-  for(i=0; i<node.children.length; i++) {
+  for (i = 0; i < node.children.length; i++) {
     len = this.normalize(node.children[i]);
-    if(maxLen < len) { maxLen = len; maxI = i; }
+    if (maxLen < len) {
+      maxLen = len;
+      maxI = i;
+    }
   }
 
-  if(maxI) { // If needed, swap longest first
+  if (maxI) {
+    // If needed, swap longest first
     i = node.children[0];
     node.children[0] = node.children[maxI];
     node.children[maxI] = i;

@@ -14,7 +14,7 @@ export const INTERSECTION = {
   /** Semi-transparent black stone */
   DIM_BLACK: 3,
   /** Semi-transparent white stone */
-  DIM_WHITE: 4
+  DIM_WHITE: 4,
 };
 
 /**
@@ -38,7 +38,7 @@ export const MARK = {
   /** Black territory */
   BLACK_TERRITORY: '-',
   /** White territory */
-  WHITE_TERRITORY: '+'
+  WHITE_TERRITORY: '+',
 };
 
 /**
@@ -51,7 +51,7 @@ export const COORDINATES = 'ABCDEFGHJKLMNOPQRSTUVWXYZ'.split('');
 const JGO = {
   INTERSECTION,
   MARK,
-  COORDINATES
+  COORDINATES,
 };
 
 // Alias all INTERSECTION properties into globals (for backward compatibility)

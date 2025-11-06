@@ -12,25 +12,26 @@ const SGFLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
  * @param {int} [j] Row.
  * @constructor
  */
-const Coordinate = function(i, j) {
-  if(i !== undefined) {
-    if(j !== undefined) {
+const Coordinate = function (i, j) {
+  if (i !== undefined) {
+    if (j !== undefined) {
       this.i = i;
       this.j = j;
-    } else { // try to parse coordinates from first parameter
+    } else {
+      // try to parse coordinates from first parameter
       this.i = 0;
       this.j = 0;
 
-      if(typeof i != 'string')
-        return;
+      if (typeof i != 'string') return;
 
       // assume SGF-type coordinate
       i = i.toLowerCase();
 
-      this.i = SGFLetters.indexOf(i.substr(0,1));
+      this.i = SGFLetters.indexOf(i.substr(0, 1));
       this.j = SGFLetters.indexOf(i.substr(1));
     }
-  } else { // called without both parameters
+  } else {
+    // called without both parameters
     this.i = 0;
     this.j = 0;
   }
@@ -42,8 +43,8 @@ const Coordinate = function(i, j) {
  * @param {Coordinate} Coordinate.
  * @returns {boolean} true if equal, false if not.
  */
-Coordinate.prototype.equals = function(c) {
-  return (c.i == this.i) && (c.j == this.j);
+Coordinate.prototype.equals = function (c) {
+  return c.i == this.i && c.j == this.j;
 };
 
 /**
@@ -51,7 +52,7 @@ Coordinate.prototype.equals = function(c) {
  *
  * @returns {string} String representation.
  */
-Coordinate.prototype.toString = function() {
+Coordinate.prototype.toString = function () {
   return SGFLetters[this.i] + SGFLetters[this.j];
 };
 
@@ -60,7 +61,7 @@ Coordinate.prototype.toString = function() {
  *
  * @returns {Coordinate} A copy of this coordinate.
  */
-Coordinate.prototype.copy = function() {
+Coordinate.prototype.copy = function () {
   return new Coordinate(this.i, this.j);
 };
 

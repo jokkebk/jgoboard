@@ -25,18 +25,6 @@ JGO.sgf = sgf;
 JGO.auto = auto;
 
 // Named exports for tree-shaking
-export {
-  Coordinate,
-  Canvas,
-  Node,
-  Notifier,
-  Record,
-  Setup,
-  Stones,
-  Board,
-  util,
-  sgf,
-  auto
-};
+export { Coordinate, Canvas, Node, Notifier, Record, Setup, Stones, Board, util, sgf, auto };
 
 export default JGO;
