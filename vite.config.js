@@ -2,6 +2,8 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import dts from 'vite-plugin-dts';
 
+const isMinify = process.env.MINIFY === 'true';
+
 export default defineConfig({
   build: {
     lib: {
@@ -9,14 +11,26 @@ export default defineConfig({
       name: 'JGO',
       formats: ['es', 'umd', 'cjs'],
       fileName: (format) => {
-        if (format === 'es') return 'jgoboard.js';
-        if (format === 'cjs') return 'jgoboard.cjs';
-        if (format === 'umd') return 'jgoboard.umd.js';
+        const suffix = isMinify ? '.min' : '';
+        if (format === 'es') return `jgoboard${suffix}.js`;
+        if (format === 'cjs') return `jgoboard${suffix}.cjs`;
+        if (format === 'umd') return `jgoboard.umd${suffix}.js`;
       }
     },
     outDir: 'dist',
+    emptyOutDir: !isMinify, // Don't clear dist on minified build
     sourcemap: true,
-    minify: false, // We'll create separate minified versions
+    minify: isMinify ? 'terser' : false,
+    terserOptions: isMinify ? {
+      compress: {
+        drop_console: false,
+        drop_debugger: true
+      },
+      format: {
+        comments: false,
+        preamble: '/*! jGoBoard - (c) Joonas Pihlajamaa - Licensed under CC-BY-NC-4.0 */'
+      }
+    } : undefined,
     rollupOptions: {
       // Externalize dependencies that shouldn't be bundled
       external: [],

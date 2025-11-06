@@ -28,7 +28,9 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && MINIFY=true vite build",
+    "build:dev": "vite build",
+    "build:min": "MINIFY=true vite build",
     "preview": "vite preview",
     "lint": "eslint JGO main.js",
     "format": "prettier --write \"JGO/**/*.js\" \"main.js\"",
@@ -58,6 +60,7 @@
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.6.2",
+    "terser": "^5.44.1",
     "vite": "^7.2.1",
     "vite-plugin-dts": "^4.5.4"
   }
