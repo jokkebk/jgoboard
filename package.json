@@ -51,9 +51,6 @@
   "author": "Joonas Pihlajamaa",
   "homepage": "http://jgoboard.com",
   "license": "CC-BY-NC-4.0",
-  "dependencies": {
-    "superagent": "^3.7.0"
-  },
   "devDependencies": {
     "@vitejs/plugin-legacy": "^7.2.1",
     "eslint": "^9.39.1",
