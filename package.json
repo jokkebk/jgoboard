@@ -5,12 +5,13 @@
   "type": "module",
   "main": "./dist/jgoboard.cjs",
   "module": "./dist/jgoboard.js",
-  "browser": "./dist/jgoboard.umd.js",
+  "browser": "./dist/jgoboard.umd.min.js",
   "types": "./dist/index.d.ts",
+  "unpkg": "./dist/jgoboard.umd.min.js",
+  "jsdelivr": "./dist/jgoboard.umd.min.js",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "browser": "./dist/jgoboard.umd.js",
       "import": "./dist/jgoboard.js",
       "require": "./dist/jgoboard.cjs",
       "default": "./dist/jgoboard.js"
@@ -28,9 +29,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build && MINIFY=true vite build",
-    "build:dev": "vite build",
-    "build:min": "MINIFY=true vite build",
+    "build": "node scripts/build.js",
     "preview": "vite preview",
     "lint": "eslint JGO main.js",
     "format": "prettier --write \"JGO/**/*.js\" \"main.js\"",

@@ -36,21 +36,20 @@ jobs:
           ## jGoBoard ${{ github.ref_name }}
 
           ### Download Files
-          Download the files you need from the assets below:
 
-          **For modern ES modules:**
-          - `jgoboard.js` - Full version with source map
-          - `jgoboard.min.js` - Minified version
+          **For npm/bundlers (ESM):**
+          - `jgoboard.js` - ES module (unminified, let your bundler optimize it)
+          - `jgoboard.js.map` - Source map
 
-          **For CommonJS (Node.js):**
-          - `jgoboard.cjs` - Full version
-          - `jgoboard.min.cjs` - Minified version
+          **For Node.js (CommonJS):**
+          - `jgoboard.cjs` - CommonJS module (unminified)
+          - `jgoboard.cjs.map` - Source map
 
-          **For browsers (UMD):**
-          - `jgoboard.umd.js` - Full version
-          - `jgoboard.umd.min.js` - Minified version
+          **For browsers/CDN (UMD):**
+          - `jgoboard.umd.min.js` - Minified UMD bundle for direct browser use
+          - `jgoboard.umd.min.js.map` - Source map for debugging
 
-          **TypeScript support:**
+          **TypeScript:**
           - `index.d.ts` - Type definitions
 
-          All files include source maps for debugging.
+          > **Note:** ESM and CJS builds are unminified intentionally. Modern bundlers (webpack, Rollup, Vite) will tree-shake and minify them automatically. Source maps enable debugging even with minified code.
