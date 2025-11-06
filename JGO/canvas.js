@@ -60,6 +60,11 @@ var Canvas = function (elem, opt, images) {
     var c = this.getCoordinate(ev.clientX, ev.clientY),
       listeners = this.listeners.click;
 
+    if (c.i < this.opt.view.xOffset || c.i >= this.opt.view.xOffset + this.opt.view.width) c.i = -1;
+
+    if (c.j < this.opt.view.yOffset || c.j >= this.opt.view.yOffset + this.opt.view.height)
+      c.j = -1;
+
     for (var l = 0; l < listeners.length; l++) listeners[l].call(this, c.copy(), ev);
   }.bind(this);
 

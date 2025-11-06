@@ -37,6 +37,9 @@ jboard.setType(JGO.util.getHandicapCoordinates(jboard.width, 2), JGO.BLACK);
 jsetup.setOptions({stars: {points:5}});
 jsetup.create('board', function(canvas) {
   canvas.addListener('click', function(coord, ev) {
+    if(coord.i == -1 || coord.j == -1)
+      return;
+
     var opponent = (player == JGO.BLACK) ? JGO.WHITE : JGO.BLACK;
 
     if(ev.shiftKey) { // on shift do edit
