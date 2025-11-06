@@ -1,6 +1,4 @@
-'use strict';
-
-var SGFLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
+const SGFLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
 
 /**
  * Create a helper class to create coordinates from (1,2) (zero-based),
@@ -14,7 +12,7 @@ var SGFLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
  * @param {int} [j] Row.
  * @constructor
  */
-var Coordinate = function(i, j) {
+const Coordinate = function(i, j) {
   if(i !== undefined) {
     if(j !== undefined) {
       this.i = i;
@@ -66,4 +64,4 @@ Coordinate.prototype.copy = function() {
   return new Coordinate(this.i, this.j);
 };
 
-module.exports = Coordinate;
+export default Coordinate;

@@ -2,11 +2,36 @@
   "name": "jgoboard",
   "version": "3.4.3",
   "description": "jGoBoard javascript go board library",
-  "main": "src/jgoinit.js",
+  "type": "module",
+  "main": "./dist/jgoboard.cjs",
+  "module": "./dist/jgoboard.js",
+  "browser": "./dist/jgoboard.umd.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "browser": "./dist/jgoboard.umd.js",
+      "import": "./dist/jgoboard.js",
+      "require": "./dist/jgoboard.cjs",
+      "default": "./dist/jgoboard.js"
+    }
+  },
+  "files": [
+    "dist",
+    "JGO",
+    "main.js",
+    "README.md",
+    "LICENSE.txt"
+  ],
   "directories": {
     "doc": "doc"
   },
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint JGO main.js",
+    "format": "prettier --write \"JGO/**/*.js\" \"main.js\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -25,20 +50,15 @@
   "author": "Joonas Pihlajamaa",
   "homepage": "http://jgoboard.com",
   "license": "CC-BY-NC-4.0",
-  "devDependencies": {
-    "browserify": "latest",
-    "grunt": "^0.4.5",
-    "grunt-browserify": "^3.5.0",
-    "grunt-cli": "^1.5.0",
-    "grunt-contrib-concat": "^0.5.0",
-    "grunt-contrib-copy": "^0.5.0",
-    "grunt-contrib-jshint": "^0.10.0",
-    "grunt-contrib-uglify": "^0.5.1",
-    "grunt-jsdoc": "~0.5.1",
-    "grunt-shell": "^1.1.1",
-    "jsdoc": "^3.4.0"
-  },
   "dependencies": {
     "superagent": "^3.7.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-legacy": "^7.2.1",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.6.2",
+    "vite": "^7.2.1",
+    "vite-plugin-dts": "^4.5.4"
   }
 }

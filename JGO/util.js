@@ -1,11 +1,9 @@
-'use strict';
-
 /**
  * Utility function module.
  * @module util
  */
 
-var Coordinate = require('./coordinate');
+import Coordinate from './coordinate.js';
 
 /**
  * Load images and defined by object and invoke callback when completed.
@@ -13,7 +11,7 @@ var Coordinate = require('./coordinate');
  * @param {Object} sources A dictionary of sources to load.
  * @param {function} callback A callback function to call with image dict.
  */
-exports.loadImages = function(sources, callback) {
+export function loadImages(sources, callback) {
   var images = {}, imagesLeft = 0;
 
   for(var src in sources) // count non-false properties as images
@@ -43,7 +41,7 @@ exports.loadImages = function(sources, callback) {
  * @param {itn} num Number of handicap stones.
  * @returns {Array} Array of Coordinate objects.
  */
-exports.getHandicapCoordinates = function(size, num) {
+export function getHandicapCoordinates(size, num) {
   // Telephone dial style numbering
   var handicapPlaces = [[], [], [3,7], [3,7,9], [1,3,7,9], [1,3,5,7,9],
       [1,3,4,6,7,9], [1,3,4,5,6,7,9], [1,2,3,4,6,7,8,9],
@@ -69,16 +67,16 @@ exports.getHandicapCoordinates = function(size, num) {
  * @param {Object} src Source object which properties will be copied.
  * @returns {Object} Extended destination object.
  */
-exports.extend = function(dest, src) {
+export function extend(dest, src) {
   for(var key in src) {
     if(src.hasOwnProperty(key)) {
       if(typeof src[key] === 'object') {
         if(!dest[key] || (typeof dest[key] !== 'object'))
           dest[key] = {}; // create/overwrite if necessary
-        exports.extend(dest[key], src[key]);
+        extend(dest[key], src[key]);
       } else dest[key] = src[key];
     }
   }
 
   return dest;
-};
+}

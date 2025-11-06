@@ -1,7 +1,5 @@
-'use strict';
-
-var util = require('./util');
-var C = require('./constants');
+import * as util from './util.js';
+import C from './constants.js';
 
 /**
  * Helper class to store node information, apply and revert changes easily.
@@ -11,7 +9,7 @@ var C = require('./constants');
  * @param {Object} info Node information - ko coordinate, comment, etc.
  * @constructor
  */
-var Node = function(jboard, parent, info) {
+const Node = function(jboard, parent, info) {
   this.jboard = jboard;
   this.parent = parent;
   this.info = info ? util.extend({}, info) : {};
@@ -107,4 +105,4 @@ Node.prototype.revert = function() {
   }
 };
 
-module.exports = Node;
+export default Node;

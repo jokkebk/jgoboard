@@ -1,7 +1,5 @@
-'use strict';
-
-var Board = require('./board');
-var Node = require('./node');
+import Board from './board.js';
+import Node from './node.js';
 
 /**
  * Create a go game record that can handle plays and variations. A Board
@@ -197,4 +195,4 @@ Record.prototype.normalize = function(node) {
   return maxLen + 1; // longest subsequence plus this
 };
 
-module.exports = Record;
+export default Record;

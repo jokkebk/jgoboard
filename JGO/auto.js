@@ -1,7 +1,5 @@
-'use strict';
-
 //var request = require('superagent');
-var C = require('./constants');
+import C from './constants.js';
 
 /**
  * Automatic div module.
@@ -108,9 +106,11 @@ function process(JGO, div) {
 /**
  * Find all div elements with class 'jgoboard' and initialize them.
  */
-exports.init = function(document, JGO) {
+export function init(document, JGO) {
   var matches = document.querySelectorAll('div.jgoboard');
 
   for(var i = 0, len = matches.length; i < len; ++i)
     process(JGO, matches[i]);
-};
+}
+
+export default { init };

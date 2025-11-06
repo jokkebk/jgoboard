@@ -1,13 +1,11 @@
-'use strict';
-
-var util = require('./util');
+import { extend } from './util.js';
 
 /**
  * Enum for intersection types. Aliased in JGO namespace, e.g. JGO.BLACK.
  * @enum
  * @readonly
  */
-exports.INTERSECTION = {
+export const INTERSECTION = {
   CLEAR: 0,
   /** Black stone */
   BLACK: 1,
@@ -19,15 +17,12 @@ exports.INTERSECTION = {
   DIM_WHITE: 4
 };
 
-// Alias all objects into globals
-util.extend(exports, exports.INTERSECTION);
-
 /**
  * Enum for marker types.
  * @readonly
  * @enum
  */
-exports.MARK = {
+export const MARK = {
   /** No marker ('') */
   NONE: '',
   /** Selected intersection */
@@ -50,4 +45,16 @@ exports.MARK = {
  * Board coordinate array.
  * @constant
  */
-exports.COORDINATES = 'ABCDEFGHJKLMNOPQRSTUVWXYZ'.split('');
+export const COORDINATES = 'ABCDEFGHJKLMNOPQRSTUVWXYZ'.split('');
+
+// Create the base JGO object with all exports
+const JGO = {
+  INTERSECTION,
+  MARK,
+  COORDINATES
+};
+
+// Alias all INTERSECTION properties into globals (for backward compatibility)
+extend(JGO, INTERSECTION);
+
+export default JGO;

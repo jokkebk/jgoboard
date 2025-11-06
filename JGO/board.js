@@ -1,8 +1,6 @@
-'use strict';
-
-var Coordinate = require('./coordinate');
-var C = require('./constants');
-var util = require('./util');
+import Coordinate from './coordinate.js';
+import C from './constants.js';
+import * as util from './util.js';
 
 /**
  * Go board class for storing intersection states. Also has listeners that
@@ -12,7 +10,7 @@ var util = require('./util');
  * @param {int} [height] The height of the board
  * @constructor
  */
-var Board = function(width, height) {
+const Board = function(width, height) {
   this.width = width;
 
   if(height !== undefined)
@@ -381,4 +379,4 @@ Board.prototype.playMove = function(coord, stone, ko) {
   return { success: true, captures: captures, ko: false };
 };
 
-module.exports = Board;
+export default Board;

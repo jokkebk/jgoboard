@@ -1,13 +1,11 @@
-'use strict';
-
 /**
  * SGF loading module.
  * @module sgf
  */
 
-var Coordinate = require('./coordinate');
-var Record = require('./record');
-var C = require('./constants');
+import Coordinate from './coordinate.js';
+import Record from './record.js';
+import C from './constants.js';
 
 var ERROR; // error holder for sgfParse etc.
 
@@ -416,7 +414,7 @@ function gameTreeToRecord(gameTree, moveMarks) {
  * @param {bool} moveMarks Create move and ko marks in the record.
  * @returns {Object} Record object, array of them, or string on error.
  */
-exports.load = function(sgf, moveMarks) {
+export function load(sgf, moveMarks) {
   var gameTree = parseSGF(sgf);
 
   if(gameTree === false)
@@ -441,4 +439,6 @@ exports.load = function(sgf, moveMarks) {
   }
 
   return gameTreeToRecord(gameTree, moveMarks);
-};
+}
+
+export default { load };

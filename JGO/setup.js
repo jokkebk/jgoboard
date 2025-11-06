@@ -1,8 +1,6 @@
-'use strict';
-
-var Notifier = require('./notifier');
-var Canvas = require('./canvas');
-var util = require('./util');
+import Notifier from './notifier.js';
+import Canvas from './canvas.js';
+import * as util from './util.js';
 
 /**
  * Setup helper class to make creating Canvases easy.
@@ -108,4 +106,4 @@ Setup.prototype.create = function(elemId, readyFn) {
     createCallback({black:false,white:false,shadow:false,board:false});
 };
 
-module.exports = Setup;
+export default Setup;

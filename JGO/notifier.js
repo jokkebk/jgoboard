@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * A change notifier class that can listen to changes in a Board and keep
  * multiple Canvas board views up to date.
@@ -7,7 +5,7 @@
  * @param {Board} jboard The board to listen to.
  * @constructor
  */
-var Notifier = function(jboard) {
+const Notifier = function(jboard) {
   this.updateScheduled = false; // set on first change
   this.canvases = []; // canvases to notify on changes
   this.board = jboard;
@@ -64,4 +62,4 @@ Notifier.prototype.addCanvas = function(jcanvas) {
   this.canvases.push(jcanvas);
 };
 
-module.exports = Notifier;
+export default Notifier;

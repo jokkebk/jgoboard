@@ -1,6 +1,4 @@
-'use strict';
-
-var C = require('./constants');
+import C from './constants.js';
 
 /**
  * Create a jGoBoard stones object. This is a facility that can draw
@@ -114,4 +112,4 @@ Stones.prototype.drawMark = function(ctx, mark, ox, oy) {
   }
 };
 
-module.exports = Stones;
+export default Stones;

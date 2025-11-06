@@ -1,9 +1,7 @@
-'use strict';
-
-var C = require('./constants');
-var Coordinate = require('./coordinate');
-var Stones = require('./stones');
-var util = require('./util');
+import C from './constants.js';
+import Coordinate from './coordinate.js';
+import Stones from './stones.js';
+import * as util from './util.js';
 
 /**
  * Create a jGoBoard canvas object.
@@ -448,4 +446,4 @@ Canvas.prototype.addListener = function(event, callback) {
   this.listeners[event].push(callback);
 };
 
-module.exports = Canvas;
+export default Canvas;
