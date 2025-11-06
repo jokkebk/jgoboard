@@ -4,16 +4,54 @@
   <meta charset="utf-8">
   <title>Board</title>
   <style>
-  body { text-align: center; }
+  body { text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }
   div { margin: 20px auto; color: #888; }
+  .captures-container {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin: 30px auto;
+  }
+  .capture-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px 25px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    min-width: 120px;
+  }
+  .capture-label {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .capture-count {
+    font-size: 32px;
+    font-weight: bold;
+    font-variant-numeric: tabular-nums;
+  }
+  .black-box .capture-label { color: #333; }
+  .black-box .capture-count { color: #000; }
+  .white-box .capture-label { color: #666; }
+  .white-box .capture-count { color: #444; }
   </style>
 </head>
 <body>
 
 <div id="board"></div>
-<div>
-    <div id="black-captures">0</div>
-    <div id="white-captures">0</div>
+<div class="captures-container">
+    <div class="capture-box black-box">
+        <div class="capture-label">Black Captures</div>
+        <div id="black-captures" class="capture-count">0</div>
+    </div>
+    <div class="capture-box white-box">
+        <div class="capture-label">White Captures</div>
+        <div id="white-captures" class="capture-count">0</div>
+    </div>
 </div>
 <div><p>Click on board to play. See page source for implementation, and
   <a href="http://jgoboard.com">http://jgoboard.com</a> for details.</p></div>
