@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>jGoBoard v5 Renderer Demo</title>
+    <style>
+      :root {
+        font-family: "Avenir Next", "Segoe UI", sans-serif;
+        color: #1c1b1a;
+        background: linear-gradient(160deg, #f5f0e4 0%, #e9dfc5 100%);
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 2rem;
+      }
+
+      .layout {
+        width: min(1200px, 100%);
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 2rem;
+      }
+
+      .panel {
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(6px);
+        border-radius: 16px;
+        padding: 1rem 1.25rem;
+        box-shadow: 0 15px 30px rgba(79, 60, 24, 0.12);
+      }
+
+      .controls {
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      .row {
+        display: grid;
+        gap: 0.25rem;
+      }
+
+      label {
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      select,
+      button {
+        border: 1px solid rgba(28, 27, 26, 0.2);
+        border-radius: 10px;
+        background: white;
+        font: inherit;
+        padding: 0.55rem 0.65rem;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      #board {
+        display: grid;
+        place-items: center;
+      }
+
+      .hint {
+        font-size: 0.85rem;
+        color: rgba(28, 27, 26, 0.7);
+      }
+
+      @media (max-width: 980px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="panel controls">
+        <h1>v5 Renderer</h1>
+        <p class="hint">Click board intersections to cycle stones. Shift+click toggles marker labels.</p>
+
+        <div class="row">
+          <label for="theme">Theme</label>
+          <select id="theme">
+            <option value="kaya-medium">Kaya Medium</option>
+            <option value="walnut-medium">Walnut Medium</option>
+            <option value="bw-medium">BW Medium</option>
+            <option value="kaya-large">Kaya Large</option>
+            <option value="walnut-large">Walnut Large</option>
+            <option value="bw-large">BW Large</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <label for="viewport">Viewport</label>
+          <select id="viewport">
+            <option value="full">Full Board</option>
+            <option value="corner">Top Left Corner (A19 to J10)</option>
+            <option value="center">Center (D16 to Q4)</option>
+            <option value="diagram">Diagram (K4 to T10)</option>
+          </select>
+        </div>
+
+        <button id="reset">Reset Position</button>
+      </aside>
+
+      <main class="panel" id="board"></main>
+    </div>
+
+    <script type="module">
+      import { MARK, STONE, createBoard, createRenderer } from './src/index.js';
+
+      const board = createBoard({ size: 19 });
+      const renderer = createRenderer('#board', {
+        board,
+        theme: 'kaya-medium',
+      });
+
+      const resetPosition = () => {
+        board.clear();
+
+        const opening = ['D4', 'Q16', 'D16', 'Q4', 'K10', 'C6', 'R14'];
+        opening.forEach((vertex, index) => {
+          board.setStone(vertex, index % 2 === 0 ? STONE.BLACK : STONE.WHITE);
+        });
+
+        board.setMark('K10', MARK.CIRCLE);
+        board.setMark('Q16', MARK.TRIANGLE);
+        board.setMark('D4', MARK.SQUARE);
+        board.setMark('R14', 'A');
+      };
+
+      resetPosition();
+      await renderer.whenReady();
+      renderer.render();
+
+      renderer.on('click', ({ point, event }) => {
+        if (!point) {
+          return;
+        }
+
+        if (event.shiftKey) {
+          const currentMark = board.getMark(point);
+          board.setMark(point, currentMark ? MARK.NONE : '1');
+          return;
+        }
+
+        const stone = board.getStone(point);
+
+        if (stone === STONE.CLEAR) {
+          board.setStone(point, STONE.BLACK);
+        } else if (stone === STONE.BLACK) {
+          board.setStone(point, STONE.WHITE);
+        } else {
+          board.setStone(point, STONE.CLEAR);
+        }
+      });
+
+      const themeSelect = document.getElementById('theme');
+      const viewportSelect = document.getElementById('viewport');
+
+      themeSelect.addEventListener('change', (event) => {
+        renderer.setTheme(event.target.value);
+      });
+
+      viewportSelect.addEventListener('change', (event) => {
+        switch (event.target.value) {
+          case 'corner':
+            renderer.setViewport({ from: 'A19', to: 'J10' });
+            break;
+          case 'center':
+            renderer.setViewport({ from: 'D16', to: 'Q4' });
+            break;
+          case 'diagram':
+            renderer.setViewport({ from: 'K4', to: 'T10' });
+            break;
+          default:
+            renderer.setViewport(null);
+        }
+      });
+
+      document.getElementById('reset').addEventListener('click', () => {
+        resetPosition();
+        renderer.render();
+      });
+    </script>
+  </body>
+</html>
