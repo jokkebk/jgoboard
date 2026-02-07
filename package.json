@@ -15,10 +15,14 @@
       "import": "./dist/jgoboard.js",
       "require": "./dist/jgoboard.cjs",
       "default": "./dist/jgoboard.js"
-    }
+    },
+    "./core": "./src/core.js",
+    "./renderer": "./src/renderer.js",
+    "./presets": "./src/presets.js"
   },
   "files": [
     "dist",
+    "src",
     "JGO",
     "main.js",
     "README.md",
