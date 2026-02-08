@@ -33,6 +33,12 @@
       "import": "./dist/presets.js",
       "require": "./dist/presets.cjs",
       "default": "./dist/presets.js"
+    },
+    "./sgf": {
+      "types": "./dist/sgf.d.ts",
+      "import": "./dist/sgf.js",
+      "require": "./dist/sgf.cjs",
+      "default": "./dist/sgf.js"
     }
   },
   "files": [
@@ -52,7 +58,7 @@
     "preview": "vite preview",
     "lint": "eslint src scripts",
     "format": "prettier --write \"src/**/*.js\" \"scripts/**/*.js\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test"
   },
   "repository": {
     "type": "git",

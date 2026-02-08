@@ -35,10 +35,36 @@ function cloneAction(action) {
     return { type: 'pass' };
   }
 
+  if (action.type === 'setup') {
+    return {
+      type: 'setup',
+      setup: {
+        black: Array.isArray(action.setup?.black) ? [...action.setup.black] : [],
+        white: Array.isArray(action.setup?.white) ? [...action.setup.white] : [],
+        empty: Array.isArray(action.setup?.empty) ? [...action.setup.empty] : [],
+      },
+    };
+  }
+
   return {
     type: 'play',
     vertex: action.vertex,
   };
+}
+
+function cloneProperties(properties) {
+  const result = {};
+
+  if (!properties || typeof properties !== 'object') {
+    return result;
+  }
+
+  for (const key of Object.keys(properties)) {
+    const values = properties[key];
+    result[key] = Array.isArray(values) ? [...values] : [];
+  }
+
+  return result;
 }
 
 function cloneInfo(info) {
@@ -66,6 +92,7 @@ function cloneNode(node) {
     children: [...node.children],
     action: cloneAction(node.action),
     info: cloneInfo(node.info),
+    properties: cloneProperties(node.properties),
   };
 }
 
@@ -99,13 +126,9 @@ export class GameTree {
       id: this.rootId,
       parentId: null,
       children: [],
-      action: null,
-      info: {
-        player: null,
-        moveNumber: 0,
-        captures: [],
-        ko: null,
-      },
+      action: cloneAction(options.rootAction),
+      info: cloneInfo(options.rootInfo),
+      properties: cloneProperties(options.rootProperties),
     });
   }
 
@@ -194,15 +217,17 @@ export class GameTree {
     return null;
   }
 
-  appendChild(parentId, action, info = {}) {
+  appendNode(parentId, { action = null, info = {}, properties = {} } = {}) {
     const parent = this._getNode(parentId);
 
-    if (!action || (action.type !== 'play' && action.type !== 'pass')) {
-      throw new Error('appendChild requires action.type to be "play" or "pass"');
-    }
+    if (action) {
+      if (!['play', 'pass', 'setup'].includes(action.type)) {
+        throw new Error('appendNode action.type must be "play", "pass", or "setup"');
+      }
 
-    if (action.type === 'play' && !action.vertex) {
-      throw new Error('appendChild play action requires a vertex');
+      if (action.type === 'play' && !action.vertex) {
+        throw new Error('appendNode play action requires a vertex');
+      }
     }
 
     const id = this._createNodeId();
@@ -212,6 +237,7 @@ export class GameTree {
       children: [],
       action: cloneAction(action),
       info: cloneInfo(info),
+      properties: cloneProperties(properties),
     };
 
     this._nodes.set(id, node);
@@ -223,9 +249,26 @@ export class GameTree {
       parentId,
       action: cloneAction(node.action),
       info: cloneInfo(node.info),
+      properties: cloneProperties(node.properties),
     });
 
     return cloneNode(node);
+  }
+
+  appendChild(parentId, action, info = {}, properties = {}) {
+    if (!action || (action.type !== 'play' && action.type !== 'pass')) {
+      throw new Error('appendChild requires action.type to be "play" or "pass"');
+    }
+
+    if (action.type === 'play' && !action.vertex) {
+      throw new Error('appendChild play action requires a vertex');
+    }
+
+    return this.appendNode(parentId, {
+      action,
+      info,
+      properties,
+    });
   }
 }
 
@@ -248,6 +291,11 @@ export class GameCursor {
     this.currentNodeId = tree.rootId;
     this._path = [tree.rootId];
     this._listeners = new Set();
+
+    const rootApplied = this._applyRootNode();
+    if (!rootApplied.ok) {
+      throw new Error(`Unable to initialize cursor root state: ${rootApplied.code}`);
+    }
 
     if (options.nodeId) {
       const moved = this.gotoNode(options.nodeId);
@@ -290,13 +338,23 @@ export class GameCursor {
     return parent.children.indexOf(nodeId);
   }
 
+  _applyRootNode() {
+    return this._applyNode(this.tree._getNode(this.tree.rootId));
+  }
+
   _applyNode(node) {
     if (!node.action) {
-      return this._error('invalid_node', `Node ${node.id} has no action`);
+      return { ok: true };
     }
 
-    const result =
-      node.action.type === 'pass' ? this.game.pass() : this.game.play(node.action.vertex);
+    let result;
+    if (node.action.type === 'pass') {
+      result = this.game.pass();
+    } else if (node.action.type === 'setup') {
+      result = this.game.applySetup(node.action.setup || {});
+    } else {
+      result = this.game.play(node.action.vertex);
+    }
 
     if (!result.ok) {
       return this._error(
@@ -305,7 +363,11 @@ export class GameCursor {
       );
     }
 
-    if (node.info.player !== null && result.player !== node.info.player) {
+    if (
+      node.action.type !== 'setup' &&
+      node.info.player !== null &&
+      result.player !== node.info.player
+    ) {
       return this._error('tree_desync', `Player mismatch while applying node ${node.id}`);
     }
 
@@ -338,12 +400,13 @@ export class GameCursor {
 
     return node.children.map((childId, index) => {
       const child = this.tree._getNode(childId);
+      const actionType = child.action?.type || null;
 
       return {
         index,
         nodeId: child.id,
-        type: child.action.type,
-        vertex: child.action.type === 'play' ? child.action.vertex : null,
+        type: actionType,
+        vertex: actionType === 'play' ? child.action.vertex : null,
         player: child.info.player,
         moveNumber: child.info.moveNumber,
       };
@@ -450,20 +513,17 @@ export class GameCursor {
 
     const leavingId = this.currentNodeId;
     const parentId = this.tree._getNode(leavingId).parentId;
-    const undone = this.game.undo();
+    const moved = this.gotoNode(parentId, { emit: false });
 
-    if (!undone.ok) {
-      return this._error('cursor_undo_failed', undone.message || 'Undo failed');
+    if (!moved.ok) {
+      return moved;
     }
-
-    this.currentNodeId = parentId;
-    this._path.pop();
 
     const payload = {
       ok: true,
       nodeId: this.currentNodeId,
       fromNodeId: leavingId,
-      moveNumber: undone.moveNumber,
+      moveNumber: this.game.moveNumber,
     };
 
     this._emit({ type: 'prev', result: payload });
@@ -502,7 +562,7 @@ export class GameCursor {
     return payload;
   }
 
-  gotoNode(nodeId) {
+  gotoNode(nodeId, options = {}) {
     if (!this.tree.hasNode(nodeId)) {
       return this._error('node_not_found', `Node does not exist: ${nodeId}`);
     }
@@ -512,6 +572,11 @@ export class GameCursor {
     this.game.reset();
     this.currentNodeId = this.tree.rootId;
     this._path = [this.tree.rootId];
+
+    const rootApplied = this._applyRootNode();
+    if (!rootApplied.ok) {
+      return rootApplied;
+    }
 
     for (const stepId of path.slice(1)) {
       const applied = this._stepToNode(stepId);
@@ -527,7 +592,9 @@ export class GameCursor {
       ply: this._path.length - 1,
     };
 
-    this._emit({ type: 'gotoNode', result: payload });
+    if (options.emit !== false) {
+      this._emit({ type: 'gotoNode', result: payload });
+    }
 
     return payload;
   }

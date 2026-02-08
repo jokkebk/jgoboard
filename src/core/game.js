@@ -31,6 +31,26 @@ function inBounds(point, board) {
   return point.x >= 0 && point.y >= 0 && point.x < board.width && point.y < board.height;
 }
 
+function normalizeSetupPoints(values, board) {
+  if (!Array.isArray(values)) {
+    return [];
+  }
+
+  const points = [];
+
+  for (const value of values) {
+    const point = normalizePoint(value, board.height);
+
+    if (!inBounds(point, board)) {
+      throw new Error('setup point is out of board bounds');
+    }
+
+    points.push(point);
+  }
+
+  return points;
+}
+
 function getNeighbors(point, board) {
   const neighbors = [];
 
@@ -175,6 +195,50 @@ export class GameState {
     };
   }
 
+  applySetup(setup = {}) {
+    let black;
+    let white;
+    let empty;
+
+    try {
+      black = normalizeSetupPoints(setup.black || [], this.board);
+      white = normalizeSetupPoints(setup.white || [], this.board);
+      empty = normalizeSetupPoints(setup.empty || [], this.board);
+    } catch {
+      return this._resultError('invalid_point', 'Setup contains invalid or out-of-bounds coordinates');
+    }
+
+    const updates = new Map();
+
+    for (const point of black) {
+      updates.set(pointKey(point), { point, stone: STONE.BLACK });
+    }
+    for (const point of white) {
+      updates.set(pointKey(point), { point, stone: STONE.WHITE });
+    }
+    for (const point of empty) {
+      updates.set(pointKey(point), { point, stone: STONE.CLEAR });
+    }
+
+    const applied = [];
+
+    for (const { point, stone } of updates.values()) {
+      if (this.board.setStone(point, stone)) {
+        applied.push(formatVertex(point, this.board.height));
+      }
+    }
+
+    this.koPoint = null;
+    this._emit({ type: 'setup', setup: { black, white, empty } });
+
+    return {
+      ok: true,
+      moveNumber: this.moveNumber,
+      applied,
+      nextPlayer: this.currentPlayer,
+    };
+  }
+
   _record(entry) {
     this._history.push(entry);
     this._future = [];
@@ -231,7 +295,7 @@ export class GameState {
     let point;
     try {
       point = normalizePoint(pointOrVertex, this.board.height);
-    } catch (_error) {
+    } catch {
       return this._resultError('invalid_point', 'Move must be a valid board point or vertex');
     }
 

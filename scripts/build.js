@@ -14,6 +14,7 @@ const subpathEntries = [
   { name: 'core', entry: resolve(__dirname, '../src/core.js') },
   { name: 'renderer', entry: resolve(__dirname, '../src/renderer.js') },
   { name: 'presets', entry: resolve(__dirname, '../src/presets.js') },
+  { name: 'sgf', entry: resolve(__dirname, '../src/sgf.js') },
 ];
 
 async function buildSubpathBundles() {
@@ -158,7 +159,9 @@ async function buildAll() {
     console.log('\nGenerated files:');
     console.log('  - jgoboard.js (ESM, unminified, v5 entry)');
     console.log('  - jgoboard.cjs (CJS, unminified, v5 entry)');
-    console.log('  - core.{js,cjs}, renderer.{js,cjs}, presets.{js,cjs} (subpath bundles)');
+    console.log(
+      '  - core.{js,cjs}, renderer.{js,cjs}, presets.{js,cjs}, sgf.{js,cjs} (subpath bundles)'
+    );
     console.log('  - jgoboard.umd.min.js (UMD, minified, v5 entry)');
     console.log('  - Source maps for all formats');
     console.log('  - *.d.ts (TypeScript definitions from src/)');
