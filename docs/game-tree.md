@@ -89,6 +89,35 @@ Common codes:
 - `node_not_found`
 - `tree_desync`
 
+## Connecting to a Renderer
+
+`cursor.board` is a live `BoardState` that updates automatically as the cursor
+navigates. Pass it directly to `createRenderer` and the canvas will re-render
+on every move, undo, or branch switch — no manual wiring needed.
+
+```js
+import { createCursor, createGameTree, createRenderer, rules } from './src/index.js';
+
+const tree = createGameTree({
+  size: 19,
+  rules: rules.japanese({ ko: 'simple', suicide: 'forbidden' }),
+});
+const cursor = createCursor(tree);
+
+const renderer = createRenderer('#board', {
+  board: cursor.board,
+  theme: 'kaya-medium',
+});
+
+await renderer.whenReady();
+renderer.render();
+
+// clicking the board plays a move; the renderer updates automatically
+renderer.on('click', ({ vertex }) => {
+  if (vertex) cursor.play(vertex);
+});
+```
+
 ## Demo
 
 - `demoV5Tree.html`: full tree/cursor demo with branch creation and node navigation

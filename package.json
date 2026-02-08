@@ -16,15 +16,27 @@
       "require": "./dist/jgoboard.cjs",
       "default": "./dist/jgoboard.js"
     },
-    "./core": "./src/core.js",
-    "./renderer": "./src/renderer.js",
-    "./presets": "./src/presets.js"
+    "./core": {
+      "types": "./dist/core.d.ts",
+      "import": "./src/core.js",
+      "default": "./src/core.js"
+    },
+    "./renderer": {
+      "types": "./dist/renderer.d.ts",
+      "import": "./src/renderer.js",
+      "default": "./src/renderer.js"
+    },
+    "./presets": {
+      "types": "./dist/presets.d.ts",
+      "import": "./src/presets.js",
+      "default": "./src/presets.js"
+    }
   },
   "files": [
     "dist",
     "src",
-    "JGO",
-    "main.js",
+    "large",
+    "medium",
     "README.md",
     "LICENSE.txt"
   ],
@@ -35,8 +47,8 @@
     "dev": "vite",
     "build": "node scripts/build.js",
     "preview": "vite preview",
-    "lint": "eslint JGO main.js",
-    "format": "prettier --write \"JGO/**/*.js\" \"main.js\"",
+    "lint": "eslint src scripts",
+    "format": "prettier --write \"src/**/*.js\" \"scripts/**/*.js\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

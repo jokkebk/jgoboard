@@ -1,5 +1,113 @@
 import { deepFreeze, deepMerge } from '../shared/deep-merge.js';
 
+/**
+ * @typedef {object} ThemeMargin
+ * @property {string} color
+ * @property {number} normal
+ * @property {number} clipped
+ */
+
+/**
+ * @typedef {object} ThemeBoardShadow
+ * @property {string} color
+ * @property {number} blur
+ * @property {number} offX
+ * @property {number} offY
+ */
+
+/**
+ * @typedef {object} ThemeBorder
+ * @property {string} color
+ * @property {number} lineWidth
+ */
+
+/**
+ * @typedef {object} ThemePadding
+ * @property {number} normal
+ * @property {number} clipped
+ */
+
+/**
+ * @typedef {object} ThemeGrid
+ * @property {string} color
+ * @property {number} x
+ * @property {number} y
+ * @property {number} smooth
+ * @property {number} borderWidth
+ * @property {number} lineWidth
+ */
+
+/**
+ * @typedef {object} ThemeStars
+ * @property {number | 'auto'} points
+ * @property {number | 'auto'} offset
+ * @property {number} radius
+ */
+
+/**
+ * @typedef {object} ThemeCoordinates
+ * @property {boolean} top
+ * @property {boolean} right
+ * @property {boolean} bottom
+ * @property {boolean} left
+ * @property {string} color
+ * @property {string} font
+ */
+
+/**
+ * @typedef {object} ThemeStone
+ * @property {number} radius
+ * @property {number} dimAlpha
+ */
+
+/**
+ * @typedef {object} ThemeShadow
+ * @property {number} xOff
+ * @property {number} yOff
+ */
+
+/**
+ * @typedef {object} ThemeMark
+ * @property {number} lineWidth
+ * @property {string} blackColor
+ * @property {string} whiteColor
+ * @property {string} clearColor
+ * @property {string} font
+ */
+
+/**
+ * @typedef {object} ThemeTextures
+ * @property {string} black
+ * @property {string} white
+ * @property {string} shadow
+ * @property {string} board
+ */
+
+/**
+ * @typedef {object} Theme
+ * @property {ThemeMargin} margin
+ * @property {ThemeBoardShadow} boardShadow
+ * @property {ThemeBorder} border
+ * @property {ThemePadding} padding
+ * @property {ThemeGrid} grid
+ * @property {ThemeStars} stars
+ * @property {ThemeCoordinates | false} coordinates
+ * @property {ThemeStone} stone
+ * @property {ThemeShadow} shadow
+ * @property {ThemeMark} mark
+ * @property {ThemeTextures | false} textures
+ */
+
+/**
+ * @template T
+ * @typedef {{ [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K] }} DeepPartial
+ */
+
+/**
+ * @typedef {string | DeepPartial<Theme> | Theme} ThemeInput
+ */
+
+/** @type {Theme} */
 const baseTheme = {
   margin: {
     color: '#ffffff',
@@ -64,6 +172,7 @@ const baseTheme = {
   },
 };
 
+/** @type {DeepPartial<Theme>} */
 const largeScale = {
   margin: {
     normal: 40,
@@ -109,6 +218,7 @@ const largeScale = {
   },
 };
 
+/** @type {DeepPartial<Theme>} */
 const walnutOverride = {
   textures: {
     board: 'medium/walnut.jpg',
@@ -124,6 +234,7 @@ const walnutOverride = {
   },
 };
 
+/** @type {DeepPartial<Theme>} */
 const walnutOverrideLarge = {
   textures: {
     board: 'large/walnut.jpg',
@@ -139,21 +250,31 @@ const walnutOverrideLarge = {
   },
 };
 
+/** @type {DeepPartial<Theme>} */
 const bwOverride = {
   textures: false,
 };
 
+/** @type {Theme} */
 export const mediumKaya = deepFreeze(deepMerge({}, baseTheme));
+/** @type {Theme} */
 export const mediumWalnut = deepFreeze(deepMerge(baseTheme, walnutOverride));
+/** @type {Theme} */
 export const mediumBW = deepFreeze(deepMerge(baseTheme, bwOverride));
 
+/** @type {Theme} */
 export const largeKaya = deepFreeze(deepMerge(baseTheme, largeScale));
+/** @type {Theme} */
 export const largeWalnut = deepFreeze(deepMerge(deepMerge(baseTheme, largeScale), walnutOverrideLarge));
+/** @type {Theme} */
 export const largeBW = deepFreeze(deepMerge(deepMerge(baseTheme, largeScale), bwOverride));
 
+/** @type {Theme} */
 export const kayaMedium = mediumKaya;
+/** @type {Theme} */
 export const kayaLarge = largeKaya;
 
+/** @type {Readonly<Record<string, Theme>>} */
 export const themesByName = Object.freeze({
   'kaya-medium': mediumKaya,
   'kaya-large': largeKaya,
@@ -163,6 +284,10 @@ export const themesByName = Object.freeze({
   'bw-large': largeBW,
 });
 
+/**
+ * @param {ThemeInput} themeInput
+ * @returns {Theme}
+ */
 export function resolveTheme(themeInput) {
   if (!themeInput) {
     return mediumKaya;

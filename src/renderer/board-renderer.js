@@ -4,6 +4,137 @@ import { deepMerge } from '../shared/deep-merge.js';
 import { LayerRegistry } from './layer-registry.js';
 import { StonePainter } from './stone-painter.js';
 
+/**
+ * @typedef {import('../core/board.js').BoardState} BoardState
+ * @typedef {import('../presets/themes.js').DeepPartial<import('../presets/themes.js').Theme>} ThemePatch
+ * @typedef {import('../presets/themes.js').Theme} Theme
+ * @typedef {import('../presets/themes.js').ThemeInput} ThemeInput
+ */
+
+/**
+ * @typedef {object} Point
+ * @property {number} x
+ * @property {number} y
+ */
+
+/**
+ * @typedef {object} ViewportEdge
+ * @property {boolean} top
+ * @property {boolean} right
+ * @property {boolean} bottom
+ * @property {boolean} left
+ */
+
+/**
+ * @typedef {object} RenderViewport
+ * @property {number} xOffset
+ * @property {number} yOffset
+ * @property {number} width
+ * @property {number} height
+ * @property {ViewportEdge} edge
+ */
+
+/**
+ * @typedef {object} RenderGeometry
+ * @property {number} padLeft
+ * @property {number} padRight
+ * @property {number} padTop
+ * @property {number} padBottom
+ * @property {number} marginLeft
+ * @property {number} marginRight
+ * @property {number} marginTop
+ * @property {number} marginBottom
+ * @property {number} boardWidth
+ * @property {number} boardHeight
+ * @property {number} canvasWidth
+ * @property {number} canvasHeight
+ * @property {number} gridLeft
+ * @property {number} gridTop
+ */
+
+/**
+ * @typedef {object} StarMeta
+ * @property {number} points
+ * @property {number} offset
+ */
+
+/**
+ * @typedef {object} RendererAssets
+ * @property {HTMLImageElement | ImageBitmap | null} black
+ * @property {HTMLImageElement | ImageBitmap | null} white
+ * @property {HTMLImageElement | ImageBitmap | null} shadow
+ * @property {HTMLImageElement | ImageBitmap | null} board
+ */
+
+/**
+ * @typedef {object} RenderFrame
+ * @property {BoardState} board
+ * @property {Theme} theme
+ * @property {RenderViewport} viewport
+ * @property {RenderGeometry} geometry
+ * @property {RendererAssets} assets
+ * @property {StarMeta} stars
+ */
+
+/**
+ * @typedef {object} RendererLayer
+ * @property {string} [name]
+ * @property {number} [zIndex]
+ * @property {boolean} [enabled]
+ * @property {(this: BoardRenderer, ctx: Canvas2DContext, frame: RenderFrame) => void} draw
+ */
+
+/**
+ * @typedef {'click' | 'mousemove' | 'mouseout'} RendererEvent
+ */
+
+/**
+ * @typedef {object} InteractionOptions
+ * @property {boolean} [enabled]
+ */
+
+/**
+ * @typedef {object} PointerPayload
+ * @property {MouseEvent} event
+ * @property {Point | null} [point]
+ * @property {string | null} [vertex]
+ */
+
+/**
+ * @typedef {object} BoardRendererOptions
+ * @property {BoardState} [board]
+ * @property {ThemeInput} [theme]
+ * @property {ThemePatch} [layout]
+ * @property {object | null} [viewport]
+ * @property {InteractionOptions} [interactions]
+ * @property {number} [pixelRatio]
+ * @property {RendererLayer[]} [layers]
+ */
+
+/**
+ * @typedef {object} RenderTargetOptions
+ * @property {number} [scale]
+ */
+
+/**
+ * @typedef {object} ExportOptions
+ * @property {'png' | 'jpeg' | 'jpg'} [format]
+ * @property {number} [quality]
+ * @property {number} [scale]
+ */
+
+/**
+ * @typedef {HTMLCanvasElement | OffscreenCanvas} CanvasLike
+ */
+
+/**
+ * @typedef {CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D} Canvas2DContext
+ */
+
+/**
+ * @typedef {Omit<BoardRendererOptions, 'board'> & ExportOptions & { as?: 'blob' | 'data-url' | 'canvas' }} RenderBoardImageOptions
+ */
+
 const IMAGE_KEYS = ['black', 'white', 'shadow', 'board'];
 const LABEL_MARK_PATTERN = /^[a-zA-Z1-9]/;
 const IMAGE_CACHE = new Map();
@@ -12,14 +143,25 @@ function hasDocument() {
   return typeof document !== 'undefined';
 }
 
+/**
+ * @param {unknown} value
+ * @returns {value is HTMLCanvasElement}
+ */
 function isHtmlCanvas(value) {
   return typeof HTMLCanvasElement !== 'undefined' && value instanceof HTMLCanvasElement;
 }
 
+/**
+ * @param {unknown} value
+ * @returns {value is HTMLElement}
+ */
 function isHtmlElement(value) {
   return typeof HTMLElement !== 'undefined' && value instanceof HTMLElement;
 }
 
+/**
+ * @returns {CanvasLike}
+ */
 function createCanvasElement() {
   if (hasDocument()) {
     return document.createElement('canvas');
@@ -98,6 +240,11 @@ function resolveStarMeta(boardWidth, boardHeight, stars) {
   return { points, offset };
 }
 
+/**
+ * @param {Theme} theme
+ * @param {number | string} stone
+ * @returns {string}
+ */
 function resolveMarkColor(theme, stone) {
   if (stone === STONE.BLACK || stone === STONE.DIM_BLACK) {
     return theme.mark.blackColor;
@@ -125,6 +272,10 @@ function resolveInteractionOptions(interactions) {
 }
 
 export class BoardRenderer {
+  /**
+   * @param {string | HTMLElement | HTMLCanvasElement | OffscreenCanvas | null | undefined} target
+   * @param {BoardRendererOptions} [options]
+   */
   constructor(target, options = {}) {
     if (!options.board) {
       throw new Error('createRenderer requires a board instance in options.board');
@@ -183,6 +334,10 @@ export class BoardRenderer {
     this._loadThemeAssets();
   }
 
+  /**
+   * @param {string | HTMLElement | HTMLCanvasElement | OffscreenCanvas | null | undefined} target
+   * @returns {{ canvas: CanvasLike, container: HTMLElement | null, createdCanvas: boolean }}
+   */
   _resolveTarget(target) {
     if (typeof target === 'string') {
       if (!hasDocument()) {
@@ -219,6 +374,10 @@ export class BoardRenderer {
     throw new Error('target must be a selector, DOM element, canvas, or omitted');
   }
 
+  /**
+   * @param {BoardState} board
+   * @returns {void}
+   */
   _bindBoard(board) {
     if (this._boardUnsubscribe) {
       this._boardUnsubscribe();
@@ -232,6 +391,9 @@ export class BoardRenderer {
     }
   }
 
+  /**
+   * @returns {void}
+   */
   _bindPointerEvents() {
     if (!this.interactions.enabled || !isHtmlCanvas(this.canvas)) {
       return;
@@ -260,6 +422,11 @@ export class BoardRenderer {
     this._pointerListeners.push(['mouseout', outHandler]);
   }
 
+  /**
+   * @param {RendererEvent} type
+   * @param {MouseEvent} event
+   * @returns {void}
+   */
   _emitPointerEvent(type, event) {
     const point = this._getPointFromPointer(event.clientX, event.clientY);
 
@@ -272,6 +439,11 @@ export class BoardRenderer {
     }
   }
 
+  /**
+   * @param {number} clientX
+   * @param {number} clientY
+   * @returns {Point | null}
+   */
   _getPointFromPointer(clientX, clientY) {
     if (!isHtmlCanvas(this.canvas) || !this._lastFrame) {
       return null;
@@ -309,6 +481,9 @@ export class BoardRenderer {
     return { x: boardX, y: boardY };
   }
 
+  /**
+   * @returns {void}
+   */
   _loadThemeAssets() {
     const textures = this.theme.textures;
 
@@ -338,10 +513,18 @@ export class BoardRenderer {
     });
   }
 
+  /**
+   * @returns {Promise<RendererAssets>}
+   */
   whenReady() {
     return this._assetsReady;
   }
 
+  /**
+   * @param {RendererEvent} event
+   * @param {(payload: PointerPayload) => void} listener
+   * @returns {() => void}
+   */
   on(event, listener) {
     if (!this._listeners[event]) {
       throw new Error(`unsupported event: ${event}`);
@@ -354,12 +537,20 @@ export class BoardRenderer {
     };
   }
 
+  /**
+   * @param {object | null} viewport
+   * @returns {BoardRenderer}
+   */
   setViewport(viewport) {
     this.viewportInput = viewport;
     this.render();
     return this;
   }
 
+  /**
+   * @param {ThemeInput} theme
+   * @returns {BoardRenderer}
+   */
   setTheme(theme) {
     this.theme = resolveTheme(theme);
     this.stones.setTheme(this.theme);
@@ -368,12 +559,20 @@ export class BoardRenderer {
     return this;
   }
 
+  /**
+   * @param {ThemePatch} layout
+   * @returns {BoardRenderer}
+   */
   setLayout(layout) {
     this.layout = deepMerge({}, layout || {});
     this.render();
     return this;
   }
 
+  /**
+   * @param {BoardState} board
+   * @returns {BoardRenderer}
+   */
   setBoard(board) {
     if (!board || typeof board.each !== 'function') {
       throw new Error('setBoard requires a BoardState instance');
@@ -385,6 +584,9 @@ export class BoardRenderer {
     return this;
   }
 
+  /**
+   * @returns {RenderFrame}
+   */
   _buildFrame() {
     const theme = deepMerge(this.theme, this.layout);
     const viewport = normalizeViewport(this.viewportInput, this.board.width, this.board.height);
@@ -429,6 +631,14 @@ export class BoardRenderer {
     };
   }
 
+  /**
+   * @param {CanvasLike} canvas
+   * @param {number} width
+   * @param {number} height
+   * @param {number} pixelRatio
+   * @param {boolean} updateStyle
+   * @returns {Canvas2DContext}
+   */
   _prepareCanvas(canvas, width, height, pixelRatio, updateStyle) {
     canvas.width = Math.round(width * pixelRatio);
     canvas.height = Math.round(height * pixelRatio);
@@ -438,12 +648,20 @@ export class BoardRenderer {
       canvas.style.height = `${height}px`;
     }
 
-    const ctx = canvas.getContext('2d');
+    const ctx = /** @type {Canvas2DContext | null} */ (canvas.getContext('2d'));
+    if (!ctx) {
+      throw new Error('Unable to initialize a 2D rendering context');
+    }
     ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
     ctx.clearRect(0, 0, width, height);
     return ctx;
   }
 
+  /**
+   * @param {Canvas2DContext} ctx
+   * @param {RenderFrame} frame
+   * @returns {void}
+   */
   _drawGridLayer(ctx, frame) {
     const { theme, geometry, viewport, assets, board } = frame;
 
@@ -573,6 +791,11 @@ export class BoardRenderer {
     }
   }
 
+  /**
+   * @param {Canvas2DContext} ctx
+   * @param {RenderFrame} frame
+   * @returns {void}
+   */
   _drawStarsLayer(ctx, frame) {
     const { stars, viewport, theme, geometry } = frame;
 
@@ -626,6 +849,11 @@ export class BoardRenderer {
     }
   }
 
+  /**
+   * @param {Canvas2DContext} ctx
+   * @param {RenderFrame} frame
+   * @returns {void}
+   */
   _drawStonesLayer(ctx, frame) {
     const bounds = {
       x1: frame.viewport.xOffset,
@@ -680,6 +908,11 @@ export class BoardRenderer {
     );
   }
 
+  /**
+   * @param {Canvas2DContext} ctx
+   * @param {RenderFrame} frame
+   * @returns {void}
+   */
   _drawMarkersLayer(ctx, frame) {
     const bounds = {
       x1: frame.viewport.xOffset,
@@ -704,6 +937,11 @@ export class BoardRenderer {
     );
   }
 
+  /**
+   * @param {Canvas2DContext} ctx
+   * @param {RenderFrame} frame
+   * @returns {void}
+   */
   _drawLabelsLayer(ctx, frame) {
     const bounds = {
       x1: frame.viewport.xOffset,
@@ -761,6 +999,11 @@ export class BoardRenderer {
     );
   }
 
+  /**
+   * @param {Canvas2DContext} ctx
+   * @param {RenderFrame} frame
+   * @returns {void}
+   */
   _drawLayers(ctx, frame) {
     for (const layer of this.layers.getOrdered()) {
       layer.draw.call(this, ctx, frame);
@@ -799,6 +1042,9 @@ export class BoardRenderer {
     });
   }
 
+  /**
+   * @returns {BoardRenderer}
+   */
   render() {
     const frame = this._buildFrame();
     this._lastFrame = frame;
@@ -814,6 +1060,11 @@ export class BoardRenderer {
     return this;
   }
 
+  /**
+   * @param {CanvasLike} canvas
+   * @param {RenderTargetOptions} [options]
+   * @returns {CanvasLike}
+   */
   renderToCanvas(canvas, options = {}) {
     const scale = Number.isFinite(options.scale) && options.scale > 0 ? options.scale : 1;
     const frame = this._buildFrame();
@@ -830,17 +1081,25 @@ export class BoardRenderer {
     return canvas;
   }
 
+  /**
+   * @param {ExportOptions} [options]
+   * @returns {string}
+   */
   toDataURL(options = {}) {
     const canvas = createCanvasElement();
     this.renderToCanvas(canvas, { scale: options.scale });
 
-    if (typeof canvas.toDataURL !== 'function') {
+    if (!('toDataURL' in canvas) || typeof canvas.toDataURL !== 'function') {
       throw new Error('toDataURL is not available for the active canvas implementation');
     }
 
     return canvas.toDataURL(normalizeExportFormat(options.format), options.quality);
   }
 
+  /**
+   * @param {ExportOptions} [options]
+   * @returns {Promise<Blob>}
+   */
   async toBlob(options = {}) {
     const canvas = createCanvasElement();
     this.renderToCanvas(canvas, { scale: options.scale });
@@ -848,11 +1107,11 @@ export class BoardRenderer {
     const type = normalizeExportFormat(options.format);
     const quality = options.quality;
 
-    if (typeof canvas.convertToBlob === 'function') {
+    if ('convertToBlob' in canvas && typeof canvas.convertToBlob === 'function') {
       return canvas.convertToBlob({ type, quality });
     }
 
-    if (typeof canvas.toBlob === 'function') {
+    if ('toBlob' in canvas && typeof canvas.toBlob === 'function') {
       return new Promise((resolve, reject) => {
         canvas.toBlob(
           (blob) => {
@@ -872,6 +1131,9 @@ export class BoardRenderer {
     throw new Error('toBlob is not available for the active canvas implementation');
   }
 
+  /**
+   * @returns {void}
+   */
   destroy() {
     if (this._boardUnsubscribe) {
       this._boardUnsubscribe();
@@ -892,10 +1154,20 @@ export class BoardRenderer {
   }
 }
 
+/**
+ * @param {string | HTMLElement | HTMLCanvasElement | OffscreenCanvas | null | undefined} target
+ * @param {BoardRendererOptions & { board: BoardState }} options
+ * @returns {BoardRenderer}
+ */
 export function createRenderer(target, options) {
   return new BoardRenderer(target, options);
 }
 
+/**
+ * @param {BoardState} board
+ * @param {RenderBoardImageOptions} [options]
+ * @returns {Promise<Blob | string | CanvasLike>}
+ */
 export async function renderBoardImage(board, options = {}) {
   const canvas = createCanvasElement();
   const renderer = new BoardRenderer(canvas, {

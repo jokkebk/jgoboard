@@ -1,9 +1,90 @@
 import { normalizePoint } from '../core/index.js';
 
+/**
+ * @typedef {import('./board-renderer.js').Point} Point
+ * @typedef {import('./board-renderer.js').RenderFrame} RenderFrame
+ * @typedef {import('./board-renderer.js').RendererLayer} RendererLayer
+ * @typedef {import('./board-renderer.js').Canvas2DContext} Canvas2DContext
+ * @typedef {import('./board-renderer.js').CanvasLike} CanvasLike
+ */
+
+/**
+ * @typedef {{ r: number, g: number, b: number, a: number }} ParsedColor
+ */
+
+/**
+ * @typedef {{ at: number, color: string }} GradientStop
+ */
+
+/**
+ * @typedef {(normalizedValue: number, rawValue?: number, point?: Point, frame?: RenderFrame) => string} PaletteFunction
+ */
+
+/**
+ * @typedef {object} SelectionRect
+ * @property {number} x1
+ * @property {number} y1
+ * @property {number} x2
+ * @property {number} y2
+ */
+
+/**
+ * @typedef {object} SelectionInput
+ * @property {Point | string} [from]
+ * @property {Point | string} [to]
+ * @property {number} [x1]
+ * @property {number} [y1]
+ * @property {number} [x2]
+ * @property {number} [y2]
+ */
+
+/**
+ * @typedef {Map<string, number> | Record<string, number> | number[][]} NumericValueContainer
+ */
+
+/**
+ * @typedef {Map<string, ParsedColor | string> | Record<string, ParsedColor | string> | (ParsedColor | string)[][]} ColorValueContainer
+ */
+
+/**
+ * @typedef {object} SelectionLayerOptions
+ * @property {string} [name]
+ * @property {number} [zIndex]
+ * @property {string} [fillStyle]
+ * @property {string} [strokeStyle]
+ * @property {number} [lineWidth]
+ * @property {boolean} [drawStroke]
+ * @property {(frame: RenderFrame) => SelectionInput | null} [getSelection]
+ */
+
+/**
+ * @typedef {object} HeatmapLayerOptions
+ * @property {string} [name]
+ * @property {number} [zIndex]
+ * @property {'values' | 'rgba'} [dataMode]
+ * @property {number} [minValue]
+ * @property {number} [maxValue]
+ * @property {number} [inset]
+ * @property {boolean} [clampValues]
+ * @property {'cells' | 'gradient'} [renderMode]
+ * @property {number} [defaultValue]
+ * @property {ParsedColor | string} [defaultColor]
+ * @property {number} [edgeFadeCells]
+ * @property {PaletteFunction | GradientStop[]} [palette]
+ * @property {NumericValueContainer | ((frame: RenderFrame) => NumericValueContainer | null)} [values]
+ * @property {ColorValueContainer | ((frame: RenderFrame) => ColorValueContainer | null)} [colors]
+ * @property {(point: Point, frame: RenderFrame, values: NumericValueContainer | null) => number} [getValue]
+ * @property {(point: Point, frame: RenderFrame, values: ColorValueContainer | null) => ParsedColor | string} [getColor]
+ */
+
 function clamp01(value) {
   return Math.max(0, Math.min(1, value));
 }
 
+/**
+ * @param {string} text
+ * @returns {ParsedColor | null}
+ */
 function parseHexColor(text) {
   if (!text || typeof text !== 'string' || text[0] !== '#') {
     return null;
@@ -26,6 +107,10 @@ function parseHexColor(text) {
   return null;
 }
 
+/**
+ * @param {string} text
+ * @returns {ParsedColor | null}
+ */
 function parseRgbColor(text) {
   if (typeof text !== 'string') {
     return null;
@@ -53,10 +138,19 @@ function parseRgbColor(text) {
   return { r, g, b, a };
 }
 
+/**
+ * @param {string} text
+ * @returns {ParsedColor | null}
+ */
 function parseColor(text) {
   return parseHexColor(text) || parseRgbColor(text);
 }
 
+/**
+ * @param {ParsedColor | string | null | undefined} value
+ * @param {ParsedColor} fallbackColor
+ * @returns {ParsedColor}
+ */
 function toParsedColor(value, fallbackColor) {
   if (!value) {
     return fallbackColor;
@@ -83,6 +177,10 @@ function toParsedColor(value, fallbackColor) {
   return fallbackColor;
 }
 
+/**
+ * @param {ParsedColor} color
+ * @returns {string}
+ */
 function toRgbaString(color) {
   const r = Math.round(Math.max(0, Math.min(255, color.r)));
   const g = Math.round(Math.max(0, Math.min(255, color.g)));
@@ -91,6 +189,12 @@ function toRgbaString(color) {
   return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 
+/**
+ * @param {ParsedColor} from
+ * @param {ParsedColor} to
+ * @param {number} t
+ * @returns {ParsedColor}
+ */
 function interpolateColor(from, to, t) {
   return {
     r: from.r + (to.r - from.r) * t,
@@ -100,6 +204,10 @@ function interpolateColor(from, to, t) {
   };
 }
 
+/**
+ * @param {GradientStop[]} stops
+ * @returns {{ at: number, color: ParsedColor }[]}
+ */
 function normalizeStops(stops) {
   if (!Array.isArray(stops) || stops.length < 2) {
     throw new Error('palette stops must contain at least two color stops');
@@ -126,6 +234,10 @@ function normalizeStops(stops) {
   return normalized;
 }
 
+/**
+ * @param {GradientStop[]} stops
+ * @returns {PaletteFunction}
+ */
 export function createGradientPalette(stops) {
   const normalizedStops = normalizeStops(stops);
 
@@ -151,6 +263,12 @@ export function createGradientPalette(stops) {
   };
 }
 
+/**
+ * @type {Readonly<{
+ *   redAlpha: (options?: { maxAlpha?: number, red?: number, green?: number, blue?: number }) => PaletteFunction,
+ *   greenYellowRed: (options?: { alpha?: number }) => PaletteFunction
+ * }>}
+ */
 export const heatmapPalettes = Object.freeze({
   redAlpha(options = {}) {
     const maxAlpha = Number.isFinite(options.maxAlpha) ? clamp01(options.maxAlpha) : 0.5;
@@ -290,6 +408,11 @@ function clampIndex(value, max) {
   return value;
 }
 
+/**
+ * @param {number} width
+ * @param {number} height
+ * @returns {CanvasLike | null}
+ */
 function createWorkingCanvas(width, height) {
   if (typeof OffscreenCanvas !== 'undefined') {
     return new OffscreenCanvas(width, height);
@@ -305,6 +428,16 @@ function createWorkingCanvas(width, height) {
   return null;
 }
 
+/**
+ * @param {Canvas2DContext} ctx
+ * @param {RenderFrame} frame
+ * @param {{
+ *   edgeFadePixels: number,
+ *   resolveColor: (point: Point, frame: RenderFrame, runtime: { valueContainer: NumericValueContainer | null, colorContainer: ColorValueContainer | null }) => ParsedColor,
+ *   runtime: { valueContainer: NumericValueContainer | null, colorContainer: ColorValueContainer | null }
+ * }} options
+ * @returns {boolean}
+ */
 function drawGradientHeatmap(ctx, frame, options) {
   const overlayLeft = frame.geometry.gridLeft - frame.theme.grid.x / 2;
   const overlayTop = frame.geometry.gridTop - frame.theme.grid.y / 2;
@@ -316,7 +449,9 @@ function drawGradientHeatmap(ctx, frame, options) {
     return false;
   }
 
-  const workCtx = workCanvas.getContext('2d', { willReadFrequently: true });
+  const workCtx = /** @type {Canvas2DContext | null} */ (
+    workCanvas.getContext('2d', { willReadFrequently: true })
+  );
   if (!workCtx) {
     return false;
   }
@@ -397,6 +532,10 @@ function drawGradientHeatmap(ctx, frame, options) {
   return true;
 }
 
+/**
+ * @param {SelectionLayerOptions} [options]
+ * @returns {RendererLayer}
+ */
 export function createSelectionLayer(options = {}) {
   const getSelection = options.getSelection || (() => null);
   const zIndex = Number.isFinite(options.zIndex) ? options.zIndex : 66;
@@ -435,6 +574,10 @@ export function createSelectionLayer(options = {}) {
   };
 }
 
+/**
+ * @param {HeatmapLayerOptions} [options]
+ * @returns {RendererLayer}
+ */
 export function createHeatmapLayer(options = {}) {
   const dataMode = options.dataMode || (options.colors || options.getColor ? 'rgba' : 'values');
   const minValue = Number.isFinite(options.minValue) ? options.minValue : 0;
@@ -471,6 +614,8 @@ export function createHeatmapLayer(options = {}) {
 
   const range = maxValue - minValue || 1;
   const name = options.name || 'heatmap';
+  /** @type {PaletteFunction | null} */
+  const paletteFn = dataMode === 'values' ? /** @type {PaletteFunction} */ (palette) : null;
 
   const resolveColor =
     dataMode === 'rgba'
@@ -491,7 +636,10 @@ export function createHeatmapLayer(options = {}) {
           let normalized = (numeric - minValue) / range;
           normalized = clampValues ? clamp01(normalized) : normalized;
 
-          return toParsedColor(palette(normalized, numeric, point, frame), defaultColor);
+          return toParsedColor(
+            /** @type {PaletteFunction} */ (paletteFn)(normalized, numeric, point, frame),
+            defaultColor
+          );
         };
 
   return {
@@ -553,6 +701,10 @@ export function createHeatmapLayer(options = {}) {
   };
 }
 
+/**
+ * @param {HeatmapLayerOptions} [options]
+ * @returns {RendererLayer}
+ */
 export function createPaletteHeatmapLayer(options = {}) {
   return createHeatmapLayer({
     ...options,
@@ -560,6 +712,10 @@ export function createPaletteHeatmapLayer(options = {}) {
   });
 }
 
+/**
+ * @param {HeatmapLayerOptions} [options]
+ * @returns {RendererLayer}
+ */
 export function createRawHeatmapLayer(options = {}) {
   return createHeatmapLayer({
     ...options,

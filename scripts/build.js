@@ -8,7 +8,8 @@ import { dirname } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const entry = resolve(__dirname, '../main.js');
+const entry = resolve(__dirname, '../src/index.js');
+const tsconfigPath = resolve(__dirname, '../tsconfig.json');
 
 async function buildAll() {
   try {
@@ -47,7 +48,9 @@ async function buildAll() {
         dts({
           insertTypesEntry: true,
           outDir: 'dist',
-          include: ['JGO/**/*.js', 'main.js']
+          entryRoot: 'src',
+          include: ['src/**/*.js'],
+          tsconfigPath
         })
       ],
       resolve: {
@@ -102,11 +105,11 @@ async function buildAll() {
     console.log('✅ UMD complete\n');
     console.log('🎉 All builds completed successfully!');
     console.log('\nGenerated files:');
-    console.log('  - jgoboard.js (ESM, unminified)');
-    console.log('  - jgoboard.cjs (CJS, unminified)');
-    console.log('  - jgoboard.umd.min.js (UMD, minified)');
+    console.log('  - jgoboard.js (ESM, unminified, v5 entry)');
+    console.log('  - jgoboard.cjs (CJS, unminified, v5 entry)');
+    console.log('  - jgoboard.umd.min.js (UMD, minified, v5 entry)');
     console.log('  - Source maps for all formats');
-    console.log('  - index.d.ts (TypeScript definitions)');
+    console.log('  - *.d.ts (TypeScript definitions from src/)');
   } catch (error) {
     console.error('❌ Build failed:', error);
     process.exit(1);

@@ -1,10 +1,22 @@
 import { MARK, STONE } from '../core/constants.js';
 
+/**
+ * @typedef {import('../presets/themes.js').Theme} Theme
+ * @typedef {import('./board-renderer.js').RendererAssets} RendererAssets
+ */
+
 export class StonePainter {
+  /**
+   * @param {Theme} theme
+   */
   constructor(theme) {
     this.setTheme(theme);
   }
 
+  /**
+   * @param {Theme} theme
+   * @returns {void}
+   */
   setTheme(theme) {
     this.theme = theme;
     this.stoneRadius = theme.stone.radius;
@@ -16,6 +28,15 @@ export class StonePainter {
     this.triangleR = this.stoneRadius * 0.9;
   }
 
+  /**
+   * @param {CanvasRenderingContext2D} ctx
+   * @param {number | string} stone
+   * @param {number} x
+   * @param {number} y
+   * @param {RendererAssets} assets
+   * @param {number} [scale]
+   * @returns {void}
+   */
   drawStone(ctx, stone, x, y, assets, scale = 1) {
     const texture =
       stone === STONE.BLACK || stone === STONE.DIM_BLACK ? assets.black : assets.white;
@@ -39,6 +60,14 @@ export class StonePainter {
     ctx.drawImage(texture, Math.round(x - width / 2), Math.round(y - height / 2), width, height);
   }
 
+  /**
+   * @param {CanvasRenderingContext2D} ctx
+   * @param {number} x
+   * @param {number} y
+   * @param {RendererAssets} assets
+   * @param {number} [scale]
+   * @returns {void}
+   */
   drawShadow(ctx, x, y, assets, scale = 1) {
     if (!assets.shadow) {
       return;
@@ -50,6 +79,15 @@ export class StonePainter {
     ctx.drawImage(assets.shadow, Math.round(x - width / 2), Math.round(y - height / 2), width, height);
   }
 
+  /**
+   * @param {CanvasRenderingContext2D} ctx
+   * @param {number | string} mark
+   * @param {number} x
+   * @param {number} y
+   * @param {string} color
+   * @param {RendererAssets} assets
+   * @returns {void}
+   */
   drawMark(ctx, mark, x, y, color, assets) {
     if (!mark) {
       return;
