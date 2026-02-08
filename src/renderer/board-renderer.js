@@ -375,6 +375,10 @@ export class BoardRenderer {
   }
 
   setBoard(board) {
+    if (!board || typeof board.each !== 'function') {
+      throw new Error('setBoard requires a BoardState instance');
+    }
+
     this.board = board;
     this._bindBoard(board);
     this.render();

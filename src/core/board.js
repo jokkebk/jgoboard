@@ -1,6 +1,8 @@
 import { MARK, STONE } from './constants.js';
 import { normalizePoint } from './coordinates.js';
 
+const VALID_STONES = new Set(Object.values(STONE));
+
 function create2D(width, height, value) {
   return Array.from({ length: width }, () => Array.from({ length: height }, () => value));
 }
@@ -56,6 +58,10 @@ export class BoardState {
   }
 
   setStone(pointOrVertex, stone) {
+    if (!VALID_STONES.has(stone)) {
+      throw new Error(`invalid stone value: ${stone} (use STONE.BLACK, STONE.WHITE, etc.)`);
+    }
+
     const point = this._resolvePoint(pointOrVertex);
     const oldStone = this._stones[point.x][point.y];
 
@@ -69,6 +75,10 @@ export class BoardState {
   }
 
   setMark(pointOrVertex, mark) {
+    if (typeof mark !== 'string') {
+      throw new Error(`invalid mark value: ${mark} (must be a string — use MARK constants or a label like "A")`);
+    }
+
     const point = this._resolvePoint(pointOrVertex);
     const oldMark = this._marks[point.x][point.y];
 
