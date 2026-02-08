@@ -197,8 +197,20 @@ const palette = createGradientPalette([
 ]);
 ```
 
+## Notes
+
+### Texture caching
+
+Theme texture images (stone, shadow, and board wood textures) are loaded once
+and stored in a module-level `Map` keyed by URL. This means all
+`BoardRenderer` instances on the same page share the same image cache, which
+avoids redundant network requests. If you need isolated caching (e.g. running
+multiple independent widgets that load textures from different base paths with
+colliding filenames), be aware that the first load wins for a given URL.
+
 ## Demos
 
 - `demoV5Renderer.html`: base renderer and themes
 - `demoV5Layers.html`: territory markers, selection layer, heatmap layer
 - `demoV5Game.html`: gameplay rules (captures, ko, suicide checks, pass, undo/redo)
+- `demoV5Tree.html`: GameTree + Cursor variations, node IDs, and navigation

@@ -93,3 +93,4 @@ Error shape:
 ## Demo
 
 - `demoV5Game.html`: renderer + gameplay integration with pass/undo/redo and move log
+- For variations and cursor navigation, see `docs/game-tree.md` and `demoV5Tree.html`

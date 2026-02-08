@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>jGoBoard v5 Tree + Cursor Demo</title>
+    <style>
+      :root {
+        font-family: "Avenir Next", "Segoe UI", sans-serif;
+        color: #1d1c19;
+        background: radial-gradient(circle at 16% 14%, #f5eddd 0%, #e1d3b3 56%, #ccb58a 100%);
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 1.2rem;
+      }
+
+      .layout {
+        max-width: 1380px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 390px 1fr;
+        gap: 1.2rem;
+      }
+
+      .panel {
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 16px;
+        backdrop-filter: blur(5px);
+        box-shadow: 0 18px 28px rgba(0, 0, 0, 0.09);
+      }
+
+      .controls {
+        padding: 1rem;
+        display: grid;
+        gap: 0.75rem;
+        align-content: start;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 1.3rem;
+      }
+
+      .hint {
+        font-size: 0.84rem;
+        color: #5a5345;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.45rem;
+      }
+
+      .stat {
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.82);
+        padding: 0.5rem;
+      }
+
+      .stat-label {
+        font-size: 0.74rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #6d6350;
+      }
+
+      .stat-value {
+        font-size: 1.02rem;
+        font-weight: 600;
+      }
+
+      .row {
+        display: grid;
+        gap: 0.25rem;
+      }
+
+      label {
+        font-size: 0.83rem;
+        font-weight: 600;
+      }
+
+      select,
+      button,
+      input {
+        font: inherit;
+      }
+
+      select,
+      button,
+      input {
+        border: 1px solid rgba(0, 0, 0, 0.22);
+        border-radius: 10px;
+        background: white;
+        padding: 0.5rem 0.62rem;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      .btn-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.45rem;
+      }
+
+      .path,
+      .log,
+      .variations {
+        border: 1px solid rgba(0, 0, 0, 0.09);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.84);
+      }
+
+      .path {
+        padding: 0.5rem 0.6rem;
+        min-height: 2.6rem;
+        font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+        font-size: 0.75rem;
+        line-height: 1.35;
+        color: #3b352c;
+        overflow-wrap: anywhere;
+      }
+
+      .variations {
+        padding: 0.45rem;
+        display: grid;
+        gap: 0.35rem;
+      }
+
+      .variation-btn {
+        text-align: left;
+        font-size: 0.8rem;
+      }
+
+      .log {
+        min-height: 160px;
+        max-height: 280px;
+        overflow: auto;
+        padding: 0.5rem 0.6rem;
+        font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+        font-size: 0.75rem;
+        line-height: 1.35;
+        color: #3b352c;
+      }
+
+      .board-wrap {
+        padding: 1rem;
+        display: grid;
+        place-items: center;
+      }
+
+      #board {
+        width: 100%;
+        display: grid;
+        place-items: center;
+      }
+
+      @media (max-width: 1080px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="panel controls">
+        <h1>v5 GameTree + Cursor</h1>
+        <div class="hint">
+          Click board to append moves from current node. Use variation buttons to choose branches.
+        </div>
+        <div class="hint">
+          Keyboard: Left/Right for prev/next, Up/Down to switch sibling variation.
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">Node ID</div>
+            <div class="stat-value" id="node-id">root</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Ply</div>
+            <div class="stat-value" id="ply">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">To Play</div>
+            <div class="stat-value" id="to-play">Black</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Nodes</div>
+            <div class="stat-value" id="node-count">1</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <label for="theme">Theme</label>
+          <select id="theme">
+            <option value="kaya-medium" selected>Kaya Medium</option>
+            <option value="walnut-medium">Walnut Medium</option>
+            <option value="bw-medium">BW Medium</option>
+            <option value="kaya-large">Kaya Large</option>
+            <option value="walnut-large">Walnut Large</option>
+            <option value="bw-large">BW Large</option>
+          </select>
+        </div>
+
+        <div class="btn-row">
+          <button id="first">First</button>
+          <button id="last">Last (Main)</button>
+        </div>
+        <div class="btn-row">
+          <button id="prev">Prev</button>
+          <button id="next">Next (v0)</button>
+        </div>
+        <div class="btn-row">
+          <button id="pass">Pass</button>
+          <button id="seed">Seed Variations</button>
+        </div>
+        <div class="btn-row">
+          <button id="reset">Reset Cursor</button>
+          <button id="goto">Goto Node</button>
+        </div>
+
+        <div class="row">
+          <label for="goto-id">Node ID</label>
+          <input id="goto-id" type="text" value="root" />
+        </div>
+
+        <div class="row">
+          <label>Current Path</label>
+          <div class="path" id="path"></div>
+        </div>
+
+        <div class="row">
+          <label>Variations from Current Node</label>
+          <div class="variations" id="variations"></div>
+        </div>
+
+        <div class="row">
+          <label>Log</label>
+          <div class="log" id="log"></div>
+        </div>
+      </aside>
+
+      <main class="panel board-wrap">
+        <div id="board"></div>
+      </main>
+    </div>
+
+    <script type="module">
+      import {
+        MARK,
+        STONE,
+        createCursor,
+        createGameTree,
+        createRenderer,
+        rules,
+      } from './src/index.js';
+
+      const tree = createGameTree({
+        size: 19,
+        rules: rules.japanese({ ko: 'simple', suicide: 'forbidden' }),
+      });
+      const cursor = createCursor(tree);
+
+      const renderer = createRenderer('#board', {
+        board: cursor.board,
+        theme: 'kaya-medium',
+      });
+
+      const ui = {
+        nodeId: document.getElementById('node-id'),
+        ply: document.getElementById('ply'),
+        toPlay: document.getElementById('to-play'),
+        nodeCount: document.getElementById('node-count'),
+        path: document.getElementById('path'),
+        variations: document.getElementById('variations'),
+        log: document.getElementById('log'),
+        gotoId: document.getElementById('goto-id'),
+      };
+
+      const playerLabel = {
+        [STONE.BLACK]: 'Black',
+        [STONE.WHITE]: 'White',
+      };
+
+      function addLog(text) {
+        const line = document.createElement('div');
+        line.textContent = text;
+        ui.log.appendChild(line);
+        ui.log.scrollTop = ui.log.scrollHeight;
+      }
+
+      function refreshMarkers() {
+        cursor.board.each((point, intersection) => {
+          if (intersection.mark !== MARK.NONE) {
+            cursor.board.setMark(point, MARK.NONE);
+          }
+        });
+
+        if (cursor.game.lastMove) {
+          cursor.board.setMark(cursor.game.lastMove, MARK.CIRCLE);
+        }
+
+        if (cursor.game.koPoint) {
+          cursor.board.setMark(cursor.game.koPoint, MARK.SQUARE);
+        }
+      }
+
+      function renderVariations(state) {
+        ui.variations.textContent = '';
+
+        if (state.variations.length === 0) {
+          const empty = document.createElement('div');
+          empty.textContent = 'No children from current node.';
+          empty.style.fontSize = '0.8rem';
+          empty.style.color = '#6d6350';
+          ui.variations.appendChild(empty);
+          return;
+        }
+
+        for (const variation of state.variations) {
+          const button = document.createElement('button');
+          button.className = 'variation-btn';
+
+          const moveText =
+            variation.type === 'pass' ? 'pass' : `${playerLabel[variation.player]} ${variation.vertex}`;
+
+          button.textContent = `v${variation.index}: ${moveText} -> ${variation.nodeId}`;
+          button.addEventListener('click', () => {
+            const result = cursor.next({ variationIndex: variation.index });
+
+            if (!result.ok) {
+              addLog(`next failed: ${result.code}`);
+              return;
+            }
+
+            addLog(`next v${variation.index} -> ${result.nodeId}`);
+            refreshMarkers();
+            updateUI();
+          });
+
+          ui.variations.appendChild(button);
+        }
+      }
+
+      function updateUI() {
+        const state = cursor.getState();
+
+        ui.nodeId.textContent = state.currentNodeId;
+        ui.ply.textContent = String(state.ply);
+        ui.toPlay.textContent = playerLabel[state.game.currentPlayer];
+        ui.nodeCount.textContent = String(state.nodeCount);
+        ui.path.textContent = state.path.join(' -> ');
+        ui.gotoId.value = state.currentNodeId;
+
+        renderVariations(state);
+      }
+
+      function playAt(vertex) {
+        const result = cursor.play(vertex);
+
+        if (!result.ok) {
+          addLog(`illegal ${playerLabel[cursor.game.currentPlayer]} ${vertex}: ${result.code}`);
+          return;
+        }
+
+        const moveText = `${playerLabel[result.player]} ${result.vertex}`;
+        const branchText = result.created ? 'new' : 'existing';
+        addLog(`${moveText} -> ${result.nodeId} (${branchText})`);
+        refreshMarkers();
+        updateUI();
+      }
+
+      function resetAll() {
+        cursor.gotoNode(tree.rootId);
+
+        const root = tree.getNode(tree.rootId);
+        const children = [...root.children];
+
+        if (children.length > 0) {
+          addLog('Tree reset only repositions cursor (node data retained).');
+        }
+
+        refreshMarkers();
+        updateUI();
+      }
+
+      function gotoLastMainline() {
+        while (true) {
+          const result = cursor.next({ variationIndex: 0 });
+
+          if (!result.ok) {
+            break;
+          }
+        }
+
+        refreshMarkers();
+        updateUI();
+      }
+
+      function seedVariations() {
+        cursor.gotoNode(tree.rootId);
+
+        const m1 = cursor.play('D4');
+        const m2 = cursor.play('Q16');
+        cursor.play('D16');
+        const m4 = cursor.play('Q4');
+
+        cursor.gotoNode(m2.nodeId);
+        cursor.play('K10');
+        cursor.play('C6');
+
+        cursor.gotoNode(m1.nodeId);
+        cursor.play('C4');
+        cursor.play('R16');
+
+        cursor.gotoNode(m4.nodeId);
+
+        addLog('seeded: main line + 2 branch points');
+        refreshMarkers();
+        updateUI();
+      }
+
+      function isTypingTarget(target) {
+        if (!target || !(target instanceof HTMLElement)) {
+          return false;
+        }
+
+        const tag = target.tagName.toLowerCase();
+        return tag === 'input' || tag === 'textarea' || tag === 'select' || target.isContentEditable;
+      }
+
+      function goPrev() {
+        const result = cursor.prev();
+
+        if (!result.ok) {
+          addLog(`prev failed: ${result.code}`);
+          return;
+        }
+
+        addLog(`prev -> ${result.nodeId}`);
+        refreshMarkers();
+        updateUI();
+      }
+
+      function goNext(variationIndex = 0) {
+        const result = cursor.next({ variationIndex });
+
+        if (!result.ok) {
+          addLog(`next failed: ${result.code}`);
+          return;
+        }
+
+        addLog(`next v${variationIndex} -> ${result.nodeId}`);
+        refreshMarkers();
+        updateUI();
+      }
+
+      function switchSiblingVariation(delta) {
+        const state = cursor.getState();
+
+        if (state.ply === 0 || state.variationIndex < 0) {
+          return;
+        }
+
+        const parentLevel = state.ply - 1;
+        const parentId = state.path[parentLevel];
+        const siblingCount = cursor.getVariations(parentId).length;
+        const targetIndex = state.variationIndex + delta;
+
+        if (targetIndex < 0 || targetIndex >= siblingCount) {
+          return;
+        }
+
+        const result = cursor.setVariation(parentLevel, targetIndex);
+        if (!result.ok) {
+          addLog(`switch variation failed: ${result.code}`);
+          return;
+        }
+
+        addLog(`switch v${state.variationIndex} -> v${targetIndex} at level ${parentLevel}`);
+        refreshMarkers();
+        updateUI();
+      }
+
+      renderer.on('click', ({ vertex }) => {
+        if (!vertex) {
+          return;
+        }
+
+        playAt(vertex);
+      });
+
+      document.getElementById('theme').addEventListener('change', (event) => {
+        renderer.setTheme(event.target.value);
+      });
+
+      document.getElementById('first').addEventListener('click', () => {
+        cursor.gotoNode(tree.rootId);
+        addLog('goto root');
+        refreshMarkers();
+        updateUI();
+      });
+
+      document.getElementById('last').addEventListener('click', () => {
+        gotoLastMainline();
+        addLog(`goto last mainline -> ${cursor.currentNodeId}`);
+      });
+
+      document.getElementById('prev').addEventListener('click', () => {
+        goPrev();
+      });
+
+      document.getElementById('next').addEventListener('click', () => {
+        goNext(0);
+      });
+
+      document.getElementById('pass').addEventListener('click', () => {
+        const player = playerLabel[cursor.game.currentPlayer];
+        const result = cursor.pass();
+
+        if (!result.ok) {
+          addLog(`pass failed: ${result.code}`);
+          return;
+        }
+
+        addLog(`${player} pass -> ${result.nodeId}`);
+        refreshMarkers();
+        updateUI();
+      });
+
+      document.getElementById('seed').addEventListener('click', () => {
+        seedVariations();
+      });
+
+      document.getElementById('reset').addEventListener('click', () => {
+        resetAll();
+      });
+
+      document.getElementById('goto').addEventListener('click', () => {
+        const target = ui.gotoId.value.trim();
+        const result = cursor.gotoNode(target);
+
+        if (!result.ok) {
+          addLog(`goto failed: ${result.code}`);
+          return;
+        }
+
+        addLog(`goto -> ${result.nodeId}`);
+        refreshMarkers();
+        updateUI();
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (isTypingTarget(event.target)) {
+          return;
+        }
+
+        if (event.key === 'ArrowLeft') {
+          event.preventDefault();
+          goPrev();
+          return;
+        }
+
+        if (event.key === 'ArrowRight') {
+          event.preventDefault();
+          goNext(0);
+          return;
+        }
+
+        if (event.key === 'ArrowUp') {
+          event.preventDefault();
+          switchSiblingVariation(-1);
+          return;
+        }
+
+        if (event.key === 'ArrowDown') {
+          event.preventDefault();
+          switchSiblingVariation(1);
+        }
+      });
+
+      await renderer.whenReady();
+      renderer.render();
+      addLog('ready');
+      updateUI();
+    </script>
+  </body>
+</html>
