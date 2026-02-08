@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>jGoBoard v5 Layers Demo</title>
+    <style>
+      :root {
+        font-family: "Avenir Next", "Segoe UI", sans-serif;
+        color: #1a1a1a;
+        background: radial-gradient(circle at 15% 20%, #f7edd3 0%, #dfd1ae 46%, #cbb98d 100%);
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 1.25rem;
+      }
+
+      .layout {
+        max-width: 1280px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        gap: 1.25rem;
+      }
+
+      .panel {
+        background: rgba(255, 255, 255, 0.78);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        border-radius: 16px;
+        box-shadow: 0 18px 28px rgba(0, 0, 0, 0.08);
+      }
+
+      .controls {
+        padding: 1rem;
+        display: grid;
+        gap: 1rem;
+        align-content: start;
+      }
+
+      .controls h1 {
+        margin: 0;
+        font-size: 1.35rem;
+      }
+
+      .section {
+        display: grid;
+        gap: 0.5rem;
+        padding-top: 0.6rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.09);
+      }
+
+      .section:first-of-type {
+        border-top: none;
+        padding-top: 0;
+      }
+
+      .section h2 {
+        margin: 0;
+        font-size: 0.92rem;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: #615848;
+      }
+
+      .row {
+        display: grid;
+        gap: 0.2rem;
+      }
+
+      .row.inline {
+        grid-template-columns: 1fr auto;
+        align-items: center;
+      }
+
+      label {
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+
+      select,
+      button,
+      input[type='range'] {
+        font: inherit;
+      }
+
+      select,
+      button {
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        padding: 0.52rem 0.62rem;
+        background: white;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      .btn-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.45rem;
+      }
+
+      .stats {
+        font-size: 0.82rem;
+        color: #514b41;
+        line-height: 1.4;
+      }
+
+      .board-wrap {
+        padding: 1rem;
+        display: grid;
+        place-items: center;
+      }
+
+      #board {
+        width: 100%;
+        display: grid;
+        place-items: center;
+      }
+
+      .hint {
+        font-size: 0.8rem;
+        color: #5c5549;
+      }
+
+      @media (max-width: 1024px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="panel controls">
+        <h1>v5 Layer Showcase</h1>
+        <div class="hint">
+          Edit mode: click intersections to cycle stones. Selection mode: click two opposite corners.
+        </div>
+
+        <section class="section">
+          <h2>Board</h2>
+          <div class="row">
+            <label for="theme">Theme</label>
+            <select id="theme">
+              <option value="kaya-medium" selected>Kaya Medium</option>
+              <option value="walnut-medium">Walnut Medium</option>
+              <option value="bw-medium">BW Medium</option>
+              <option value="kaya-large">Kaya Large</option>
+              <option value="walnut-large">Walnut Large</option>
+              <option value="bw-large">BW Large</option>
+            </select>
+          </div>
+          <div class="btn-row">
+            <button id="seed">Seed Position</button>
+            <button id="clear-board">Clear Board</button>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>Territory</h2>
+          <div class="btn-row">
+            <button id="estimate-territory">Estimate Territory</button>
+            <button id="clear-territory">Clear Territory</button>
+          </div>
+          <div id="territory-stats" class="stats">Territory markers: B 0, W 0</div>
+        </section>
+
+        <section class="section">
+          <h2>Selection Layer</h2>
+          <div class="btn-row">
+            <button id="start-selection">Start Selection</button>
+            <button id="clear-selection">Clear Selection</button>
+          </div>
+          <div id="selection-stats" class="stats">Selection: none</div>
+        </section>
+
+        <section class="section">
+          <h2>Heatmap Layer</h2>
+          <div class="row">
+            <label for="heatmap-palette">Palette</label>
+            <select id="heatmap-palette">
+              <option value="none" selected>Disabled</option>
+              <option value="red-alpha">Transparent to 50% Red</option>
+              <option value="gyr">Green-Yellow-Red</option>
+            </select>
+          </div>
+          <div class="row inline">
+            <label for="heatmap-alpha">Max Alpha</label>
+            <span id="heatmap-alpha-value">0.50</span>
+          </div>
+          <input id="heatmap-alpha" type="range" min="0.10" max="0.80" step="0.01" value="0.50" />
+          <div class="btn-row">
+            <button id="random-heatmap">Random Heatmap</button>
+            <button id="influence-heatmap">Influence Heatmap</button>
+          </div>
+        </section>
+      </aside>
+
+      <main class="panel board-wrap">
+        <div id="board"></div>
+      </main>
+    </div>
+
+    <script type="module">
+      import {
+        MARK,
+        STONE,
+        createBoard,
+        createHeatmapLayer,
+        createRenderer,
+        createSelectionLayer,
+        formatVertex,
+        heatmapPalettes,
+      } from './src/index.js';
+
+      const board = createBoard({ size: 19 });
+
+      const state = {
+        mode: 'edit',
+        selectionStart: null,
+        selectionRect: null,
+        heatmapValues: new Map(),
+        heatmapPalette: heatmapPalettes.redAlpha({ maxAlpha: 0.5 }),
+      };
+
+      const renderer = createRenderer('#board', {
+        board,
+        theme: 'kaya-medium',
+      });
+
+      const selectionLayer = createSelectionLayer({
+        name: 'selection-area',
+        zIndex: 71,
+        fillStyle: 'rgba(128, 128, 255, 0.5)',
+        strokeStyle: 'rgba(58, 58, 170, 0.9)',
+        lineWidth: 1,
+        getSelection: () => state.selectionRect,
+      });
+
+      const heatmapLayer = createHeatmapLayer({
+        name: 'heatmap-layer',
+        zIndex: 70,
+        values: () => state.heatmapValues,
+        minValue: 0,
+        maxValue: 1,
+        renderMode: 'gradient',
+        defaultValue: 0,
+        palette: (normalized) => state.heatmapPalette(normalized),
+      });
+
+      renderer.layers.add(selectionLayer.name, selectionLayer);
+      renderer.layers.add(heatmapLayer.name, heatmapLayer);
+      renderer.layers.enable('heatmap-layer', false);
+
+      function selectionStatsText() {
+        if (!state.selectionRect) {
+          return 'Selection: none';
+        }
+
+        const from = formatVertex({ x: state.selectionRect.x1, y: state.selectionRect.y1 }, board.height);
+        const to = formatVertex({ x: state.selectionRect.x2, y: state.selectionRect.y2 }, board.height);
+        return `Selection: ${from} to ${to}`;
+      }
+
+      function updateSelectionStats() {
+        document.getElementById('selection-stats').textContent = selectionStatsText();
+      }
+
+      function clearTerritoryOnly() {
+        board.each((point, intersection) => {
+          if (
+            intersection.mark === MARK.BLACK_TERRITORY ||
+            intersection.mark === MARK.WHITE_TERRITORY
+          ) {
+            board.setMark(point, MARK.NONE);
+          }
+        });
+      }
+
+      function estimateTerritoryMarkers() {
+        clearTerritoryOnly();
+
+        const visited = new Set();
+        const territory = {
+          black: 0,
+          white: 0,
+        };
+
+        const neighbors = (point) => {
+          const result = [];
+          if (point.x > 0) result.push({ x: point.x - 1, y: point.y });
+          if (point.x + 1 < board.width) result.push({ x: point.x + 1, y: point.y });
+          if (point.y > 0) result.push({ x: point.x, y: point.y - 1 });
+          if (point.y + 1 < board.height) result.push({ x: point.x, y: point.y + 1 });
+          return result;
+        };
+
+        const key = (point) => `${point.x},${point.y}`;
+
+        board.each((start) => {
+          if (board.getStone(start) !== STONE.CLEAR || visited.has(key(start))) {
+            return;
+          }
+
+          const queue = [start];
+          const region = [];
+          const borders = new Set();
+          visited.add(key(start));
+
+          while (queue.length > 0) {
+            const point = queue.shift();
+            region.push(point);
+
+            for (const next of neighbors(point)) {
+              const stone = board.getStone(next);
+
+              if (stone === STONE.CLEAR) {
+                if (!visited.has(key(next))) {
+                  visited.add(key(next));
+                  queue.push(next);
+                }
+                continue;
+              }
+
+              if (stone === STONE.BLACK || stone === STONE.DIM_BLACK) {
+                borders.add('black');
+              }
+
+              if (stone === STONE.WHITE || stone === STONE.DIM_WHITE) {
+                borders.add('white');
+              }
+            }
+          }
+
+          if (borders.size !== 1) {
+            return;
+          }
+
+          const owner = borders.has('black') ? 'black' : 'white';
+          const mark = owner === 'black' ? MARK.BLACK_TERRITORY : MARK.WHITE_TERRITORY;
+
+          for (const point of region) {
+            board.setMark(point, mark);
+          }
+
+          territory[owner] += region.length;
+        });
+
+        document.getElementById('territory-stats').textContent =
+          `Territory markers: B ${territory.black}, W ${territory.white}`;
+      }
+
+      function clearTerritoryStats() {
+        document.getElementById('territory-stats').textContent = 'Territory markers: B 0, W 0';
+      }
+
+      function normalizeRect(from, to) {
+        return {
+          x1: Math.min(from.x, to.x),
+          y1: Math.min(from.y, to.y),
+          x2: Math.max(from.x, to.x),
+          y2: Math.max(from.y, to.y),
+        };
+      }
+
+      function randomInt(min, max) {
+        return min + Math.floor(Math.random() * (max - min + 1));
+      }
+
+      function isInsideRectInterior(point, rect) {
+        return (
+          point.x > rect.x1 &&
+          point.x < rect.x2 &&
+          point.y > rect.y1 &&
+          point.y < rect.y2
+        );
+      }
+
+      function canPlaceRing(rect) {
+        for (let y = rect.y1 - 1; y <= rect.y2 + 1; y += 1) {
+          for (let x = rect.x1 - 1; x <= rect.x2 + 1; x += 1) {
+            if (x < 0 || y < 0 || x >= board.width || y >= board.height) {
+              return false;
+            }
+
+            if (board.getStone({ x, y }) !== STONE.CLEAR) {
+              return false;
+            }
+          }
+        }
+
+        return true;
+      }
+
+      function placeClosedRing(stone, rings) {
+        for (let attempt = 0; attempt < 60; attempt += 1) {
+          const ringWidth = randomInt(4, 6);
+          const ringHeight = randomInt(4, 6);
+          const x1 = randomInt(1, board.width - ringWidth - 2);
+          const y1 = randomInt(1, board.height - ringHeight - 2);
+          const x2 = x1 + ringWidth;
+          const y2 = y1 + ringHeight;
+          const rect = { x1, y1, x2, y2 };
+
+          if (!canPlaceRing(rect)) {
+            continue;
+          }
+
+          for (let x = x1; x <= x2; x += 1) {
+            board.setStone({ x, y: y1 }, stone);
+            board.setStone({ x, y: y2 }, stone);
+          }
+
+          for (let y = y1; y <= y2; y += 1) {
+            board.setStone({ x: x1, y }, stone);
+            board.setStone({ x: x2, y }, stone);
+          }
+
+          rings.push(rect);
+          return true;
+        }
+
+        return false;
+      }
+
+      function scatterStones(stone, count, avoidRects) {
+        let placed = 0;
+
+        for (let attempt = 0; attempt < count * 40 && placed < count; attempt += 1) {
+          const point = {
+            x: randomInt(0, board.width - 1),
+            y: randomInt(0, board.height - 1),
+          };
+
+          if (board.getStone(point) !== STONE.CLEAR) {
+            continue;
+          }
+
+          const insideProtectedInterior = avoidRects.some((rect) => isInsideRectInterior(point, rect));
+          if (insideProtectedInterior) {
+            continue;
+          }
+
+          board.setStone(point, stone);
+          placed += 1;
+        }
+      }
+
+      function setHeatmapMode(mode, alpha) {
+        if (mode === 'none') {
+          renderer.layers.enable('heatmap-layer', false);
+          renderer.render();
+          return;
+        }
+
+        renderer.layers.enable('heatmap-layer', true);
+
+        if (mode === 'gyr') {
+          state.heatmapPalette = heatmapPalettes.greenYellowRed({ alpha });
+        } else {
+          state.heatmapPalette = heatmapPalettes.redAlpha({ maxAlpha: alpha });
+        }
+
+        renderer.render();
+      }
+
+      function ensureHeatmapVisible() {
+        if (paletteSelect.value === 'none') {
+          paletteSelect.value = 'red-alpha';
+        }
+        refreshHeatmapPalette();
+      }
+
+      function setHeatmapValues(values) {
+        state.heatmapValues = values;
+        renderer.render();
+      }
+
+      function randomHeatmap() {
+        const values = new Map();
+        const hotspots = Array.from({ length: 4 }, () => ({
+          x: Math.floor(Math.random() * board.width),
+          y: Math.floor(Math.random() * board.height),
+          strength: 0.55 + Math.random() * 0.45,
+          spread: 2.2 + Math.random() * 4,
+        }));
+
+        board.each((point) => {
+          let score = 0;
+
+          for (const hotspot of hotspots) {
+            const dx = point.x - hotspot.x;
+            const dy = point.y - hotspot.y;
+            const distanceSq = dx * dx + dy * dy;
+            score += hotspot.strength * Math.exp(-distanceSq / (hotspot.spread * hotspot.spread));
+          }
+
+          values.set(`${point.x},${point.y}`, Math.max(0, Math.min(1, score)));
+        });
+
+        setHeatmapValues(values);
+      }
+
+      function influenceHeatmap() {
+        const blackStones = [];
+        const whiteStones = [];
+        board.each((point, intersection) => {
+          if (intersection.stone === STONE.BLACK) {
+            blackStones.push({ ...point });
+          } else if (intersection.stone === STONE.WHITE) {
+            whiteStones.push({ ...point });
+          }
+        });
+
+        const values = new Map();
+
+        board.each((point) => {
+          let nearestBlack = Number.POSITIVE_INFINITY;
+          let nearestWhite = Number.POSITIVE_INFINITY;
+
+          for (const stone of blackStones) {
+            const dx = point.x - stone.x;
+            const dy = point.y - stone.y;
+            nearestBlack = Math.min(nearestBlack, Math.sqrt(dx * dx + dy * dy));
+          }
+
+          for (const stone of whiteStones) {
+            const dx = point.x - stone.x;
+            const dy = point.y - stone.y;
+            nearestWhite = Math.min(nearestWhite, Math.sqrt(dx * dx + dy * dy));
+          }
+
+          let score = 0.5;
+          if (Number.isFinite(nearestBlack) && Number.isFinite(nearestWhite)) {
+            const balance = (nearestWhite - nearestBlack) / (nearestWhite + nearestBlack + 0.0001);
+            score = 0.5 + 0.5 * balance;
+          } else if (Number.isFinite(nearestBlack)) {
+            score = 1;
+          } else if (Number.isFinite(nearestWhite)) {
+            score = 0;
+          }
+
+          values.set(`${point.x},${point.y}`, Math.max(0, Math.min(1, score)));
+        });
+
+        setHeatmapValues(values);
+      }
+
+      function seedPosition() {
+        let rings = [];
+        let generated = false;
+
+        for (let attempt = 0; attempt < 8; attempt += 1) {
+          board.clear();
+          rings = [];
+          const blackOk = placeClosedRing(STONE.BLACK, rings);
+          const whiteOk = placeClosedRing(STONE.WHITE, rings);
+
+          if (blackOk && whiteOk) {
+            generated = true;
+            break;
+          }
+        }
+
+        if (!generated) {
+          board.clear();
+          rings = [
+            { x1: 3, y1: 3, x2: 8, y2: 8 },
+            { x1: 10, y1: 10, x2: 15, y2: 15 },
+          ];
+
+          for (let x = rings[0].x1; x <= rings[0].x2; x += 1) {
+            board.setStone({ x, y: rings[0].y1 }, STONE.BLACK);
+            board.setStone({ x, y: rings[0].y2 }, STONE.BLACK);
+          }
+          for (let y = rings[0].y1; y <= rings[0].y2; y += 1) {
+            board.setStone({ x: rings[0].x1, y }, STONE.BLACK);
+            board.setStone({ x: rings[0].x2, y }, STONE.BLACK);
+          }
+
+          for (let x = rings[1].x1; x <= rings[1].x2; x += 1) {
+            board.setStone({ x, y: rings[1].y1 }, STONE.WHITE);
+            board.setStone({ x, y: rings[1].y2 }, STONE.WHITE);
+          }
+          for (let y = rings[1].y1; y <= rings[1].y2; y += 1) {
+            board.setStone({ x: rings[1].x1, y }, STONE.WHITE);
+            board.setStone({ x: rings[1].x2, y }, STONE.WHITE);
+          }
+        }
+
+        scatterStones(STONE.BLACK, randomInt(10, 16), rings);
+        scatterStones(STONE.WHITE, randomInt(10, 16), rings);
+
+        state.mode = 'edit';
+        state.selectionStart = null;
+        state.selectionRect = null;
+        updateSelectionStats();
+        clearTerritoryOnly();
+        clearTerritoryStats();
+        randomHeatmap();
+      }
+
+      renderer.on('click', ({ point }) => {
+        if (!point) {
+          return;
+        }
+
+        if (state.mode === 'select-start') {
+          state.selectionStart = point;
+          state.selectionRect = normalizeRect(point, point);
+          state.mode = 'select-end';
+          updateSelectionStats();
+          renderer.render();
+          return;
+        }
+
+        if (state.mode === 'select-end') {
+          state.selectionRect = normalizeRect(state.selectionStart, point);
+          state.selectionStart = null;
+          state.mode = 'edit';
+          updateSelectionStats();
+          renderer.render();
+          return;
+        }
+
+        const stone = board.getStone(point);
+        if (stone === STONE.CLEAR) {
+          board.setStone(point, STONE.BLACK);
+        } else if (stone === STONE.BLACK) {
+          board.setStone(point, STONE.WHITE);
+        } else {
+          board.setStone(point, STONE.CLEAR);
+        }
+      });
+
+      renderer.on('mousemove', ({ point }) => {
+        if (state.mode !== 'select-end' || !state.selectionStart || !point) {
+          return;
+        }
+
+        state.selectionRect = normalizeRect(state.selectionStart, point);
+        updateSelectionStats();
+        renderer.render();
+      });
+
+      renderer.on('mouseout', () => {
+        if (state.mode !== 'select-end' || !state.selectionStart) {
+          return;
+        }
+
+        state.selectionRect = normalizeRect(state.selectionStart, state.selectionStart);
+        updateSelectionStats();
+        renderer.render();
+      });
+
+      document.getElementById('theme').addEventListener('change', (event) => {
+        renderer.setTheme(event.target.value);
+      });
+
+      document.getElementById('seed').addEventListener('click', () => {
+        seedPosition();
+      });
+
+      document.getElementById('clear-board').addEventListener('click', () => {
+        board.clear();
+        state.selectionStart = null;
+        state.selectionRect = null;
+        updateSelectionStats();
+        clearTerritoryStats();
+        renderer.render();
+      });
+
+      document.getElementById('estimate-territory').addEventListener('click', () => {
+        estimateTerritoryMarkers();
+      });
+
+      document.getElementById('clear-territory').addEventListener('click', () => {
+        clearTerritoryOnly();
+        clearTerritoryStats();
+      });
+
+      document.getElementById('start-selection').addEventListener('click', () => {
+        state.mode = 'select-start';
+        state.selectionStart = null;
+      });
+
+      document.getElementById('clear-selection').addEventListener('click', () => {
+        state.mode = 'edit';
+        state.selectionStart = null;
+        state.selectionRect = null;
+        updateSelectionStats();
+        renderer.render();
+      });
+
+      const alphaInput = document.getElementById('heatmap-alpha');
+      const alphaValue = document.getElementById('heatmap-alpha-value');
+      const paletteSelect = document.getElementById('heatmap-palette');
+
+      function refreshHeatmapPalette() {
+        const alpha = Number.parseFloat(alphaInput.value);
+        alphaValue.textContent = alpha.toFixed(2);
+        setHeatmapMode(paletteSelect.value, alpha);
+      }
+
+      paletteSelect.addEventListener('change', refreshHeatmapPalette);
+      alphaInput.addEventListener('input', refreshHeatmapPalette);
+
+      document.getElementById('random-heatmap').addEventListener('click', () => {
+        ensureHeatmapVisible();
+        randomHeatmap();
+      });
+
+      document.getElementById('influence-heatmap').addEventListener('click', () => {
+        ensureHeatmapVisible();
+        influenceHeatmap();
+      });
+
+      seedPosition();
+      await renderer.whenReady();
+      refreshHeatmapPalette();
+      renderer.render();
+    </script>
+  </body>
+</html>
