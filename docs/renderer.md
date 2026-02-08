@@ -201,3 +201,4 @@ const palette = createGradientPalette([
 
 - `demoV5Renderer.html`: base renderer and themes
 - `demoV5Layers.html`: territory markers, selection layer, heatmap layer
+- `demoV5Game.html`: gameplay rules (captures, ko, suicide checks, pass, undo/redo)

@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>jGoBoard v5 Game Mechanics Demo</title>
+    <style>
+      :root {
+        font-family: "Avenir Next", "Segoe UI", sans-serif;
+        color: #1e1b17;
+        background: linear-gradient(165deg, #f4ecd9 0%, #e5d6b8 48%, #d2bf98 100%);
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 1.25rem;
+      }
+
+      .layout {
+        max-width: 1280px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        gap: 1.25rem;
+      }
+
+      .panel {
+        background: rgba(255, 255, 255, 0.78);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 16px;
+        box-shadow: 0 18px 28px rgba(0, 0, 0, 0.08);
+      }
+
+      .controls {
+        padding: 1rem;
+        display: grid;
+        gap: 0.8rem;
+        align-content: start;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 1.3rem;
+      }
+
+      .hint {
+        font-size: 0.85rem;
+        color: #5b5448;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.45rem;
+      }
+
+      .stat {
+        border: 1px solid rgba(0, 0, 0, 0.09);
+        border-radius: 10px;
+        padding: 0.5rem;
+        background: rgba(255, 255, 255, 0.8);
+      }
+
+      .stat-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #655d4f;
+      }
+
+      .stat-value {
+        font-size: 1.08rem;
+        font-weight: 600;
+      }
+
+      .row {
+        display: grid;
+        gap: 0.25rem;
+      }
+
+      label {
+        font-size: 0.84rem;
+        font-weight: 600;
+      }
+
+      select,
+      button {
+        font: inherit;
+        border: 1px solid rgba(0, 0, 0, 0.22);
+        border-radius: 10px;
+        padding: 0.52rem 0.62rem;
+        background: white;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      button:disabled {
+        opacity: 0.45;
+        cursor: default;
+      }
+
+      .btn-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.45rem;
+      }
+
+      .log {
+        border: 1px solid rgba(0, 0, 0, 0.09);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.83);
+        min-height: 190px;
+        max-height: 280px;
+        overflow: auto;
+        padding: 0.55rem 0.65rem;
+        font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+        font-size: 0.77rem;
+        line-height: 1.35;
+        color: #3a352d;
+      }
+
+      .board-wrap {
+        padding: 1rem;
+        display: grid;
+        place-items: center;
+      }
+
+      #board {
+        width: 100%;
+        display: grid;
+        place-items: center;
+      }
+
+      @media (max-width: 1024px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="panel controls">
+        <h1>v5 Game Mechanics</h1>
+        <div class="hint">
+          Click an intersection to play. Illegal moves (occupied, ko, suicide) are blocked by the rules engine.
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">To Play</div>
+            <div class="stat-value" id="to-play">Black</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Move</div>
+            <div class="stat-value" id="move-number">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Black Captures</div>
+            <div class="stat-value" id="black-captures">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">White Captures</div>
+            <div class="stat-value" id="white-captures">0</div>
+          </div>
+          <div class="stat" style="grid-column: 1 / -1">
+            <div class="stat-label">Ko Point</div>
+            <div class="stat-value" id="ko-point">none</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <label for="theme">Theme</label>
+          <select id="theme">
+            <option value="kaya-medium" selected>Kaya Medium</option>
+            <option value="walnut-medium">Walnut Medium</option>
+            <option value="bw-medium">BW Medium</option>
+            <option value="kaya-large">Kaya Large</option>
+            <option value="walnut-large">Walnut Large</option>
+            <option value="bw-large">BW Large</option>
+          </select>
+        </div>
+
+        <div class="btn-row">
+          <button id="pass">Pass</button>
+          <button id="reset">Reset</button>
+        </div>
+        <div class="btn-row">
+          <button id="undo">Undo</button>
+          <button id="redo">Redo</button>
+        </div>
+
+        <div class="row">
+          <label>Move Log</label>
+          <div class="log" id="log"></div>
+        </div>
+      </aside>
+
+      <main class="panel board-wrap">
+        <div id="board"></div>
+      </main>
+    </div>
+
+    <script type="module">
+      import { MARK, STONE, createGame, createRenderer, rules } from './src/index.js';
+
+      const game = createGame({
+        size: 13,
+        rules: rules.japanese({ ko: 'simple', suicide: 'forbidden' }),
+      });
+
+      const renderer = createRenderer('#board', {
+        board: game.board,
+        theme: 'kaya-medium',
+      });
+
+      const ui = {
+        toPlay: document.getElementById('to-play'),
+        moveNumber: document.getElementById('move-number'),
+        blackCaptures: document.getElementById('black-captures'),
+        whiteCaptures: document.getElementById('white-captures'),
+        koPoint: document.getElementById('ko-point'),
+        log: document.getElementById('log'),
+        undo: document.getElementById('undo'),
+        redo: document.getElementById('redo'),
+      };
+
+      const labels = {
+        [STONE.BLACK]: 'Black',
+        [STONE.WHITE]: 'White',
+      };
+
+      function addLog(text) {
+        const line = document.createElement('div');
+        line.textContent = text;
+        ui.log.appendChild(line);
+        ui.log.scrollTop = ui.log.scrollHeight;
+      }
+
+      function refreshMarkers() {
+        game.board.each((point, intersection) => {
+          if (intersection.mark !== MARK.NONE) {
+            game.board.setMark(point, MARK.NONE);
+          }
+        });
+
+        if (game.lastMove) {
+          game.board.setMark(game.lastMove, MARK.CIRCLE);
+        }
+
+        if (game.koPoint) {
+          game.board.setMark(game.koPoint, MARK.SQUARE);
+        }
+      }
+
+      function updateUI() {
+        const state = game.getState();
+        ui.toPlay.textContent = labels[state.currentPlayer];
+        ui.moveNumber.textContent = String(state.moveNumber);
+        ui.blackCaptures.textContent = String(state.captures.black);
+        ui.whiteCaptures.textContent = String(state.captures.white);
+        ui.koPoint.textContent = state.ko || 'none';
+        ui.undo.disabled = !state.canUndo;
+        ui.redo.disabled = !state.canRedo;
+      }
+
+      function handlePlay(vertex) {
+        const result = game.play(vertex);
+
+        if (!result.ok) {
+          addLog(`illegal ${labels[game.currentPlayer]} ${vertex}: ${result.code}`);
+          return;
+        }
+
+        const captureInfo = result.captures.length > 0 ? ` x${result.captures.length}` : '';
+        const koInfo = result.ko ? ` (ko ${result.ko})` : '';
+        addLog(`${labels[result.player]} ${result.vertex}${captureInfo}${koInfo}`);
+        refreshMarkers();
+        updateUI();
+      }
+
+      renderer.on('click', ({ vertex }) => {
+        if (!vertex) {
+          return;
+        }
+
+        handlePlay(vertex);
+      });
+
+      document.getElementById('theme').addEventListener('change', (event) => {
+        renderer.setTheme(event.target.value);
+      });
+
+      document.getElementById('pass').addEventListener('click', () => {
+        const player = labels[game.currentPlayer];
+        game.pass();
+        addLog(`${player} pass`);
+        refreshMarkers();
+        updateUI();
+      });
+
+      document.getElementById('undo').addEventListener('click', () => {
+        const result = game.undo();
+        if (!result.ok) {
+          return;
+        }
+
+        addLog('undo');
+        refreshMarkers();
+        updateUI();
+      });
+
+      document.getElementById('redo').addEventListener('click', () => {
+        const result = game.redo();
+        if (!result.ok) {
+          return;
+        }
+
+        addLog('redo');
+        refreshMarkers();
+        updateUI();
+      });
+
+      document.getElementById('reset').addEventListener('click', () => {
+        game.reset();
+        ui.log.textContent = '';
+        addLog('reset');
+        refreshMarkers();
+        updateUI();
+      });
+
+      await renderer.whenReady();
+      renderer.render();
+      addLog('ready');
+      updateUI();
+    </script>
+  </body>
+</html>
