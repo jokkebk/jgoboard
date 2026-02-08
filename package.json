@@ -18,18 +18,21 @@
     },
     "./core": {
       "types": "./dist/core.d.ts",
-      "import": "./src/core.js",
-      "default": "./src/core.js"
+      "import": "./dist/core.js",
+      "require": "./dist/core.cjs",
+      "default": "./dist/core.js"
     },
     "./renderer": {
       "types": "./dist/renderer.d.ts",
-      "import": "./src/renderer.js",
-      "default": "./src/renderer.js"
+      "import": "./dist/renderer.js",
+      "require": "./dist/renderer.cjs",
+      "default": "./dist/renderer.js"
     },
     "./presets": {
       "types": "./dist/presets.d.ts",
-      "import": "./src/presets.js",
-      "default": "./src/presets.js"
+      "import": "./dist/presets.js",
+      "require": "./dist/presets.cjs",
+      "default": "./dist/presets.js"
     }
   },
   "files": [
