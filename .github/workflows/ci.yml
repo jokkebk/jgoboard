@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, main ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, main ]
 
 jobs:
   build:
@@ -31,7 +31,10 @@ jobs:
       run: npm run lint
 
     - name: Check code formatting
-      run: npx prettier --check "JGO/**/*.js" "main.js"
+      run: npx prettier --check "src/**/*.js" "scripts/**/*.js" "test/**/*.js"
+
+    - name: Run tests
+      run: npm test
 
     - name: Build project
       run: npm run build
