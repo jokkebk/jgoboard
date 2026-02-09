@@ -829,7 +829,11 @@ export class Player {
         return;
       }
 
-      await this.loadFile(file, { source: 'drop' });
+      try {
+        await this.loadFile(file, { source: 'drop' });
+      } catch (error) {
+        this._emit('sgfLoadError', { source: 'drop', error });
+      }
     };
 
     this.root.addEventListener('dragenter', onDragEnter);
@@ -1196,23 +1200,27 @@ export class Player {
       input.addEventListener(
         'change',
         async () => {
-          const file = pickSgfFile(input.files);
+          try {
+            const file = pickSgfFile(input.files);
 
-          if (!file) {
-            finish({
-              ok: false,
-              error: new Error('No file selected'),
+            if (!file) {
+              finish({
+                ok: false,
+                error: new Error('No file selected'),
+              });
+              return;
+            }
+
+            const result = await this.loadFile(file, {
+              ...options,
+              source: options.source || 'picker',
+              fileName: options.fileName || file.name,
             });
-            return;
+
+            finish(result);
+          } catch (error) {
+            finish({ ok: false, error });
           }
-
-          const result = await this.loadFile(file, {
-            ...options,
-            source: options.source || 'picker',
-            fileName: options.fileName || file.name,
-          });
-
-          finish(result);
         },
         { once: true }
       );
@@ -1224,6 +1232,8 @@ export class Player {
               return;
             }
 
+            // If a file was selected, the change handler will resolve the
+            // promise. Only finish here when the picker was cancelled.
             const file = pickSgfFile(input.files);
             if (!file) {
               finish({

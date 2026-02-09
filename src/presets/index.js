@@ -1,12 +1,10 @@
 export {
+  bwLarge,
+  bwMedium,
   kayaLarge,
   kayaMedium,
-  largeBW,
-  largeKaya,
-  largeWalnut,
-  mediumBW,
-  mediumKaya,
-  mediumWalnut,
   resolveTheme,
   themesByName,
+  walnutLarge,
+  walnutMedium,
 } from './themes.js';

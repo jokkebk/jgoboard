@@ -1,4 +1,4 @@
-export { BoardRenderer, createRenderer, renderBoardImage } from './board-renderer.js';
+export { BoardRenderer, clearImageCache, createRenderer, renderBoardImage } from './board-renderer.js';
 export {
   createGradientPalette,
   createHeatmapLayer,

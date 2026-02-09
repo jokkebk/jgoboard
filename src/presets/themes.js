@@ -256,32 +256,26 @@ const bwOverride = {
 };
 
 /** @type {Theme} */
-export const mediumKaya = deepFreeze(deepMerge({}, baseTheme));
+export const kayaMedium = deepFreeze(deepMerge({}, baseTheme));
 /** @type {Theme} */
-export const mediumWalnut = deepFreeze(deepMerge(baseTheme, walnutOverride));
+export const kayaLarge = deepFreeze(deepMerge(baseTheme, largeScale));
 /** @type {Theme} */
-export const mediumBW = deepFreeze(deepMerge(baseTheme, bwOverride));
-
+export const walnutMedium = deepFreeze(deepMerge(baseTheme, walnutOverride));
 /** @type {Theme} */
-export const largeKaya = deepFreeze(deepMerge(baseTheme, largeScale));
+export const walnutLarge = deepFreeze(deepMerge(deepMerge(baseTheme, largeScale), walnutOverrideLarge));
 /** @type {Theme} */
-export const largeWalnut = deepFreeze(deepMerge(deepMerge(baseTheme, largeScale), walnutOverrideLarge));
+export const bwMedium = deepFreeze(deepMerge(baseTheme, bwOverride));
 /** @type {Theme} */
-export const largeBW = deepFreeze(deepMerge(deepMerge(baseTheme, largeScale), bwOverride));
-
-/** @type {Theme} */
-export const kayaMedium = mediumKaya;
-/** @type {Theme} */
-export const kayaLarge = largeKaya;
+export const bwLarge = deepFreeze(deepMerge(deepMerge(baseTheme, largeScale), bwOverride));
 
 /** @type {Readonly<Record<string, Theme>>} */
 export const themesByName = Object.freeze({
-  'kaya-medium': mediumKaya,
-  'kaya-large': largeKaya,
-  'walnut-medium': mediumWalnut,
-  'walnut-large': largeWalnut,
-  'bw-medium': mediumBW,
-  'bw-large': largeBW,
+  'kaya-medium': kayaMedium,
+  'kaya-large': kayaLarge,
+  'walnut-medium': walnutMedium,
+  'walnut-large': walnutLarge,
+  'bw-medium': bwMedium,
+  'bw-large': bwLarge,
 });
 
 /**
@@ -290,7 +284,7 @@ export const themesByName = Object.freeze({
  */
 export function resolveTheme(themeInput) {
   if (!themeInput) {
-    return mediumKaya;
+    return kayaMedium;
   }
 
   if (typeof themeInput === 'string') {
@@ -301,5 +295,5 @@ export function resolveTheme(themeInput) {
     return named;
   }
 
-  return deepMerge(mediumKaya, themeInput);
+  return deepMerge(kayaMedium, themeInput);
 }

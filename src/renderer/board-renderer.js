@@ -139,6 +139,14 @@ const IMAGE_KEYS = ['black', 'white', 'shadow', 'board'];
 const LABEL_MARK_PATTERN = /^[a-zA-Z1-9]/;
 const IMAGE_CACHE = new Map();
 
+/**
+ * Clear the shared image cache used by all BoardRenderer instances.
+ * Useful in long-running applications to free memory.
+ */
+export function clearImageCache() {
+  IMAGE_CACHE.clear();
+}
+
 function hasDocument() {
   return typeof document !== 'undefined';
 }
