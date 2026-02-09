@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>jGoBoard v5 Player Demo</title>
+    <style>
+      :root {
+        font-family: "Avenir Next", "Segoe UI", sans-serif;
+        color: #2a2318;
+        background: radial-gradient(circle at 20% 8%, #f5ecd9 0%, #e4d1ab 62%, #cfb37f 100%);
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 1.2rem;
+      }
+
+      .layout {
+        max-width: 1120px;
+        margin: 0 auto;
+        display: grid;
+        gap: 1rem;
+      }
+
+      .panel {
+        background: rgba(255, 255, 255, 0.82);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 0.8rem;
+        box-shadow: 0 14px 28px rgba(0, 0, 0, 0.1);
+      }
+
+      .toolbar {
+        padding: 0.7rem 0.8rem;
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .toolbar button {
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 0.45rem;
+        background: white;
+        font: inherit;
+        padding: 0.4rem 0.6rem;
+        cursor: pointer;
+      }
+
+      .toolbar .hint {
+        font-size: 0.85rem;
+        color: #655641;
+      }
+
+      #player {
+        padding: 0.75rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="layout">
+      <div class="panel toolbar">
+        <button id="toggle-comments">Toggle Comments</button>
+        <button id="toggle-names">Toggle Names</button>
+        <button id="toggle-ranks">Toggle Ranks</button>
+        <span class="hint">Keyboard: left/right (moves), up/down (sibling variation)</span>
+      </div>
+      <div id="player" class="panel"></div>
+    </main>
+
+    <script type="module">
+      import { createPlayer } from './src/index.js';
+
+      const SAMPLE_SGF = `(;FF[4]GM[1]SZ[19]PB[Shusaku]BR[7d]PW[Honinbo Shuwa]WR[8d]C[Match opening]
+;B[pd]C[Black takes upper right.]
+;W[dp]
+(;B[qp]C[Main line.]
+;W[dd]C[White keeps balance.]
+;B[oq]
+;W[oc])
+(;B[od]C[Alternative variation.]
+;W[pq]
+;B[pp]C[Shape move.]))`;
+
+      const player = createPlayer('#player', {
+        sgf: SAMPLE_SGF,
+        theme: 'kaya-medium',
+        showComments: true,
+      });
+
+      document.getElementById('toggle-comments').addEventListener('click', () => {
+        player.setCommentsVisible(player.options.showComments === false);
+      });
+
+      document.getElementById('toggle-names').addEventListener('click', () => {
+        player.setPlayerNamesVisible(player.options.showPlayerNames === false);
+      });
+
+      document.getElementById('toggle-ranks').addEventListener('click', () => {
+        player.setPlayerRanksVisible(player.options.showPlayerRanks === false);
+      });
+
+      player.on('moveChange', ({ state }) => {
+        document.title = `jGoBoard v5 Player Demo - Move ${state.game.moveNumber}`;
+      });
+
+      await player.whenReady();
+    </script>
+  </body>
+</html>

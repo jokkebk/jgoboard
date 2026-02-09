@@ -144,6 +144,11 @@ Open any of the demo HTML files in a browser:
 - `demoSelect.html` - Board region selection
 - `demoRandom.html` - Random stone placement
 - `demoBlog.html` - Blog-style board embedding
+- `demoV5Renderer.html` - v5 renderer and themes
+- `demoV5Layers.html` - v5 overlays and layers
+- `demoV5Game.html` - v5 gameplay rules
+- `demoV5Tree.html` - v5 game tree and cursor
+- `demoV5Player.html` - v5 embeddable player
 
 Or run the development server to view them with hot reload:
 

@@ -39,6 +39,12 @@
       "import": "./dist/sgf.js",
       "require": "./dist/sgf.cjs",
       "default": "./dist/sgf.js"
+    },
+    "./player": {
+      "types": "./dist/player.d.ts",
+      "import": "./dist/player.js",
+      "require": "./dist/player.cjs",
+      "default": "./dist/player.js"
     }
   },
   "files": [
