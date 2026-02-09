@@ -1,4 +1,4 @@
-import { STONE, createCursor } from '../core/index.js';
+import { MARK, STONE, createCursor } from '../core/index.js';
 import { createRenderer } from '../renderer/index.js';
 import { gameTreeFromSgf } from '../sgf/index.js';
 
@@ -13,6 +13,8 @@ const DEFAULT_OPTIONS = Object.freeze({
   keyboard: true,
   playable: false,
   allowFileDrop: true,
+  showCurrentMoveMarker: true,
+  currentMoveMarker: MARK.CIRCLE,
   showPlayerNames: true,
   showPlayerRanks: true,
   showComments: true,
@@ -341,6 +343,15 @@ function readFileAsText(file) {
   });
 }
 
+function isMacLikePlatform() {
+  if (typeof navigator === 'undefined') {
+    return false;
+  }
+
+  const platform = navigator.userAgentData?.platform || navigator.platform || '';
+  return /Mac|iPhone|iPad|iPod/i.test(platform);
+}
+
 export class Player {
   constructor(target, options = {}) {
     const element = resolveTargetElement(target);
@@ -374,8 +385,12 @@ export class Player {
     this._createdRoot = false;
     this._resizeHandler = null;
     this._keydownHandler = null;
+    this._keyboardFocusHandler = null;
+    this._addedTabIndex = false;
     this._fileDropHandler = null;
     this._dragDepth = 0;
+    this._currentMoveMarker = null;
+    this._isMacLikePlatform = isMacLikePlatform();
 
     this.root = this._mountRoot(element);
     this._buildUi();
@@ -606,12 +621,23 @@ export class Player {
   }
 
   _wireKeyboard() {
-    if (!this.options.keyboard || typeof window === 'undefined') {
+    if (!this.options.keyboard || !hasDocument()) {
       return;
     }
 
+    if (!this.root.hasAttribute('tabindex')) {
+      this.root.setAttribute('tabindex', '0');
+      this._addedTabIndex = true;
+    }
+
+    this._keyboardFocusHandler = () => {
+      if (typeof this.root.focus === 'function') {
+        this.root.focus({ preventScroll: true });
+      }
+    };
+
     this._keydownHandler = (event) => {
-      if (this._destroyed || !this.root.contains(document.activeElement) && !this.root.contains(event.target)) {
+      if (this._destroyed) {
         return;
       }
 
@@ -619,31 +645,74 @@ export class Player {
         return;
       }
 
+      const primaryModifier = this._isMacLikePlatform ? event.metaKey : event.ctrlKey;
+
+      if (event.key === 'Home') {
+        event.preventDefault();
+        this.first();
+        return;
+      }
+
+      if (event.key === 'End') {
+        event.preventDefault();
+        this.last();
+        return;
+      }
+
       if (event.key === 'ArrowLeft') {
         event.preventDefault();
+        if (primaryModifier) {
+          this.first();
+          return;
+        }
+
+        if (event.shiftKey) {
+          this.prev(5);
+          return;
+        }
+
         this.prev();
         return;
       }
 
       if (event.key === 'ArrowRight') {
         event.preventDefault();
+        if (primaryModifier) {
+          this.last();
+          return;
+        }
+
+        if (event.shiftKey) {
+          this.next(5);
+          return;
+        }
+
         this.next();
         return;
       }
 
       if (event.key === 'ArrowUp') {
+        if (event.shiftKey || primaryModifier || event.altKey) {
+          return;
+        }
+
         event.preventDefault();
         this._switchSiblingVariation(-1);
         return;
       }
 
       if (event.key === 'ArrowDown') {
+        if (event.shiftKey || primaryModifier || event.altKey) {
+          return;
+        }
+
         event.preventDefault();
         this._switchSiblingVariation(1);
       }
     };
 
-    window.addEventListener('keydown', this._keydownHandler);
+    this.root.addEventListener('pointerdown', this._keyboardFocusHandler);
+    this.root.addEventListener('keydown', this._keydownHandler);
   }
 
   _wireResize() {
@@ -782,7 +851,60 @@ export class Player {
     this.ui.surface.style.width = `${Math.round(boardWidth)}px`;
   }
 
+  _clearCurrentMoveMarker() {
+    if (!this._currentMoveMarker || !this.cursor?.board) {
+      return;
+    }
+
+    const { vertex, previousMark, marker } = this._currentMoveMarker;
+
+    try {
+      const currentMark = this.cursor.board.getMark(vertex);
+      if (currentMark === marker) {
+        this.cursor.board.setMark(vertex, previousMark);
+      }
+    } catch {
+      this._currentMoveMarker = null;
+      return;
+    }
+
+    this._currentMoveMarker = null;
+  }
+
+  _updateCurrentMoveMarker() {
+    this._clearCurrentMoveMarker();
+
+    if (!this.options.showCurrentMoveMarker) {
+      return;
+    }
+
+    const marker =
+      typeof this.options.currentMoveMarker === 'string'
+        ? this.options.currentMoveMarker
+        : MARK.CIRCLE;
+    const currentNode = this.cursor.getCurrentNode();
+
+    if (!currentNode?.action || currentNode.action.type !== 'play' || !currentNode.action.vertex) {
+      return;
+    }
+
+    const vertex = currentNode.action.vertex;
+    const previousMark = this.cursor.board.getMark(vertex);
+
+    this._currentMoveMarker = {
+      vertex,
+      previousMark,
+      marker,
+    };
+
+    if (previousMark !== marker) {
+      this.cursor.board.setMark(vertex, marker);
+    }
+  }
+
   _applyLoadedTree(tree, options = {}) {
+    this._clearCurrentMoveMarker();
+
     this.tree = tree;
     this.cursor = createCursor(tree, {
       ...(options.nodeId ? { nodeId: options.nodeId } : {}),
@@ -841,6 +963,8 @@ export class Player {
   }
 
   _updateUi() {
+    this._updateCurrentMoveMarker();
+
     const state = this.cursor.getState();
     const currentNode = this.cursor.getCurrentNode();
     const comments = getFirstComment(currentNode.properties);
@@ -1098,6 +1222,12 @@ export class Player {
     return this;
   }
 
+  setCurrentMoveMarkerVisible(visible) {
+    this.options.showCurrentMoveMarker = visible !== false;
+    this._updateUi();
+    return this;
+  }
+
   gotoNode(nodeId) {
     const result = this.cursor.gotoNode(nodeId);
     if (!result.ok) {
@@ -1213,15 +1343,27 @@ export class Player {
       this._resizeHandler = null;
     }
 
-    if (this._keydownHandler && typeof window !== 'undefined') {
-      window.removeEventListener('keydown', this._keydownHandler);
+    if (this._keydownHandler) {
+      this.root.removeEventListener('keydown', this._keydownHandler);
       this._keydownHandler = null;
+    }
+
+    if (this._keyboardFocusHandler) {
+      this.root.removeEventListener('pointerdown', this._keyboardFocusHandler);
+      this._keyboardFocusHandler = null;
+    }
+
+    if (this._addedTabIndex) {
+      this.root.removeAttribute('tabindex');
+      this._addedTabIndex = false;
     }
 
     if (this._fileDropHandler) {
       this._fileDropHandler();
       this._fileDropHandler = null;
     }
+
+    this._clearCurrentMoveMarker();
 
     if (this.renderer) {
       this.renderer.destroy();

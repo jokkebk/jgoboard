@@ -65,9 +65,10 @@
         <button id="toggle-comments">Toggle Comments</button>
         <button id="toggle-names">Toggle Names</button>
         <button id="toggle-ranks">Toggle Ranks</button>
+        <button id="toggle-marker">Toggle Move Marker</button>
         <span class="hint">
-          Keyboard: left/right (moves), up/down (sibling variation). Drag and drop an SGF file on the
-          player to load.
+          Click player to focus. Arrow keys move, Shift+Left/Right jumps 5, Cmd/Ctrl+Left/Right
+          goes start/end, and Up/Down changes variation. Drag and drop an SGF file on the player to load.
         </span>
       </div>
       <div id="player" class="panel"></div>
@@ -107,6 +108,10 @@
 
       document.getElementById('toggle-ranks').addEventListener('click', () => {
         player.setPlayerRanksVisible(player.options.showPlayerRanks === false);
+      });
+
+      document.getElementById('toggle-marker').addEventListener('click', () => {
+        player.setCurrentMoveMarkerVisible(player.options.showCurrentMoveMarker === false);
       });
 
       player.on('moveChange', ({ state }) => {

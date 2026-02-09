@@ -31,6 +31,8 @@ await player.whenReady();
 - `showPlayerNames` (default `true`)
 - `showPlayerRanks` (default `true`)
 - `showComments` (default `true`)
+- `showCurrentMoveMarker` (default `true`)
+- `currentMoveMarker` (default `MARK.CIRCLE`)
 - `responsive` (default `true`)
 - `keyboard` (default `true`)
 - `playable` (default `false`) enables board-click play attempts
@@ -44,7 +46,14 @@ await player.whenReady();
 - Move number
 - Navigation: `|<`, `<<`, `<`, `>`, `>>`, `>|`
 - Variation up/down (enabled only when current node has siblings)
+- Keyboard (when player is focused):
+  - `Left/Right`: previous/next move
+  - `Shift+Left/Right`: back/forward 5 moves
+  - `Cmd+Left/Right` (macOS) or `Ctrl+Left/Right` (Windows/Linux): start/end
+  - `Home/End`: start/end
+  - `Up/Down`: previous/next sibling variation
 - Comments panel
+- Current move is marked with a circle by default
 - Drag and drop an SGF file over the player to replace the game
 
 ## Instance Methods
@@ -63,6 +72,7 @@ await player.whenReady();
 - `player.setCommentsVisible(boolean)`
 - `player.setPlayerNamesVisible(boolean)`
 - `player.setPlayerRanksVisible(boolean)`
+- `player.setCurrentMoveMarkerVisible(boolean)`
 - `player.destroy()`
 
 ## Events
