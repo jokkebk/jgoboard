@@ -33,6 +33,7 @@ await player.whenReady();
 - `showComments` (default `true`)
 - `showCurrentMoveMarker` (default `true`)
 - `currentMoveMarker` (default `MARK.CIRCLE`)
+- `resultDisplay` (`'comments' | 'top' | 'none'`, default `'comments'`)
 - `responsive` (default `true`)
 - `keyboard` (default `true`)
 - `playable` (default `false`) enables board-click play attempts
@@ -54,6 +55,7 @@ await player.whenReady();
   - `Up/Down`: previous/next sibling variation
 - Comments panel
 - Current move is marked with a circle by default
+- SGF result (`RE`) is shown automatically at terminal move (in comments by default)
 - Drag and drop an SGF file over the player to replace the game
 
 ## Instance Methods
@@ -73,6 +75,7 @@ await player.whenReady();
 - `player.setPlayerNamesVisible(boolean)`
 - `player.setPlayerRanksVisible(boolean)`
 - `player.setCurrentMoveMarkerVisible(boolean)`
+- `player.setResultDisplay('comments' | 'top' | 'none')`
 - `player.destroy()`
 
 ## Events

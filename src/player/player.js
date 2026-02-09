@@ -15,6 +15,7 @@ const DEFAULT_OPTIONS = Object.freeze({
   allowFileDrop: true,
   showCurrentMoveMarker: true,
   currentMoveMarker: MARK.CIRCLE,
+  resultDisplay: 'comments',
   showPlayerNames: true,
   showPlayerRanks: true,
   showComments: true,
@@ -85,6 +86,17 @@ const PLAYER_STYLE_CSS = `
   border-radius: 0.75rem;
   overflow: hidden;
   margin: 0 auto;
+}
+
+.jgo-player-result {
+  border: 1px solid rgba(86, 69, 39, 0.25);
+  border-radius: 0.55rem;
+  background: rgba(255, 251, 240, 0.98);
+  color: #3c3122;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.45rem 0.6rem;
+  text-align: center;
 }
 
 .jgo-player.jgo-player-drop-target .jgo-player-board {
@@ -242,6 +254,14 @@ function readProperty(properties, key) {
   return String(values[0] || '').trim();
 }
 
+function normalizeResultDisplay(value) {
+  if (value === 'top' || value === 'comments' || value === 'none') {
+    return value;
+  }
+
+  return 'comments';
+}
+
 function rootPlayerMeta(tree) {
   const root = tree.getNode(tree.rootId);
   const properties = root.properties || {};
@@ -251,6 +271,7 @@ function rootPlayerMeta(tree) {
     blackRank: readProperty(properties, 'BR'),
     whiteName: readProperty(properties, 'PW'),
     whiteRank: readProperty(properties, 'WR'),
+    result: readProperty(properties, 'RE'),
   };
 }
 
@@ -364,6 +385,7 @@ export class Player {
     ensurePlayerStyles();
 
     this.options = mergedOptions;
+    this.options.resultDisplay = normalizeResultDisplay(mergedOptions.resultDisplay);
     this.target = element;
     this.tree = tree;
     this.cursor = createCursor(tree, {
@@ -454,6 +476,10 @@ export class Player {
     const board = document.createElement('div');
     board.className = 'jgo-player-board';
 
+    const result = document.createElement('div');
+    result.className = 'jgo-player-result';
+    result.hidden = true;
+
     const controls = document.createElement('div');
     controls.className = 'jgo-player-controls';
 
@@ -498,13 +524,14 @@ export class Player {
     commentsBody.className = 'jgo-player-comments-body';
     comments.append(commentsTitle, commentsBody);
 
-    surface.append(head, board, controls, comments);
+    surface.append(head, result, board, controls, comments);
     this.root.append(surface);
 
     this.ui = {
       surface,
       black,
       white,
+      result,
       board,
       firstButton,
       backFiveButton,
@@ -968,6 +995,12 @@ export class Player {
     const state = this.cursor.getState();
     const currentNode = this.cursor.getCurrentNode();
     const comments = getFirstComment(currentNode.properties);
+    const hasResult = Boolean(this.meta.result);
+    const atTerminalMove = state.variations.length === 0 && state.game.moveNumber > 0;
+    const showResult = hasResult && atTerminalMove;
+    const resultDisplay = normalizeResultDisplay(this.options.resultDisplay);
+    const showResultTop = showResult && resultDisplay === 'top';
+    const showResultInComments = showResult && resultDisplay === 'comments';
 
     this._setPlayerDisplay(
       this.ui.black,
@@ -1004,8 +1037,20 @@ export class Player {
       ? `Variation ${siblingInfo.index + 1}/${siblingInfo.total}`
       : 'Variation 1/1';
 
-    this.ui.comments.hidden = !this.options.showComments;
-    this.ui.commentsBody.textContent = comments || 'No comments on this move.';
+    this.ui.result.hidden = !showResultTop;
+    this.ui.result.textContent = showResultTop ? `Result: ${this.meta.result}` : '';
+
+    const showCommentsPanel = this.options.showComments || showResultInComments;
+    this.ui.comments.hidden = !showCommentsPanel;
+
+    let commentText = this.options.showComments ? comments || 'No comments on this move.' : '';
+    if (showResultInComments) {
+      commentText = commentText
+        ? `Result: ${this.meta.result}\n\n${commentText}`
+        : `Result: ${this.meta.result}`;
+    }
+
+    this.ui.commentsBody.textContent = commentText;
   }
 
   _getSiblingInfo(state) {
@@ -1224,6 +1269,12 @@ export class Player {
 
   setCurrentMoveMarkerVisible(visible) {
     this.options.showCurrentMoveMarker = visible !== false;
+    this._updateUi();
+    return this;
+  }
+
+  setResultDisplay(mode = 'comments') {
+    this.options.resultDisplay = normalizeResultDisplay(mode);
     this._updateUi();
     return this;
   }

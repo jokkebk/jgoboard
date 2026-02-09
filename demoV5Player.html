@@ -66,6 +66,7 @@
         <button id="toggle-names">Toggle Names</button>
         <button id="toggle-ranks">Toggle Ranks</button>
         <button id="toggle-marker">Toggle Move Marker</button>
+        <button id="toggle-result-place">Result Top/Comments</button>
         <span class="hint">
           Click player to focus. Arrow keys move, Shift+Left/Right jumps 5, Cmd/Ctrl+Left/Right
           goes start/end, and Up/Down changes variation. Drag and drop an SGF file on the player to load.
@@ -77,7 +78,7 @@
     <script type="module">
       import { createPlayer } from './src/index.js';
 
-      const SAMPLE_SGF = `(;FF[4]GM[1]SZ[19]PB[Shusaku]BR[7d]PW[Honinbo Shuwa]WR[8d]C[Match opening]
+      const SAMPLE_SGF = `(;FF[4]GM[1]SZ[19]PB[Shusaku]BR[7d]PW[Honinbo Shuwa]WR[8d]RE[B+R]C[Match opening]
 ;B[pd]C[Black takes upper right.]
 ;W[dp]
 (;B[qp]C[Main line.]
@@ -112,6 +113,10 @@
 
       document.getElementById('toggle-marker').addEventListener('click', () => {
         player.setCurrentMoveMarkerVisible(player.options.showCurrentMoveMarker === false);
+      });
+
+      document.getElementById('toggle-result-place').addEventListener('click', () => {
+        player.setResultDisplay(player.options.resultDisplay === 'top' ? 'comments' : 'top');
       });
 
       player.on('moveChange', ({ state }) => {
