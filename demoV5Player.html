@@ -61,10 +61,14 @@
   <body>
     <main class="layout">
       <div class="panel toolbar">
+        <button id="open-file">Open SGF File</button>
         <button id="toggle-comments">Toggle Comments</button>
         <button id="toggle-names">Toggle Names</button>
         <button id="toggle-ranks">Toggle Ranks</button>
-        <span class="hint">Keyboard: left/right (moves), up/down (sibling variation)</span>
+        <span class="hint">
+          Keyboard: left/right (moves), up/down (sibling variation). Drag and drop an SGF file on the
+          player to load.
+        </span>
       </div>
       <div id="player" class="panel"></div>
     </main>
@@ -87,6 +91,10 @@
         sgf: SAMPLE_SGF,
         theme: 'kaya-medium',
         showComments: true,
+      });
+
+      document.getElementById('open-file').addEventListener('click', async () => {
+        await player.openFilePicker();
       });
 
       document.getElementById('toggle-comments').addEventListener('click', () => {

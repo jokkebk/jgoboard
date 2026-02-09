@@ -34,6 +34,7 @@ await player.whenReady();
 - `responsive` (default `true`)
 - `keyboard` (default `true`)
 - `playable` (default `false`) enables board-click play attempts
+- `allowFileDrop` (default `true`) enables drag-and-drop SGF loading over the player
 
 `createPlayer` requires one of `sgf`, `tree`, or `gameTree`.
 
@@ -44,11 +45,15 @@ await player.whenReady();
 - Navigation: `|<`, `<<`, `<`, `>`, `>>`, `>|`
 - Variation up/down (enabled only when current node has siblings)
 - Comments panel
+- Drag and drop an SGF file over the player to replace the game
 
 ## Instance Methods
 
 - `player.whenReady()`
 - `player.getState()`
+- `player.loadSgf(sgfText, options?)`
+- `player.loadFile(file, options?)`
+- `player.openFilePicker(options?)`
 - `player.gotoNode(nodeId)`
 - `player.first()`
 - `player.prev(count?)`
@@ -69,6 +74,8 @@ await player.whenReady();
 - `variationChange`
 - `playAttempt`
 - `illegalMove`
+- `sgfLoad`
+- `sgfLoadError`
 
 ## Notes
 

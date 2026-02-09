@@ -12,6 +12,7 @@ const DEFAULT_OPTIONS = Object.freeze({
   responsive: true,
   keyboard: true,
   playable: false,
+  allowFileDrop: true,
   showPlayerNames: true,
   showPlayerRanks: true,
   showComments: true,
@@ -23,15 +24,23 @@ const STYLE_ID = 'jgo-player-styles';
 const PLAYER_STYLE_CSS = `
 .jgo-player {
   display: grid;
-  gap: 0.75rem;
   font-family: "Avenir Next", "Segoe UI", sans-serif;
   color: #241f18;
+}
+
+.jgo-player-surface {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
+  display: grid;
+  gap: 0.75rem;
 }
 
 .jgo-player-head {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.5rem;
+  width: 100%;
 }
 
 .jgo-player-side {
@@ -49,6 +58,8 @@ const PLAYER_STYLE_CSS = `
   font-weight: 700;
   font-size: 0.95rem;
   line-height: 1.15;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .jgo-player-side-rank {
@@ -64,22 +75,48 @@ const PLAYER_STYLE_CSS = `
 }
 
 .jgo-player-board {
-  width: 100%;
+  width: max-content;
+  max-width: 100%;
   min-height: 240px;
   display: grid;
   place-items: center;
   border-radius: 0.75rem;
   overflow: hidden;
+  margin: 0 auto;
+}
+
+.jgo-player.jgo-player-drop-target .jgo-player-board {
+  position: relative;
+}
+
+.jgo-player.jgo-player-drop-active .jgo-player-board {
+  outline: 2px dashed rgba(112, 86, 49, 0.9);
+  outline-offset: -2px;
+}
+
+.jgo-player.jgo-player-drop-active .jgo-player-board::after {
+  content: 'Drop SGF file to load';
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(249, 244, 234, 0.85);
+  color: #3e3223;
+  font-weight: 600;
+  font-size: 0.95rem;
+  pointer-events: none;
 }
 
 .jgo-player-controls {
   display: grid;
   gap: 0.55rem;
+  width: 100%;
 }
 
 .jgo-player-row {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.35rem;
   flex-wrap: wrap;
 }
@@ -112,6 +149,8 @@ const PLAYER_STYLE_CSS = `
   border-radius: 0.6rem;
   background: #fffdf8;
   padding: 0.55rem 0.65rem;
+  width: 100%;
+  text-align: left;
 }
 
 .jgo-player-comments-title {
@@ -131,6 +170,10 @@ const PLAYER_STYLE_CSS = `
 
 @media (max-width: 640px) {
   .jgo-player {
+    gap: 0;
+  }
+
+  .jgo-player-surface {
     gap: 0.6rem;
   }
 
@@ -249,6 +292,55 @@ function safeUnsubscribe(unsubscribe) {
   }
 }
 
+function hasFilePayload(event) {
+  const dataTransfer = event?.dataTransfer;
+  if (!dataTransfer) {
+    return false;
+  }
+
+  if (Array.isArray(dataTransfer.types) && dataTransfer.types.includes('Files')) {
+    return true;
+  }
+
+  if (typeof dataTransfer.types?.contains === 'function' && dataTransfer.types.contains('Files')) {
+    return true;
+  }
+
+  return false;
+}
+
+function pickSgfFile(files) {
+  const list = Array.from(files || []);
+  if (list.length === 0) {
+    return null;
+  }
+
+  const namedMatch = list.find((file) => /\.sgf$/i.test(file.name || ''));
+  return namedMatch || list[0] || null;
+}
+
+function readFileAsText(file) {
+  if (!file) {
+    return Promise.reject(new Error('No file provided'));
+  }
+
+  if (typeof file.text === 'function') {
+    return file.text();
+  }
+
+  return new Promise((resolve, reject) => {
+    if (typeof FileReader === 'undefined') {
+      reject(new Error('FileReader is not available in this environment'));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Unable to read SGF file'));
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.readAsText(file);
+  });
+}
+
 export class Player {
   constructor(target, options = {}) {
     const element = resolveTargetElement(target);
@@ -273,6 +365,8 @@ export class Player {
       variationChange: new Set(),
       playAttempt: new Set(),
       illegalMove: new Set(),
+      sgfLoad: new Set(),
+      sgfLoadError: new Set(),
       ready: new Set(),
     };
     this._unsubscribers = [];
@@ -280,6 +374,8 @@ export class Player {
     this._createdRoot = false;
     this._resizeHandler = null;
     this._keydownHandler = null;
+    this._fileDropHandler = null;
+    this._dragDepth = 0;
 
     this.root = this._mountRoot(element);
     this._buildUi();
@@ -299,6 +395,7 @@ export class Player {
     this._wireControls();
     this._wireKeyboard();
     this._wireResize();
+    this._wireFileDrop();
 
     this._ready = this.renderer.whenReady().then(() => {
       if (this._destroyed) {
@@ -306,6 +403,7 @@ export class Player {
       }
 
       this.renderer.render();
+      this._syncSurfaceWidth();
       this._updateUi();
       this._emit('ready', {
         state: this.cursor.getState(),
@@ -328,6 +426,8 @@ export class Player {
 
   _buildUi() {
     this.root.textContent = '';
+    const surface = document.createElement('div');
+    surface.className = 'jgo-player-surface';
 
     const head = document.createElement('div');
     head.className = 'jgo-player-head';
@@ -383,9 +483,11 @@ export class Player {
     commentsBody.className = 'jgo-player-comments-body';
     comments.append(commentsTitle, commentsBody);
 
-    this.root.append(head, board, controls, comments);
+    surface.append(head, board, controls, comments);
+    this.root.append(surface);
 
     this.ui = {
+      surface,
       black,
       white,
       board,
@@ -552,6 +654,7 @@ export class Player {
     if (typeof ResizeObserver !== 'undefined') {
       const observer = new ResizeObserver(() => {
         this.renderer.render();
+        this._syncSurfaceWidth();
       });
 
       observer.observe(this.root);
@@ -562,6 +665,7 @@ export class Player {
     if (typeof window !== 'undefined') {
       const listener = () => {
         this.renderer.render();
+        this._syncSurfaceWidth();
       };
 
       window.addEventListener('resize', listener);
@@ -569,6 +673,82 @@ export class Player {
         window.removeEventListener('resize', listener);
       };
     }
+  }
+
+  _wireFileDrop() {
+    if (!this.options.allowFileDrop || !hasDocument()) {
+      return;
+    }
+
+    this.root.classList.add('jgo-player-drop-target');
+
+    const onDragEnter = (event) => {
+      if (!hasFilePayload(event)) {
+        return;
+      }
+
+      event.preventDefault();
+      this._dragDepth += 1;
+      this.root.classList.add('jgo-player-drop-active');
+    };
+
+    const onDragOver = (event) => {
+      if (!hasFilePayload(event)) {
+        return;
+      }
+
+      event.preventDefault();
+      if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = 'copy';
+      }
+    };
+
+    const onDragLeave = (event) => {
+      if (!hasFilePayload(event)) {
+        return;
+      }
+
+      event.preventDefault();
+      this._dragDepth = Math.max(0, this._dragDepth - 1);
+      if (this._dragDepth === 0) {
+        this.root.classList.remove('jgo-player-drop-active');
+      }
+    };
+
+    const onDrop = async (event) => {
+      if (!hasFilePayload(event)) {
+        return;
+      }
+
+      event.preventDefault();
+      this._dragDepth = 0;
+      this.root.classList.remove('jgo-player-drop-active');
+
+      const file = pickSgfFile(event.dataTransfer?.files);
+      if (!file) {
+        this._emit('sgfLoadError', {
+          source: 'drop',
+          error: new Error('No files found in drop payload'),
+        });
+        return;
+      }
+
+      await this.loadFile(file, { source: 'drop' });
+    };
+
+    this.root.addEventListener('dragenter', onDragEnter);
+    this.root.addEventListener('dragover', onDragOver);
+    this.root.addEventListener('dragleave', onDragLeave);
+    this.root.addEventListener('drop', onDrop);
+
+    this._fileDropHandler = () => {
+      this.root.removeEventListener('dragenter', onDragEnter);
+      this.root.removeEventListener('dragover', onDragOver);
+      this.root.removeEventListener('dragleave', onDragLeave);
+      this.root.removeEventListener('drop', onDrop);
+      this.root.classList.remove('jgo-player-drop-target');
+      this.root.classList.remove('jgo-player-drop-active');
+    };
   }
 
   _emit(event, payload) {
@@ -587,6 +767,31 @@ export class Player {
       source,
       state: this.cursor.getState(),
     });
+  }
+
+  _syncSurfaceWidth() {
+    if (!this.ui || !this.ui.surface || !this.ui.board) {
+      return;
+    }
+
+    const boardWidth = this.ui.board.getBoundingClientRect().width;
+    if (boardWidth <= 0) {
+      return;
+    }
+
+    this.ui.surface.style.width = `${Math.round(boardWidth)}px`;
+  }
+
+  _applyLoadedTree(tree, options = {}) {
+    this.tree = tree;
+    this.cursor = createCursor(tree, {
+      ...(options.nodeId ? { nodeId: options.nodeId } : {}),
+    });
+    this.meta = rootPlayerMeta(tree);
+    this.renderer.setBoard(this.cursor.board);
+    this.renderer.render();
+    this._syncSurfaceWidth();
+    this._updateUi();
   }
 
   _switchSiblingVariation(delta) {
@@ -713,9 +918,164 @@ export class Player {
     return this.cursor.getState();
   }
 
+  loadTree(tree, options = {}) {
+    try {
+      this._applyLoadedTree(tree, options);
+    } catch (error) {
+      this._emit('sgfLoadError', {
+        source: options.source || 'api',
+        fileName: options.fileName || null,
+        error,
+      });
+
+      return {
+        ok: false,
+        error,
+      };
+    }
+
+    this._emit('sgfLoad', {
+      source: options.source || 'api',
+      fileName: options.fileName || null,
+      state: this.cursor.getState(),
+    });
+
+    this._emitMoveChange('load');
+
+    return {
+      ok: true,
+      tree: this.tree,
+      state: this.cursor.getState(),
+    };
+  }
+
+  loadSgf(sgf, options = {}) {
+    let tree;
+
+    try {
+      tree = gameTreeFromSgf(sgf, options.sgfOptions || this.options.sgfOptions || {});
+    } catch (error) {
+      this._emit('sgfLoadError', {
+        source: options.source || 'api',
+        fileName: options.fileName || null,
+        error,
+      });
+
+      return {
+        ok: false,
+        error,
+      };
+    }
+
+    return this.loadTree(tree, options);
+  }
+
+  async loadFile(file, options = {}) {
+    let text;
+
+    try {
+      text = await readFileAsText(file);
+    } catch (error) {
+      this._emit('sgfLoadError', {
+        source: options.source || 'file',
+        fileName: file?.name || null,
+        error,
+      });
+
+      return {
+        ok: false,
+        error,
+      };
+    }
+
+    return this.loadSgf(text, {
+      ...options,
+      source: options.source || 'file',
+      fileName: options.fileName || file?.name || null,
+    });
+  }
+
+  async openFilePicker(options = {}) {
+    if (!hasDocument()) {
+      return {
+        ok: false,
+        error: new Error('openFilePicker requires a browser document'),
+      };
+    }
+
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.sgf,text/plain';
+    input.style.display = 'none';
+    document.body.appendChild(input);
+
+    return new Promise((resolve) => {
+      let settled = false;
+
+      const finish = (result) => {
+        if (settled) {
+          return;
+        }
+
+        settled = true;
+        if (input.parentNode) {
+          input.parentNode.removeChild(input);
+        }
+        resolve(result);
+      };
+
+      input.addEventListener(
+        'change',
+        async () => {
+          const file = pickSgfFile(input.files);
+
+          if (!file) {
+            finish({
+              ok: false,
+              error: new Error('No file selected'),
+            });
+            return;
+          }
+
+          const result = await this.loadFile(file, {
+            ...options,
+            source: options.source || 'picker',
+            fileName: options.fileName || file.name,
+          });
+
+          finish(result);
+        },
+        { once: true }
+      );
+
+      if (typeof window !== 'undefined') {
+        const onWindowFocus = () => {
+          window.setTimeout(() => {
+            if (settled) {
+              return;
+            }
+
+            const file = pickSgfFile(input.files);
+            if (!file) {
+              finish({
+                ok: false,
+                error: new Error('No file selected'),
+              });
+            }
+          }, 0);
+        };
+
+        window.addEventListener('focus', onWindowFocus, { once: true });
+      }
+
+      input.click();
+    });
+  }
+
   setTheme(theme) {
     this.options.theme = theme;
     this.renderer.setTheme(theme);
+    this._syncSurfaceWidth();
     this._updateUi();
     return this;
   }
@@ -856,6 +1216,11 @@ export class Player {
     if (this._keydownHandler && typeof window !== 'undefined') {
       window.removeEventListener('keydown', this._keydownHandler);
       this._keydownHandler = null;
+    }
+
+    if (this._fileDropHandler) {
+      this._fileDropHandler();
+      this._fileDropHandler = null;
     }
 
     if (this.renderer) {
