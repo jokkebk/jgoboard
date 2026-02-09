@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>jGoBoard Renderer Example</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 2rem;
+        background: #f5f0e4;
+      }
+      #board {
+        max-width: 600px;
+      }
+      .hint {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>jGoBoard Renderer</h1>
+    <p class="hint">Click intersections to cycle stones (empty → black → white → empty).</p>
+    <div id="board"></div>
+
+    <!--
+      CDN usage: load the UMD bundle from unpkg. This exposes the global `JGO`.
+      Replace @5 with a specific version like @5.0.0-alpha.0 to pin the version.
+    -->
+    <script src="https://unpkg.com/jgoboard@5/dist/jgoboard.umd.min.js"></script>
+    <script>
+      var board = JGO.createBoard({ size: 9 });
+      var renderer = JGO.createRenderer('#board', {
+        board: board,
+        theme: 'bw-medium',
+      });
+
+      // Place a few stones
+      board.setStone('E5', JGO.STONE.BLACK);
+      board.setStone('D5', JGO.STONE.WHITE);
+      board.setStone('E4', JGO.STONE.WHITE);
+      board.setStone('F5', JGO.STONE.BLACK);
+      board.setMark('E5', JGO.MARK.CIRCLE);
+
+      renderer.whenReady().then(function () {
+        renderer.render();
+      });
+
+      // Click to cycle stones
+      renderer.on('click', function (e) {
+        if (!e.vertex) return;
+        var stone = board.getStone(e.vertex);
+        if (stone === JGO.STONE.CLEAR) {
+          board.setStone(e.vertex, JGO.STONE.BLACK);
+        } else if (stone === JGO.STONE.BLACK) {
+          board.setStone(e.vertex, JGO.STONE.WHITE);
+        } else {
+          board.setStone(e.vertex, JGO.STONE.CLEAR);
+        }
+      });
+    </script>
+  </body>
+</html>

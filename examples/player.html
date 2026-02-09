@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>jGoBoard Player Example</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 2rem;
+        background: #f5f0e4;
+      }
+      #player {
+        max-width: 800px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>jGoBoard Player</h1>
+    <div id="player"></div>
+
+    <!--
+      CDN usage: load the UMD bundle from unpkg. This exposes the global `JGO`.
+      Replace @5 with a specific version like @5.0.0-alpha.0 to pin the version.
+    -->
+    <script src="https://unpkg.com/jgoboard@5/dist/jgoboard.umd.min.js"></script>
+    <script>
+      var SGF =
+        '(;FF[4]GM[1]SZ[19]PB[Shusaku]BR[7d]PW[Honinbo Shuwa]WR[8d]RE[B+R]' +
+        ';B[pd];W[dp]' +
+        '(;B[qp];W[dd];B[oq];W[oc])' +
+        '(;B[od];W[pq];B[pp]))';
+
+      // The bw-medium theme requires no texture images, so it works from any origin.
+      // For kaya-medium or walnut-medium themes, texture images must be hosted
+      // alongside the page or referenced via absolute URLs.
+      var player = JGO.createPlayer('#player', {
+        sgf: SGF,
+        theme: 'bw-medium',
+        showComments: true,
+      });
+
+      player.whenReady();
+    </script>
+  </body>
+</html>
