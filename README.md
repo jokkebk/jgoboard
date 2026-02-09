@@ -46,6 +46,7 @@ import { createPlayer } from 'jgoboard/player';
 - [GameTree + Cursor API](docs/game-tree.md)
 - [SGF API](docs/sgf.md)
 - [Player API](docs/player.md)
+- [Framework Integration (React, Vue, Svelte)](docs/framework-integration.md)
 - [Migration: v4 to v5](docs/migration-v4-to-v5.md)
 
 ## Demos
