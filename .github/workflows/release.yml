@@ -11,6 +11,7 @@ jobs:
 
     permissions:
       contents: write
+      id-token: write
 
     steps:
     - name: Checkout code
@@ -19,8 +20,9 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '22.x'
+        node-version: '24.x'
         cache: 'npm'
+        registry-url: 'https://registry.npmjs.org'
 
     - name: Install dependencies
       run: npm ci
@@ -53,3 +55,6 @@ jobs:
           - `index.d.ts` - Type definitions
 
           > **Note:** ESM and CJS builds are unminified intentionally. Modern bundlers (webpack, Rollup, Vite) will tree-shake and minify them automatically. Source maps enable debugging even with minified code.
+
+    - name: Publish to npm
+      run: npm publish --tag alpha --provenance
