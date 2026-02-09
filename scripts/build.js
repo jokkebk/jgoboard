@@ -49,11 +49,6 @@ async function buildSubpathBundles() {
         sourcemap: true,
         emptyOutDir: false,
         outDir: 'dist'
-      },
-      resolve: {
-        alias: {
-          '@': resolve(__dirname, '../JGO')
-        }
       }
     });
 
@@ -103,12 +98,7 @@ async function buildAll() {
           include: ['src/**/*.js'],
           tsconfigPath
         })
-      ],
-      resolve: {
-        alias: {
-          '@': resolve(__dirname, '../JGO')
-        }
-      }
+      ]
     });
 
     console.log('✅ ESM + CJS complete\n');
@@ -147,11 +137,6 @@ async function buildAll() {
         sourcemap: true,
         emptyOutDir: false,
         outDir: 'dist'
-      },
-      resolve: {
-        alias: {
-          '@': resolve(__dirname, '../JGO')
-        }
       }
     });
 

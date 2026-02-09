@@ -29,7 +29,7 @@ test('parseSgf strict mode rejects lowercase property identifiers', () => {
 });
 
 test('gameTreeFromSgf applies handicap setup from the SGF root', async () => {
-  const sgf = await readFile(resolve(__dirname, '../demo.sgf'), 'utf8');
+  const sgf = await readFile(resolve(__dirname, './fixtures/demo.sgf'), 'utf8');
   const tree = gameTreeFromSgf(sgf);
   const cursor = createCursor(tree);
 
