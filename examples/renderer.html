@@ -54,25 +54,13 @@
         renderer.render();
       });
 
-      function getEditorGhostStone(pointOrVertex) {
-        var stone = board.getStone(pointOrVertex);
-        if (stone === JGO.STONE.CLEAR) {
-          return JGO.STONE.BLACK;
-        }
-        return JGO.STONE.WHITE;
-      }
-
-      function updateGhost(pointOrVertex) {
-        if (!pointOrVertex) {
-          renderer.clearGhostStone();
-          return;
-        }
-
-        renderer.setGhostStone(pointOrVertex, getEditorGhostStone(pointOrVertex), {
-          onlyWhenClear: false,
-          replaceExisting: true,
-        });
-      }
+      renderer.enableHoverPreview({
+        stone: function (point) {
+          return board.getStone(point) === JGO.STONE.CLEAR ? JGO.STONE.BLACK : JGO.STONE.WHITE;
+        },
+        onlyWhenClear: false,
+        replaceExisting: true,
+      });
 
       // Click to cycle stones
       renderer.on('click', function (e) {
@@ -85,16 +73,6 @@
         } else {
           board.setStone(e.vertex, JGO.STONE.CLEAR);
         }
-
-        updateGhost(e.vertex);
-      });
-
-      renderer.on('mousemove', function (e) {
-        updateGhost(e.vertex);
-      });
-
-      renderer.on('mouseout', function () {
-        renderer.clearGhostStone();
       });
     </script>
   </body>

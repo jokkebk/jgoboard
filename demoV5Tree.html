@@ -291,8 +291,6 @@
         [STONE.BLACK]: 'Black',
         [STONE.WHITE]: 'White',
       };
-      let hoverPoint = null;
-
       function addLog(text) {
         const line = document.createElement('div');
         line.textContent = text;
@@ -364,7 +362,6 @@
         ui.gotoId.value = state.currentNodeId;
 
         renderVariations(state);
-        updateMovePreview(hoverPoint);
       }
 
       function playAt(vertex) {
@@ -494,35 +491,16 @@
         updateUI();
       }
 
-      function updateMovePreview(point) {
-        if (!point) {
-          renderer.clearGhostStone();
-          return;
-        }
+      renderer.enableHoverPreview({
+        stone: () => cursor.game.currentPlayer,
+      });
 
-        const currentPlayer = cursor.getState().game.currentPlayer;
-        renderer.setGhostStone(point, currentPlayer, {
-          onlyWhenClear: true,
-        });
-      }
-
-      renderer.on('click', ({ point, vertex }) => {
+      renderer.on('click', ({ vertex }) => {
         if (!vertex) {
           return;
         }
 
-        hoverPoint = point;
         playAt(vertex);
-      });
-
-      renderer.on('mousemove', ({ point }) => {
-        hoverPoint = point;
-        updateMovePreview(hoverPoint);
-      });
-
-      renderer.on('mouseout', () => {
-        hoverPoint = null;
-        renderer.clearGhostStone();
       });
 
       document.getElementById('theme').addEventListener('change', (event) => {

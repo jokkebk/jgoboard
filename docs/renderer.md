@@ -51,7 +51,8 @@ Built-in layers:
 3. `stones`
 4. `markers`
 5. `labels`
-6. `overlay`
+6. `ghost`
+7. `overlay`
 
 Custom layers can use higher `zIndex` values to render above all built-ins.
 
@@ -77,6 +78,8 @@ Custom layers can use higher `zIndex` values to render above all built-ins.
 - `renderer.setBoard(board)`
 - `renderer.setGhostStone(pointOrVertex, stone, { onlyWhenClear, replaceExisting })`
 - `renderer.clearGhostStone()`
+- `renderer.enableHoverPreview({ stone, onlyWhenClear, replaceExisting })`
+- `renderer.disableHoverPreview()`
 - `renderer.on('click'|'mousemove'|'mouseout', handler)`
 - `renderer.toDataURL({ format, scale, quality })`
 - `renderer.toBlob({ format, scale, quality })`
@@ -109,32 +112,40 @@ Layer controls:
 
 ## Ghost Stone Preview
 
-Use a transient ghost stone for hover previews without mutating board state.
+Use `enableHoverPreview` for one-line hover preview setup. The `stone` callback
+receives the hovered point and returns the stone color to show (or `null` to
+hide the ghost). The ghost auto-clears whenever the board changes.
 
 ```js
-renderer.on('mousemove', ({ point }) => {
-  if (!point) {
-    renderer.clearGhostStone();
-    return;
-  }
-
-  renderer.setGhostStone(point, STONE.BLACK, {
-    onlyWhenClear: true, // hidden on occupied intersections
-  });
+// Game-play preview: show the current player's stone on empty points
+renderer.enableHoverPreview({
+  stone: () => game.currentPlayer,
 });
 
-renderer.on('mouseout', () => {
-  renderer.clearGhostStone();
-});
-```
-
-For editor-like cycling previews on occupied points:
-
-```js
-renderer.setGhostStone(point, STONE.WHITE, {
+// Editor preview: show next cycling color, replacing existing stones visually
+renderer.enableHoverPreview({
+  stone: (point) => board.getStone(point) === STONE.CLEAR ? STONE.BLACK : STONE.WHITE,
   onlyWhenClear: false,
   replaceExisting: true,
 });
+
+// Disable and clean up
+renderer.disableHoverPreview();
+```
+
+Options:
+- `stone(point)` — required callback returning `STONE.BLACK`, `STONE.WHITE`, or `null`
+- `onlyWhenClear` — hide on occupied intersections (default `true`)
+- `replaceExisting` — visually replace existing stones (default `false`)
+
+### Low-level API
+
+For advanced use cases, `setGhostStone` / `clearGhostStone` give direct
+control. The ghost auto-clears on any board mutation.
+
+```js
+renderer.setGhostStone(point, STONE.BLACK, { onlyWhenClear: true });
+renderer.clearGhostStone();
 ```
 
 Stone variants:

@@ -77,55 +77,33 @@
         renderer.render();
       });
 
-      function updateMovePreview(pointOrVertex) {
-        if (!pointOrVertex) {
-          renderer.clearGhostStone();
-          return;
-        }
-
-        renderer.setGhostStone(pointOrVertex, game.currentPlayer, {
-          onlyWhenClear: true,
-        });
-      }
+      renderer.enableHoverPreview({
+        stone: function () {
+          return game.currentPlayer;
+        },
+      });
 
       renderer.on('click', function (e) {
         if (!e.vertex) return;
         var result = game.play(e.vertex);
         if (result.ok) updateStatus();
-        updateMovePreview(e.vertex);
-      });
-
-      renderer.on('mousemove', function (e) {
-        updateMovePreview(e.vertex);
-      });
-
-      renderer.on('mouseout', function () {
-        renderer.clearGhostStone();
       });
 
       document.getElementById('pass').addEventListener('click', function () {
         game.pass();
-        renderer.clearGhostStone();
         updateStatus();
       });
 
       document.getElementById('undo').addEventListener('click', function () {
-        if (game.undo().ok) {
-          renderer.clearGhostStone();
-          updateStatus();
-        }
+        if (game.undo().ok) updateStatus();
       });
 
       document.getElementById('redo').addEventListener('click', function () {
-        if (game.redo().ok) {
-          renderer.clearGhostStone();
-          updateStatus();
-        }
+        if (game.redo().ok) updateStatus();
       });
 
       document.getElementById('reset').addEventListener('click', function () {
         game.reset();
-        renderer.clearGhostStone();
         updateStatus();
       });
     </script>

@@ -115,6 +115,13 @@ import { StonePainter } from './stone-painter.js';
  */
 
 /**
+ * @typedef {object} HoverPreviewConfig
+ * @property {(point: Point) => number | null | undefined} stone
+ * @property {boolean} [onlyWhenClear]
+ * @property {boolean} [replaceExisting]
+ */
+
+/**
  * @typedef {object} BoardRendererOptions
  * @property {BoardState} [board]
  * @property {ThemeInput} [theme]
@@ -438,6 +445,8 @@ export class BoardRenderer {
     };
     /** @type {GhostStoneState | null} */
     this._ghostStone = null;
+    /** @type {{ unsubscribe: () => void } | null} */
+    this._hoverPreview = null;
 
     this._installDefaultLayers();
 
@@ -504,6 +513,7 @@ export class BoardRenderer {
 
     if (board && typeof board.onChange === 'function') {
       this._boardUnsubscribe = board.onChange(() => {
+        this._ghostStone = null;
         this.render();
       });
     }
@@ -786,6 +796,59 @@ export class BoardRenderer {
 
     this._ghostStone = null;
     this.render();
+    return this;
+  }
+
+  /**
+   * @param {HoverPreviewConfig} config
+   * @returns {BoardRenderer}
+   */
+  enableHoverPreview(config = {}) {
+    this.disableHoverPreview();
+
+    const stoneFn = config.stone;
+    const onlyWhenClear = config.onlyWhenClear !== false;
+    const replaceExisting = config.replaceExisting === true;
+
+    const unsubMove = this.on('mousemove', ({ point }) => {
+      if (!point) {
+        this.clearGhostStone();
+        return;
+      }
+
+      const stone = stoneFn(point);
+      if (stone == null || stone === STONE.CLEAR) {
+        this.clearGhostStone();
+        return;
+      }
+
+      this.setGhostStone(point, stone, { onlyWhenClear, replaceExisting });
+    });
+
+    const unsubOut = this.on('mouseout', () => {
+      this.clearGhostStone();
+    });
+
+    this._hoverPreview = {
+      unsubscribe: () => {
+        unsubMove();
+        unsubOut();
+      },
+    };
+
+    return this;
+  }
+
+  /**
+   * @returns {BoardRenderer}
+   */
+  disableHoverPreview() {
+    if (this._hoverPreview) {
+      this._hoverPreview.unsubscribe();
+      this._hoverPreview = null;
+      this.clearGhostStone();
+    }
+
     return this;
   }
 
@@ -1157,6 +1220,12 @@ export class BoardRenderer {
     const x = frame.geometry.gridLeft + (point.x - frame.viewport.xOffset) * frame.theme.grid.x;
     const y = frame.geometry.gridTop + (point.y - frame.viewport.yOffset) * frame.theme.grid.y;
 
+    this.stones.drawShadow(
+      ctx,
+      x + frame.theme.shadow.xOff,
+      y + frame.theme.shadow.yOff,
+      frame.assets
+    );
     ctx.globalAlpha = frame.theme.stone.dimAlpha;
     this.stones.drawStone(ctx, stone, x, y, frame.assets);
     ctx.globalAlpha = 1;
@@ -1394,6 +1463,11 @@ export class BoardRenderer {
    * @returns {void}
    */
   destroy() {
+    if (this._hoverPreview) {
+      this._hoverPreview.unsubscribe();
+      this._hoverPreview = null;
+    }
+
     if (this._boardUnsubscribe) {
       this._boardUnsubscribe();
       this._boardUnsubscribe = null;

@@ -284,32 +284,16 @@
         updateUI();
       }
 
-      function updateMovePreview(point) {
-        if (!point) {
-          renderer.clearGhostStone();
-          return;
-        }
+      renderer.enableHoverPreview({
+        stone: () => game.currentPlayer,
+      });
 
-        renderer.setGhostStone(point, game.currentPlayer, {
-          onlyWhenClear: true,
-        });
-      }
-
-      renderer.on('click', ({ point, vertex }) => {
+      renderer.on('click', ({ vertex }) => {
         if (!vertex) {
           return;
         }
 
         handlePlay(vertex);
-        updateMovePreview(point);
-      });
-
-      renderer.on('mousemove', ({ point }) => {
-        updateMovePreview(point);
-      });
-
-      renderer.on('mouseout', () => {
-        renderer.clearGhostStone();
       });
 
       document.getElementById('theme').addEventListener('change', (event) => {
@@ -319,7 +303,6 @@
       document.getElementById('pass').addEventListener('click', () => {
         const player = labels[game.currentPlayer];
         game.pass();
-        renderer.clearGhostStone();
         addLog(`${player} pass`);
         refreshMarkers();
         updateUI();
@@ -331,7 +314,6 @@
           return;
         }
 
-        renderer.clearGhostStone();
         addLog('undo');
         refreshMarkers();
         updateUI();
@@ -343,7 +325,6 @@
           return;
         }
 
-        renderer.clearGhostStone();
         addLog('redo');
         refreshMarkers();
         updateUI();
@@ -351,7 +332,6 @@
 
       document.getElementById('reset').addEventListener('click', () => {
         game.reset();
-        renderer.clearGhostStone();
         ui.log.textContent = '';
         addLog('reset');
         refreshMarkers();
