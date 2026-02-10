@@ -15,7 +15,7 @@ npm install jgoboard
 Global `JGO` (UMD):
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/jgoboard@5.0.0/dist/jgoboard.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jgoboard@5/dist/jgoboard.umd.min.js"></script>
 <script>
   const game = JGO.createGame({ size: 9 });
 </script>
@@ -25,7 +25,7 @@ Module import (ESM):
 
 ```html
 <script type="module">
-  import { createGame } from 'https://cdn.jsdelivr.net/npm/jgoboard@5.0.0/dist/jgoboard.js';
+  import { createGame } from 'https://cdn.jsdelivr.net/npm/jgoboard@5/dist/jgoboard.js';
   const game = createGame({ size: 9 });
 </script>
 ```

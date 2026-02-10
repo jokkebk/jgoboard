@@ -1,6 +1,6 @@
 {
   "name": "jgoboard",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "jGoBoard javascript go board library",
   "type": "module",
   "main": "./dist/jgoboard.cjs",
