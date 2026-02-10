@@ -32,6 +32,12 @@ test('setStone: set and read back', () => {
   assert.equal(board.getStone({ x: 0, y: 0 }), STONE.BLACK);
 });
 
+test('setStone: accepts ghost aliases', () => {
+  const board = createBoard({ size: 9 });
+  board.setStone({ x: 0, y: 0 }, STONE.GHOST_BLACK);
+  assert.equal(board.getStone({ x: 0, y: 0 }), STONE.GHOST_BLACK);
+});
+
 test('setStone: returns false when value unchanged', () => {
   const board = createBoard({ size: 9 });
   board.setStone({ x: 0, y: 0 }, STONE.BLACK);

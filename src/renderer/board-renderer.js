@@ -1,4 +1,4 @@
-import { COORDINATE_LETTERS, STONE, formatVertex, normalizeViewport } from '../core/index.js';
+import { COORDINATE_LETTERS, STONE, formatVertex, normalizePoint, normalizeViewport } from '../core/index.js';
 import { resolveTheme } from '../presets/themes.js';
 import { deepMerge } from '../shared/deep-merge.js';
 import { LayerRegistry } from './layer-registry.js';
@@ -98,6 +98,20 @@ import { StonePainter } from './stone-painter.js';
  * @property {MouseEvent} event
  * @property {Point | null} [point]
  * @property {string | null} [vertex]
+ */
+
+/**
+ * @typedef {object} GhostStoneOptions
+ * @property {boolean} [onlyWhenClear]
+ * @property {boolean} [replaceExisting]
+ */
+
+/**
+ * @typedef {object} GhostStoneState
+ * @property {Point} point
+ * @property {number} stone
+ * @property {boolean} onlyWhenClear
+ * @property {boolean} replaceExisting
  */
 
 /**
@@ -332,11 +346,11 @@ function resolveStarMeta(boardWidth, boardHeight, stars) {
  * @returns {string}
  */
 function resolveMarkColor(theme, stone) {
-  if (stone === STONE.BLACK || stone === STONE.DIM_BLACK) {
+  if (stone === STONE.BLACK || stone === STONE.GHOST_BLACK) {
     return theme.mark.blackColor;
   }
 
-  if (stone === STONE.WHITE || stone === STONE.DIM_WHITE) {
+  if (stone === STONE.WHITE || stone === STONE.GHOST_WHITE) {
     return theme.mark.whiteColor;
   }
 
@@ -355,6 +369,18 @@ function resolveInteractionOptions(interactions) {
   return {
     enabled: interactions.enabled !== false,
   };
+}
+
+function normalizeGhostStone(stone) {
+  if (stone === STONE.BLACK || stone === STONE.GHOST_BLACK) {
+    return STONE.GHOST_BLACK;
+  }
+
+  if (stone === STONE.WHITE || stone === STONE.GHOST_WHITE) {
+    return STONE.GHOST_WHITE;
+  }
+
+  return null;
 }
 
 export class BoardRenderer {
@@ -410,6 +436,8 @@ export class BoardRenderer {
       mousemove: new Set(),
       mouseout: new Set(),
     };
+    /** @type {GhostStoneState | null} */
+    this._ghostStone = null;
 
     this._installDefaultLayers();
 
@@ -527,6 +555,20 @@ export class BoardRenderer {
         vertex: point ? formatVertex(point, this.board.height) : null,
       });
     }
+  }
+
+  /**
+   * @param {Point | string} pointOrVertex
+   * @returns {Point}
+   */
+  _resolveBoardPoint(pointOrVertex) {
+    const point = normalizePoint(pointOrVertex, this.board.height);
+
+    if (point.x < 0 || point.y < 0 || point.x >= this.board.width || point.y >= this.board.height) {
+      throw new Error(`ghost stone point (${point.x}, ${point.y}) is out of board bounds`);
+    }
+
+    return point;
   }
 
   /**
@@ -682,7 +724,67 @@ export class BoardRenderer {
     }
 
     this.board = board;
+    if (this._ghostStone) {
+      const { point } = this._ghostStone;
+      if (point.x >= board.width || point.y >= board.height) {
+        this._ghostStone = null;
+      }
+    }
+
     this._bindBoard(board);
+    this.render();
+    return this;
+  }
+
+  /**
+   * @param {Point | string | null | undefined} pointOrVertex
+   * @param {number | string | null | undefined} stone
+   * @param {GhostStoneOptions} [options]
+   * @returns {BoardRenderer}
+   */
+  setGhostStone(pointOrVertex, stone, options = {}) {
+    if (pointOrVertex == null || stone == null || stone === STONE.CLEAR) {
+      return this.clearGhostStone();
+    }
+
+    const normalizedStone = normalizeGhostStone(stone);
+    if (normalizedStone === null) {
+      throw new Error('setGhostStone requires a black or white stone variant');
+    }
+
+    const point = this._resolveBoardPoint(pointOrVertex);
+    const onlyWhenClear = options.onlyWhenClear !== false;
+    const replaceExisting = options.replaceExisting === true;
+    if (
+      this._ghostStone &&
+      this._ghostStone.point.x === point.x &&
+      this._ghostStone.point.y === point.y &&
+      this._ghostStone.stone === normalizedStone &&
+      this._ghostStone.onlyWhenClear === onlyWhenClear &&
+      this._ghostStone.replaceExisting === replaceExisting
+    ) {
+      return this;
+    }
+
+    this._ghostStone = {
+      point,
+      stone: normalizedStone,
+      onlyWhenClear,
+      replaceExisting,
+    };
+    this.render();
+    return this;
+  }
+
+  /**
+   * @returns {BoardRenderer}
+   */
+  clearGhostStone() {
+    if (!this._ghostStone) {
+      return this;
+    }
+
+    this._ghostStone = null;
     this.render();
     return this;
   }
@@ -958,6 +1060,14 @@ export class BoardRenderer {
    * @returns {void}
    */
   _drawStonesLayer(ctx, frame) {
+    const ghostStone = this._ghostStone;
+    const hasReplaceGhost = Boolean(
+      ghostStone &&
+        ghostStone.replaceExisting &&
+        ghostStone.point &&
+        (!ghostStone.onlyWhenClear || frame.board.getStone(ghostStone.point) === STONE.CLEAR)
+    );
+
     const bounds = {
       x1: frame.viewport.xOffset,
       y1: frame.viewport.yOffset,
@@ -967,6 +1077,10 @@ export class BoardRenderer {
 
     frame.board.each(
       (point, intersection) => {
+        if (hasReplaceGhost && point.x === ghostStone.point.x && point.y === ghostStone.point.y) {
+          return;
+        }
+
         if (intersection.stone !== STONE.BLACK && intersection.stone !== STONE.WHITE) {
           return;
         }
@@ -986,11 +1100,15 @@ export class BoardRenderer {
 
     frame.board.each(
       (point, intersection) => {
+        if (hasReplaceGhost && point.x === ghostStone.point.x && point.y === ghostStone.point.y) {
+          return;
+        }
+
         if (
           intersection.stone !== STONE.BLACK &&
           intersection.stone !== STONE.WHITE &&
-          intersection.stone !== STONE.DIM_BLACK &&
-          intersection.stone !== STONE.DIM_WHITE
+          intersection.stone !== STONE.GHOST_BLACK &&
+          intersection.stone !== STONE.GHOST_WHITE
         ) {
           return;
         }
@@ -998,7 +1116,7 @@ export class BoardRenderer {
         const x = frame.geometry.gridLeft + (point.x - frame.viewport.xOffset) * frame.theme.grid.x;
         const y = frame.geometry.gridTop + (point.y - frame.viewport.yOffset) * frame.theme.grid.y;
 
-        if (intersection.stone === STONE.DIM_BLACK || intersection.stone === STONE.DIM_WHITE) {
+        if (intersection.stone === STONE.GHOST_BLACK || intersection.stone === STONE.GHOST_WHITE) {
           ctx.globalAlpha = frame.theme.stone.dimAlpha;
         } else {
           ctx.globalAlpha = 1;
@@ -1009,6 +1127,39 @@ export class BoardRenderer {
       },
       bounds
     );
+  }
+
+  /**
+   * @param {Canvas2DContext} ctx
+   * @param {RenderFrame} frame
+   * @returns {void}
+   */
+  _drawGhostLayer(ctx, frame) {
+    if (!this._ghostStone) {
+      return;
+    }
+
+    const { point, stone, onlyWhenClear } = this._ghostStone;
+
+    if (
+      point.x < frame.viewport.xOffset ||
+      point.x >= frame.viewport.xOffset + frame.viewport.width ||
+      point.y < frame.viewport.yOffset ||
+      point.y >= frame.viewport.yOffset + frame.viewport.height
+    ) {
+      return;
+    }
+
+    if (onlyWhenClear && frame.board.getStone(point) !== STONE.CLEAR) {
+      return;
+    }
+
+    const x = frame.geometry.gridLeft + (point.x - frame.viewport.xOffset) * frame.theme.grid.x;
+    const y = frame.geometry.gridTop + (point.y - frame.viewport.yOffset) * frame.theme.grid.y;
+
+    ctx.globalAlpha = frame.theme.stone.dimAlpha;
+    this.stones.drawStone(ctx, stone, x, y, frame.assets);
+    ctx.globalAlpha = 1;
   }
 
   /**
@@ -1137,6 +1288,11 @@ export class BoardRenderer {
     this.layers.add('labels', {
       zIndex: 50,
       draw: this._drawLabelsLayer,
+    });
+
+    this.layers.add('ghost', {
+      zIndex: 55,
+      draw: this._drawGhostLayer,
     });
 
     this.layers.add('overlay', {

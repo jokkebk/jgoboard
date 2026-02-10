@@ -147,7 +147,8 @@
       <aside class="panel controls">
         <h1>v5 Game Mechanics</h1>
         <div class="hint">
-          Click an intersection to play. Illegal moves (occupied, ko, suicide) are blocked by the rules engine.
+          Hover previews the current player move. Click an intersection to play. Illegal moves
+          (occupied, ko, suicide) are blocked by the rules engine.
         </div>
 
         <div class="stats">
@@ -283,12 +284,32 @@
         updateUI();
       }
 
-      renderer.on('click', ({ vertex }) => {
+      function updateMovePreview(point) {
+        if (!point) {
+          renderer.clearGhostStone();
+          return;
+        }
+
+        renderer.setGhostStone(point, game.currentPlayer, {
+          onlyWhenClear: true,
+        });
+      }
+
+      renderer.on('click', ({ point, vertex }) => {
         if (!vertex) {
           return;
         }
 
         handlePlay(vertex);
+        updateMovePreview(point);
+      });
+
+      renderer.on('mousemove', ({ point }) => {
+        updateMovePreview(point);
+      });
+
+      renderer.on('mouseout', () => {
+        renderer.clearGhostStone();
       });
 
       document.getElementById('theme').addEventListener('change', (event) => {
@@ -298,6 +319,7 @@
       document.getElementById('pass').addEventListener('click', () => {
         const player = labels[game.currentPlayer];
         game.pass();
+        renderer.clearGhostStone();
         addLog(`${player} pass`);
         refreshMarkers();
         updateUI();
@@ -309,6 +331,7 @@
           return;
         }
 
+        renderer.clearGhostStone();
         addLog('undo');
         refreshMarkers();
         updateUI();
@@ -320,6 +343,7 @@
           return;
         }
 
+        renderer.clearGhostStone();
         addLog('redo');
         refreshMarkers();
         updateUI();
@@ -327,6 +351,7 @@
 
       document.getElementById('reset').addEventListener('click', () => {
         game.reset();
+        renderer.clearGhostStone();
         ui.log.textContent = '';
         addLog('reset');
         refreshMarkers();

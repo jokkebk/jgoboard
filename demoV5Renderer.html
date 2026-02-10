@@ -83,7 +83,10 @@
     <div class="layout">
       <aside class="panel controls">
         <h1>v5 Renderer</h1>
-        <p class="hint">Click board intersections to cycle stones. Shift+click toggles marker labels.</p>
+        <p class="hint">
+          Hover previews the next stone. Click intersections to cycle stones. Shift+click toggles marker
+          labels.
+        </p>
 
         <div class="row">
           <label for="theme">Theme</label>
@@ -140,6 +143,28 @@
       await renderer.whenReady();
       renderer.render();
 
+      function getEditorGhostStone(point) {
+        const stone = board.getStone(point);
+
+        if (stone === STONE.CLEAR) {
+          return STONE.BLACK;
+        }
+
+        return STONE.WHITE;
+      }
+
+      function updateGhost(point) {
+        if (!point) {
+          renderer.clearGhostStone();
+          return;
+        }
+
+        renderer.setGhostStone(point, getEditorGhostStone(point), {
+          onlyWhenClear: false,
+          replaceExisting: true,
+        });
+      }
+
       renderer.on('click', ({ point, event }) => {
         if (!point) {
           return;
@@ -148,6 +173,7 @@
         if (event.shiftKey) {
           const currentMark = board.getMark(point);
           board.setMark(point, currentMark ? MARK.NONE : '1');
+          updateGhost(point);
           return;
         }
 
@@ -160,6 +186,16 @@
         } else {
           board.setStone(point, STONE.CLEAR);
         }
+
+        updateGhost(point);
+      });
+
+      renderer.on('mousemove', ({ point }) => {
+        updateGhost(point);
+      });
+
+      renderer.on('mouseout', () => {
+        renderer.clearGhostStone();
       });
 
       const themeSelect = document.getElementById('theme');
@@ -186,6 +222,7 @@
       });
 
       document.getElementById('reset').addEventListener('click', () => {
+        renderer.clearGhostStone();
         resetPosition();
         renderer.render();
       });

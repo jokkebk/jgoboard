@@ -39,15 +39,15 @@ export class StonePainter {
    */
   drawStone(ctx, stone, x, y, assets, scale = 1) {
     const texture =
-      stone === STONE.BLACK || stone === STONE.DIM_BLACK ? assets.black : assets.white;
+      stone === STONE.BLACK || stone === STONE.GHOST_BLACK ? assets.black : assets.white;
 
     if (!texture) {
-      ctx.fillStyle = stone === STONE.WHITE || stone === STONE.DIM_WHITE ? '#ffffff' : '#000000';
+      ctx.fillStyle = stone === STONE.WHITE || stone === STONE.GHOST_WHITE ? '#ffffff' : '#000000';
       ctx.beginPath();
       ctx.arc(x, y, this.stoneRadius * scale, 0, Math.PI * 2, false);
       ctx.fill();
 
-      if (stone === STONE.WHITE || stone === STONE.DIM_WHITE) {
+      if (stone === STONE.WHITE || stone === STONE.GHOST_WHITE) {
         ctx.strokeStyle = '#000000';
         ctx.stroke();
       }

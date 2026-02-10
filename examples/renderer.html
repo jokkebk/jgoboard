@@ -22,7 +22,7 @@
   </head>
   <body>
     <h1>jGoBoard Renderer</h1>
-    <p class="hint">Click intersections to cycle stones (empty → black → white → empty).</p>
+    <p class="hint">Hover previews the next stone. Click intersections to cycle stones (empty → black → white → empty).</p>
     <div id="board"></div>
 
     <!--
@@ -54,6 +54,26 @@
         renderer.render();
       });
 
+      function getEditorGhostStone(pointOrVertex) {
+        var stone = board.getStone(pointOrVertex);
+        if (stone === JGO.STONE.CLEAR) {
+          return JGO.STONE.BLACK;
+        }
+        return JGO.STONE.WHITE;
+      }
+
+      function updateGhost(pointOrVertex) {
+        if (!pointOrVertex) {
+          renderer.clearGhostStone();
+          return;
+        }
+
+        renderer.setGhostStone(pointOrVertex, getEditorGhostStone(pointOrVertex), {
+          onlyWhenClear: false,
+          replaceExisting: true,
+        });
+      }
+
       // Click to cycle stones
       renderer.on('click', function (e) {
         if (!e.vertex) return;
@@ -65,6 +85,16 @@
         } else {
           board.setStone(e.vertex, JGO.STONE.CLEAR);
         }
+
+        updateGhost(e.vertex);
+      });
+
+      renderer.on('mousemove', function (e) {
+        updateGhost(e.vertex);
+      });
+
+      renderer.on('mouseout', function () {
+        renderer.clearGhostStone();
       });
     </script>
   </body>

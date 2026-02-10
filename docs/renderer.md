@@ -75,6 +75,8 @@ Custom layers can use higher `zIndex` values to render above all built-ins.
 - `renderer.setAssetBaseUrl(assetBaseUrl)`
 - `renderer.setLayout(layout)`
 - `renderer.setBoard(board)`
+- `renderer.setGhostStone(pointOrVertex, stone, { onlyWhenClear, replaceExisting })`
+- `renderer.clearGhostStone()`
 - `renderer.on('click'|'mousemove'|'mouseout', handler)`
 - `renderer.toDataURL({ format, scale, quality })`
 - `renderer.toBlob({ format, scale, quality })`
@@ -104,6 +106,39 @@ Layer controls:
 - `renderer.layers.add(name, layer)`
 - `renderer.layers.remove(name)`
 - `renderer.layers.enable(name, true|false)`
+
+## Ghost Stone Preview
+
+Use a transient ghost stone for hover previews without mutating board state.
+
+```js
+renderer.on('mousemove', ({ point }) => {
+  if (!point) {
+    renderer.clearGhostStone();
+    return;
+  }
+
+  renderer.setGhostStone(point, STONE.BLACK, {
+    onlyWhenClear: true, // hidden on occupied intersections
+  });
+});
+
+renderer.on('mouseout', () => {
+  renderer.clearGhostStone();
+});
+```
+
+For editor-like cycling previews on occupied points:
+
+```js
+renderer.setGhostStone(point, STONE.WHITE, {
+  onlyWhenClear: false,
+  replaceExisting: true,
+});
+```
+
+Stone variants:
+- `STONE.GHOST_BLACK` / `STONE.GHOST_WHITE` are semi-transparent stone variants.
 
 ## Selection Layer Helper
 

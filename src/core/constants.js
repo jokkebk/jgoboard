@@ -2,8 +2,8 @@ export const STONE = Object.freeze({
   CLEAR: 0,
   BLACK: 1,
   WHITE: 2,
-  DIM_BLACK: 3,
-  DIM_WHITE: 4,
+  GHOST_BLACK: 3,
+  GHOST_WHITE: 4,
 });
 
 export const MARK = Object.freeze({
