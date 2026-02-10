@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>jGoBoard v5 — Demos</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        max-width: 640px;
+        margin: 40px auto;
+        padding: 0 20px;
+        color: #333;
+      }
+      h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+      p.subtitle { color: #666; margin-bottom: 2rem; }
+      h2 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.05em; color: #999; margin-bottom: 0.75rem; }
+      ul { list-style: none; margin-bottom: 2rem; }
+      li { margin-bottom: 0.5rem; }
+      a { color: #2563eb; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .desc { color: #666; margin-left: 0.25rem; }
+    </style>
+  </head>
+  <body>
+    <h1>jGoBoard v5</h1>
+    <p class="subtitle">Development demos &amp; examples</p>
+
+    <h2>Demos (local ESM)</h2>
+    <ul>
+      <li><a href="demoV5Renderer.html">Renderer</a> <span class="desc">— canvas rendering, viewport cropping</span></li>
+      <li><a href="demoV5Game.html">Game</a> <span class="desc">— game mechanics, ko, captures, themes</span></li>
+      <li><a href="demoV5Player.html">Player</a> <span class="desc">— SGF player component</span></li>
+      <li><a href="demoV5Tree.html">Tree</a> <span class="desc">— game tree navigation, variations</span></li>
+      <li><a href="demoV5Layers.html">Layers</a> <span class="desc">— territory, heatmaps, selection</span></li>
+    </ul>
+
+    <h2>Examples (CDN / UMD)</h2>
+    <ul>
+      <li><a href="examples/renderer.html">Renderer</a> <span class="desc">— basic board with click-to-cycle stones</span></li>
+      <li><a href="examples/game.html">Game</a> <span class="desc">— simple interactive game</span></li>
+      <li><a href="examples/player.html">Player</a> <span class="desc">— embedded SGF player</span></li>
+    </ul>
+  </body>
+</html>
