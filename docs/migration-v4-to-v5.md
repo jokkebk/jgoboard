@@ -71,4 +71,4 @@ import { createRenderer } from 'jgoboard/renderer';
 ## Notes
 
 - If you still depend on v4 semantics, keep a legacy branch/tag (for example `v4-legacy`) and migrate app-by-app.
-- v5 currently ships as `5.0.0-alpha.*`; expect iterative API polish.
+- v5 is now available as stable `5.0.0`.

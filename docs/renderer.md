@@ -64,6 +64,7 @@ Custom layers can use higher `zIndex` values to render above all built-ins.
 - `options.viewport`: either `{ from, to }` vertices or `{ xOffset, yOffset, width, height }`.
 - `options.interactions.enabled`: set `false` to disable pointer events.
 - `options.pixelRatio`: override DPR scaling.
+- `options.assetBaseUrl`: optional base URL used to resolve relative texture paths.
 
 ### Instance methods
 
@@ -71,6 +72,7 @@ Custom layers can use higher `zIndex` values to render above all built-ins.
 - `renderer.whenReady()`
 - `renderer.setViewport(viewport)`
 - `renderer.setTheme(theme)`
+- `renderer.setAssetBaseUrl(assetBaseUrl)`
 - `renderer.setLayout(layout)`
 - `renderer.setBoard(board)`
 - `renderer.on('click'|'mousemove'|'mouseout', handler)`
@@ -78,6 +80,11 @@ Custom layers can use higher `zIndex` values to render above all built-ins.
 - `renderer.toBlob({ format, scale, quality })`
 - `renderer.renderToCanvas(canvas, { scale })`
 - `renderer.destroy()`
+
+Global helpers:
+
+- `setAssetBaseUrl(assetBaseUrl)` sets a default base URL for all subsequent renderers.
+- `getAssetBaseUrl()` reads the current global base URL.
 
 ## Layers API
 
@@ -207,6 +214,14 @@ and stored in a module-level `Map` keyed by URL. This means all
 avoids redundant network requests. If you need isolated caching (e.g. running
 multiple independent widgets that load textures from different base paths with
 colliding filenames), be aware that the first load wins for a given URL.
+
+By default, relative texture URLs are resolved against:
+1) `options.assetBaseUrl` (if provided),
+2) the jGoBoard script URL (when available),
+3) the page URL (fallback).
+
+If your deployment serves textures from a custom location, set
+`options.assetBaseUrl` (or call `renderer.setAssetBaseUrl(...)`).
 
 ## Demos
 

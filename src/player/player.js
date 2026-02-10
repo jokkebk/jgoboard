@@ -20,6 +20,7 @@ const DEFAULT_OPTIONS = Object.freeze({
   showPlayerRanks: true,
   showComments: true,
   controls: 'default',
+  assetBaseUrl: null,
 });
 
 const STYLE_ID = 'jgo-player-styles';
@@ -420,6 +421,7 @@ export class Player {
     this.renderer = createRenderer(this.ui.board, {
       board: this.cursor.board,
       theme: this.options.theme,
+      assetBaseUrl: this.options.assetBaseUrl,
       interactions: {
         enabled: this.options.playable === true,
       },
@@ -1254,6 +1256,14 @@ export class Player {
   setTheme(theme) {
     this.options.theme = theme;
     this.renderer.setTheme(theme);
+    this._syncSurfaceWidth();
+    this._updateUi();
+    return this;
+  }
+
+  setAssetBaseUrl(assetBaseUrl) {
+    this.options.assetBaseUrl = assetBaseUrl;
+    this.renderer.setAssetBaseUrl(assetBaseUrl);
     this._syncSurfaceWidth();
     this._updateUi();
     return this;

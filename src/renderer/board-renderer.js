@@ -108,6 +108,7 @@ import { StonePainter } from './stone-painter.js';
  * @property {object | null} [viewport]
  * @property {InteractionOptions} [interactions]
  * @property {number} [pixelRatio]
+ * @property {string | null} [assetBaseUrl]
  * @property {RendererLayer[]} [layers]
  */
 
@@ -138,6 +139,15 @@ import { StonePainter } from './stone-painter.js';
 const IMAGE_KEYS = ['black', 'white', 'shadow', 'board'];
 const LABEL_MARK_PATTERN = /^[a-zA-Z1-9]/;
 const IMAGE_CACHE = new Map();
+const ABSOLUTE_URL_PATTERN = /^(?:[a-zA-Z][a-zA-Z\d+\-.]*:|\/\/|\/)/;
+const INITIAL_SCRIPT_ASSET_BASE_URL =
+  typeof document !== 'undefined' &&
+  document.currentScript &&
+  typeof document.currentScript.src === 'string' &&
+  document.currentScript.src.length > 0
+    ? new URL('../', document.currentScript.src).href
+    : null;
+let globalAssetBaseUrl = null;
 
 /**
  * Clear the shared image cache used by all BoardRenderer instances.
@@ -147,8 +157,76 @@ export function clearImageCache() {
   IMAGE_CACHE.clear();
 }
 
+/**
+ * Set a global base URL for relative texture assets.
+ * @param {string | null | undefined} assetBaseUrl
+ */
+export function setAssetBaseUrl(assetBaseUrl) {
+  globalAssetBaseUrl =
+    typeof assetBaseUrl === 'string' && assetBaseUrl.trim().length > 0 ? assetBaseUrl : null;
+}
+
+/**
+ * @returns {string | null}
+ */
+export function getAssetBaseUrl() {
+  return globalAssetBaseUrl;
+}
+
 function hasDocument() {
   return typeof document !== 'undefined';
+}
+
+function resolveUrlAgainstBase(path, baseUrl) {
+  try {
+    return new URL(path, baseUrl).href;
+  } catch {
+    return null;
+  }
+}
+
+function resolveTextureCandidates(path, assetBaseUrl) {
+  if (typeof path !== 'string' || path.length === 0) {
+    return [];
+  }
+
+  if (ABSOLUTE_URL_PATTERN.test(path)) {
+    return [path];
+  }
+
+  const candidates = [];
+  const seen = new Set();
+
+  const add = (value) => {
+    if (typeof value !== 'string' || value.length === 0 || seen.has(value)) {
+      return;
+    }
+
+    seen.add(value);
+    candidates.push(value);
+  };
+
+  if (assetBaseUrl) {
+    add(resolveUrlAgainstBase(path, assetBaseUrl));
+  }
+
+  if (INITIAL_SCRIPT_ASSET_BASE_URL) {
+    add(resolveUrlAgainstBase(path, INITIAL_SCRIPT_ASSET_BASE_URL));
+  }
+
+  add(path);
+  return candidates;
+}
+
+async function loadImageFromCandidates(candidates) {
+  for (const src of candidates) {
+    const image = await loadImage(src);
+    if (image) {
+      return image;
+    }
+  }
+
+  return null;
 }
 
 /**
@@ -304,6 +382,10 @@ export class BoardRenderer {
     this.theme = resolveTheme(options.theme);
     this.layout = deepMerge({}, options.layout || {});
     this.viewportInput = options.viewport || null;
+    this.assetBaseUrl =
+      typeof options.assetBaseUrl === 'string' && options.assetBaseUrl.trim().length > 0
+        ? options.assetBaseUrl
+        : globalAssetBaseUrl;
     this.interactions = resolveInteractionOptions(options.interactions);
     this.pixelRatio =
       Number.isFinite(options.pixelRatio) && options.pixelRatio > 0
@@ -508,7 +590,8 @@ export class BoardRenderer {
 
     this._assetsReady = Promise.all(
       IMAGE_KEYS.map(async (key) => {
-        const image = await loadImage(textures[key]);
+        const sources = resolveTextureCandidates(textures[key], this.assetBaseUrl);
+        const image = await loadImageFromCandidates(sources);
         return [key, image];
       })
     ).then((entries) => {
@@ -562,6 +645,18 @@ export class BoardRenderer {
   setTheme(theme) {
     this.theme = resolveTheme(theme);
     this.stones.setTheme(this.theme);
+    this._loadThemeAssets();
+    this.render();
+    return this;
+  }
+
+  /**
+   * @param {string | null | undefined} assetBaseUrl
+   * @returns {BoardRenderer}
+   */
+  setAssetBaseUrl(assetBaseUrl) {
+    this.assetBaseUrl =
+      typeof assetBaseUrl === 'string' && assetBaseUrl.trim().length > 0 ? assetBaseUrl : null;
     this._loadThemeAssets();
     this.render();
     return this;

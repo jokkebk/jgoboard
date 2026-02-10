@@ -26,11 +26,17 @@
     <div id="board"></div>
 
     <!--
-      CDN usage: load the UMD bundle from unpkg. This exposes the global `JGO`.
-      Replace @5 with a specific version like @5.0.0-alpha.0 to pin the version.
+      CDN usage: load the UMD bundle. This exposes the global `JGO`.
+      If you use the ESM file (`dist/jgoboard.js`), use <script type="module"> + import instead.
     -->
-    <script src="https://unpkg.com/jgoboard@5/dist/jgoboard.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jgoboard@5.0.0/dist/jgoboard.umd.min.js"></script>
     <script>
+      if (!window.JGO) {
+        throw new Error(
+          'jGoBoard CDN load failed. Use dist/jgoboard.umd.min.js for global JGO usage.'
+        );
+      }
+
       var board = JGO.createBoard({ size: 9 });
       var renderer = JGO.createRenderer('#board', {
         board: board,

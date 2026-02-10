@@ -38,6 +38,7 @@ await player.whenReady();
 - `keyboard` (default `true`)
 - `playable` (default `false`) enables board-click play attempts
 - `allowFileDrop` (default `true`) enables drag-and-drop SGF loading over the player
+- `assetBaseUrl` (optional) base URL for resolving relative texture image paths
 
 `createPlayer` requires one of `sgf`, `tree`, or `gameTree`.
 
@@ -71,6 +72,7 @@ await player.whenReady();
 - `player.next(count?, variationIndex?)`
 - `player.last()`
 - `player.setTheme(theme)`
+- `player.setAssetBaseUrl(assetBaseUrl)`
 - `player.setCommentsVisible(boolean)`
 - `player.setPlayerNamesVisible(boolean)`
 - `player.setPlayerRanksVisible(boolean)`

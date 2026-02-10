@@ -20,20 +20,25 @@
     <div id="player"></div>
 
     <!--
-      CDN usage: load the UMD bundle from unpkg. This exposes the global `JGO`.
-      Replace @5 with a specific version like @5.0.0-alpha.0 to pin the version.
+      CDN usage: load the UMD bundle. This exposes the global `JGO`.
+      If you use the ESM file (`dist/jgoboard.js`), use <script type="module"> + import instead.
     -->
-    <script src="https://unpkg.com/jgoboard@5/dist/jgoboard.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jgoboard@5.0.0/dist/jgoboard.umd.min.js"></script>
     <script>
+      if (!window.JGO) {
+        throw new Error(
+          'jGoBoard CDN load failed. Use dist/jgoboard.umd.min.js for global JGO usage.'
+        );
+      }
+
       var SGF =
         '(;FF[4]GM[1]SZ[19]PB[Shusaku]BR[7d]PW[Honinbo Shuwa]WR[8d]RE[B+R]' +
         ';B[pd];W[dp]' +
         '(;B[qp];W[dd];B[oq];W[oc])' +
         '(;B[od];W[pq];B[pp]))';
 
-      // The bw-medium theme requires no texture images, so it works from any origin.
-      // For kaya-medium or walnut-medium themes, texture images must be hosted
-      // alongside the page or referenced via absolute URLs.
+      // The bw-medium theme requires no texture images.
+      // Textured themes (kaya/walnut) resolve assets relative to the jGoBoard CDN URL.
       var player = JGO.createPlayer('#player', {
         sgf: SGF,
         theme: 'bw-medium',

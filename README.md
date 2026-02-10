@@ -10,6 +10,26 @@ This package is now v5-first. The legacy v4 API (`JGO.Board`, `JGO.Setup`, `JGO.
 npm install jgoboard
 ```
 
+## CDN
+
+Global `JGO` (UMD):
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/jgoboard@5.0.0/dist/jgoboard.umd.min.js"></script>
+<script>
+  const game = JGO.createGame({ size: 9 });
+</script>
+```
+
+Module import (ESM):
+
+```html
+<script type="module">
+  import { createGame } from 'https://cdn.jsdelivr.net/npm/jgoboard@5.0.0/dist/jgoboard.js';
+  const game = createGame({ size: 9 });
+</script>
+```
+
 ## Quick Start
 
 ```js
@@ -83,6 +103,20 @@ Build output includes:
 - `dist/jgoboard.umd.min.js` (UMD)
 - `dist/core.{js,cjs}`, `dist/renderer.{js,cjs}`, `dist/presets.{js,cjs}`, `dist/sgf.{js,cjs}`, `dist/player.{js,cjs}`
 - `dist/*.d.ts`
+
+## Theme Assets
+
+- Built-in textured themes (`kaya-*`, `walnut-*`) now resolve their image URLs relative to the jGoBoard module/script location.
+- This works out of the box for direct CDN usage, local repo clone demos, and GitHub release `dist` usage.
+- For custom npm/bundler asset layouts, set `assetBaseUrl` (globally or per renderer/player instance).
+- `bw-*` themes do not load image assets.
+
+```js
+import { createRenderer, setAssetBaseUrl } from 'jgoboard';
+
+setAssetBaseUrl('/static/vendor/jgoboard/');
+// or: createRenderer(target, { board, theme: 'kaya-medium', assetBaseUrl: '/static/vendor/jgoboard/' })
+```
 
 ## License
 

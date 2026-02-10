@@ -57,4 +57,4 @@ jobs:
           > **Note:** ESM and CJS builds are unminified intentionally. Modern bundlers (webpack, Rollup, Vite) will tree-shake and minify them automatically. Source maps enable debugging even with minified code.
 
     - name: Publish to npm
-      run: npm publish --tag alpha --provenance
+      run: npm publish --provenance

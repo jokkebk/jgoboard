@@ -101,5 +101,6 @@ Call `renderer.destroy()` on unmount, same as with the player.
 ## Notes
 
 - Both `createPlayer` and `createRenderer` accept a CSS selector string or a DOM element as the first argument.
-- The `bw-medium` theme needs no texture images. Textured themes (`kaya-*`, `walnut-*`) require the image assets to be served — see the [Renderer docs](renderer.md) for details.
+- The `bw-medium` theme needs no texture images. Textured themes (`kaya-*`, `walnut-*`) resolve asset URLs relative to the jGoBoard module/script location.
+- If you host texture files in a custom location, pass `assetBaseUrl` in renderer/player options.
 - The library is tree-shakeable: import only the subpath you need (`jgoboard/player`, `jgoboard/core`, etc.) to minimize bundle size.
