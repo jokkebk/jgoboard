@@ -161,12 +161,31 @@ const IMAGE_KEYS = ['black', 'white', 'shadow', 'board'];
 const LABEL_MARK_PATTERN = /^[a-zA-Z1-9]/;
 const IMAGE_CACHE = new Map();
 const ABSOLUTE_URL_PATTERN = /^(?:[a-zA-Z][a-zA-Z\d+\-.]*:|\/\/|\/)/;
-const INITIAL_SCRIPT_ASSET_BASE_URL =
+const INITIAL_MODULE_ASSET_BASE_URL = (() => {
+  if (typeof import.meta?.url !== 'string' || import.meta.url.length === 0) {
+    return null;
+  }
+
+  try {
+    const moduleUrl = import.meta.url;
+    return new URL('../', moduleUrl).href;
+  } catch {
+    return null;
+  }
+})();
+const INITIAL_SCRIPT_SRC =
   typeof document !== 'undefined' &&
   document.currentScript &&
+  typeof document.currentScript.getAttribute === 'function' &&
+  typeof document.currentScript.getAttribute('src') === 'string' &&
+  document.currentScript.getAttribute('src').length > 0 &&
   typeof document.currentScript.src === 'string' &&
   document.currentScript.src.length > 0
-    ? new URL('../', document.currentScript.src).href
+    ? document.currentScript.src
+    : null;
+const INITIAL_SCRIPT_ASSET_BASE_URL =
+  INITIAL_SCRIPT_SRC
+    ? new URL('../', INITIAL_SCRIPT_SRC).href
     : null;
 let globalAssetBaseUrl = null;
 
@@ -229,6 +248,10 @@ function resolveTextureCandidates(path, assetBaseUrl) {
 
   if (assetBaseUrl) {
     add(resolveUrlAgainstBase(path, assetBaseUrl));
+  }
+
+  if (INITIAL_MODULE_ASSET_BASE_URL) {
+    add(resolveUrlAgainstBase(path, INITIAL_MODULE_ASSET_BASE_URL));
   }
 
   if (INITIAL_SCRIPT_ASSET_BASE_URL) {
