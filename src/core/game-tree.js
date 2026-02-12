@@ -620,31 +620,7 @@ export class GameCursor {
     }
 
     const chosenId = parent.children[variationIndex];
-    const targetPath = this._path.slice(0, level + 1);
-    targetPath.push(chosenId);
-
-    let currentId = chosenId;
-    let oldIndex = level + 2;
-
-    while (true) {
-      const current = this.tree._getNode(currentId);
-      if (current.children.length === 0) {
-        break;
-      }
-
-      const previousCandidate = this._path[oldIndex];
-      if (previousCandidate && current.children.includes(previousCandidate)) {
-        currentId = previousCandidate;
-      } else {
-        currentId = current.children[0];
-      }
-
-      targetPath.push(currentId);
-      oldIndex += 1;
-    }
-
-    const targetId = targetPath[targetPath.length - 1];
-    return this.gotoNode(targetId);
+    return this.gotoNode(chosenId);
   }
 }
 

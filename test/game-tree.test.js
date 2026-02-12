@@ -235,6 +235,31 @@ test('GameCursor: setVariation switches branch', () => {
   assert.equal(cursor.board.getStone({ x: 3, y: 5 }), STONE.CLEAR); // D4 cleared
 });
 
+test('GameCursor: setVariation lands on sibling, not leaf of branch', () => {
+  const tree = createGameTree({ size: 9 });
+  // root → A (D4) → A1 (F6) → A2 (C3)
+  const a = tree.appendChild(tree.rootId, { type: 'play', vertex: 'D4' }, { player: STONE.BLACK, moveNumber: 1 });
+  const a1 = tree.appendChild(a.id, { type: 'play', vertex: 'F6' }, { player: STONE.WHITE, moveNumber: 2 });
+  tree.appendChild(a1.id, { type: 'play', vertex: 'C3' }, { player: STONE.BLACK, moveNumber: 3 });
+  // root → B (E5) → B1 (G7)
+  const b = tree.appendChild(tree.rootId, { type: 'play', vertex: 'E5' }, { player: STONE.BLACK, moveNumber: 1 });
+  tree.appendChild(b.id, { type: 'play', vertex: 'G7' }, { player: STONE.WHITE, moveNumber: 2 });
+
+  const cursor = createCursor(tree);
+  cursor.next(); // A (D4)
+  cursor.next(); // A1 (F6)
+  cursor.next(); // A2 (C3)
+  assert.equal(cursor.getPath().length, 4); // root → A → A1 → A2
+
+  // Switch to sibling B at level 0 (root's children)
+  const result = cursor.setVariation(0, 1);
+  assert.equal(result.ok, true);
+  // Should land on B (E5), not auto-follow to B1 (G7)
+  assert.equal(cursor.getPath().length, 2); // root → B
+  assert.equal(cursor.board.getStone({ x: 4, y: 4 }), STONE.BLACK); // E5
+  assert.equal(cursor.board.getStone({ x: 6, y: 6 }), STONE.CLEAR); // G7 not played
+});
+
 test('GameCursor: getState returns correct ply and path', () => {
   const tree = createGameTree({ size: 9 });
   tree.appendChild(tree.rootId, { type: 'play', vertex: 'D4' }, { player: STONE.BLACK, moveNumber: 1 });
