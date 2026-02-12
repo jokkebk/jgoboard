@@ -84,6 +84,7 @@
   "license": "CC-BY-NC-4.0",
   "devDependencies": {
     "@vitejs/plugin-legacy": "^7.2.1",
+    "canvas": "^3.2.1",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.6.2",
