@@ -91,5 +91,8 @@
     "terser": "^5.44.1",
     "vite": "^7.2.1",
     "vite-plugin-dts": "^4.5.4"
+  },
+  "overrides": {
+    "lodash": "^4.17.23"
   }
 }
