@@ -63,7 +63,9 @@
     "build": "node scripts/build.js",
     "preview": "vite preview",
     "lint": "eslint src scripts",
-    "format": "prettier --write \"src/**/*.js\" \"scripts/**/*.js\"",
+    "format": "prettier --write \"src/**/*.js\" \"scripts/**/*.js\" \"test/**/*.js\"",
+    "format:check": "prettier --check \"src/**/*.js\" \"scripts/**/*.js\" \"test/**/*.js\"",
+    "prepare": "husky",
     "test": "node --test"
   },
   "repository": {
@@ -87,10 +89,15 @@
     "canvas": "^3.2.1",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6",
     "prettier": "^3.6.2",
     "terser": "^5.44.1",
     "vite": "^7.2.1",
     "vite-plugin-dts": "^4.5.4"
+  },
+  "lint-staged": {
+    "*.{js,mjs,cjs,json,md,yml,yaml,css}": "prettier --write"
   },
   "overrides": {
     "lodash": "^4.17.23",

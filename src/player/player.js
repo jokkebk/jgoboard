@@ -1038,7 +1038,8 @@ export class Player {
     const siblingInfo = this._getSiblingInfo(state);
     const hasSiblingSwitch = siblingInfo.total > 1;
     this.ui.variationUpButton.disabled = !hasSiblingSwitch || siblingInfo.index <= 0;
-    this.ui.variationDownButton.disabled = !hasSiblingSwitch || siblingInfo.index + 1 >= siblingInfo.total;
+    this.ui.variationDownButton.disabled =
+      !hasSiblingSwitch || siblingInfo.index + 1 >= siblingInfo.total;
     this.ui.variationLabel.textContent = hasSiblingSwitch
       ? `Variation ${siblingInfo.index + 1}/${siblingInfo.total}`
       : 'Variation 1/1';

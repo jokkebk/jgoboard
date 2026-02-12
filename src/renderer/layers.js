@@ -458,7 +458,9 @@ function drawGradientHeatmap(ctx, frame, options) {
 
   const image = workCtx.createImageData(overlayWidth, overlayHeight);
   const pixels = image.data;
-  const colors = Array.from({ length: frame.viewport.height }, () => Array(frame.viewport.width).fill(null));
+  const colors = Array.from({ length: frame.viewport.height }, () =>
+    Array(frame.viewport.width).fill(null)
+  );
 
   for (let localY = 0; localY < frame.viewport.height; localY += 1) {
     for (let localX = 0; localX < frame.viewport.width; localX += 1) {
@@ -592,7 +594,9 @@ export function createHeatmapLayer(options = {}) {
   const renderMode = options.renderMode || 'cells';
   const defaultValue = Number.isFinite(options.defaultValue) ? options.defaultValue : 0;
   const defaultColor = toParsedColor(options.defaultColor, { r: 0, g: 0, b: 0, a: 0 });
-  const edgeFadeCells = Number.isFinite(options.edgeFadeCells) ? Math.max(0, options.edgeFadeCells) : 1.25;
+  const edgeFadeCells = Number.isFinite(options.edgeFadeCells)
+    ? Math.max(0, options.edgeFadeCells)
+    : 1.25;
 
   if (dataMode !== 'values' && dataMode !== 'rgba') {
     throw new Error(`unsupported heatmap dataMode: ${dataMode}`);
@@ -678,25 +682,22 @@ export function createHeatmapLayer(options = {}) {
         y2: frame.viewport.yOffset + frame.viewport.height - 1,
       };
 
-      frame.board.each(
-        (point) => {
-          const color = resolveColor(point, frame, runtime);
+      frame.board.each((point) => {
+        const color = resolveColor(point, frame, runtime);
 
-          if (!color || color.a <= 0) {
-            return;
-          }
+        if (!color || color.a <= 0) {
+          return;
+        }
 
-          const rect = cellRect(frame, point);
-          ctx.fillStyle = toRgbaString(color);
-          ctx.fillRect(
-            rect.left + inset,
-            rect.top + inset,
-            Math.max(0, rect.width - inset * 2),
-            Math.max(0, rect.height - inset * 2)
-          );
-        },
-        bounds
-      );
+        const rect = cellRect(frame, point);
+        ctx.fillStyle = toRgbaString(color);
+        ctx.fillRect(
+          rect.left + inset,
+          rect.top + inset,
+          Math.max(0, rect.width - inset * 2),
+          Math.max(0, rect.height - inset * 2)
+        );
+      }, bounds);
     },
   };
 }

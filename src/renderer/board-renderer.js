@@ -1,4 +1,10 @@
-import { COORDINATE_LETTERS, STONE, formatVertex, normalizePoint, normalizeViewport } from '../core/index.js';
+import {
+  COORDINATE_LETTERS,
+  STONE,
+  formatVertex,
+  normalizePoint,
+  normalizeViewport,
+} from '../core/index.js';
 import { resolveTheme } from '../presets/themes.js';
 import { deepMerge } from '../shared/deep-merge.js';
 import { LayerRegistry } from './layer-registry.js';
@@ -183,10 +189,9 @@ const INITIAL_SCRIPT_SRC =
   document.currentScript.src.length > 0
     ? document.currentScript.src
     : null;
-const INITIAL_SCRIPT_ASSET_BASE_URL =
-  INITIAL_SCRIPT_SRC
-    ? new URL('../', INITIAL_SCRIPT_SRC).href
-    : null;
+const INITIAL_SCRIPT_ASSET_BASE_URL = INITIAL_SCRIPT_SRC
+  ? new URL('../', INITIAL_SCRIPT_SRC).href
+  : null;
 let globalAssetBaseUrl = null;
 
 /**
@@ -994,7 +999,12 @@ export class BoardRenderer {
 
       ctx.strokeStyle = theme.border.color;
       ctx.lineWidth = theme.border.lineWidth;
-      ctx.strokeRect(geometry.marginLeft, geometry.marginTop, geometry.boardWidth, geometry.boardHeight);
+      ctx.strokeRect(
+        geometry.marginLeft,
+        geometry.marginTop,
+        geometry.boardWidth,
+        geometry.boardHeight
+      );
 
       ctx.restore();
     }
@@ -1161,58 +1171,52 @@ export class BoardRenderer {
       y2: frame.viewport.yOffset + frame.viewport.height - 1,
     };
 
-    frame.board.each(
-      (point, intersection) => {
-        if (hasReplaceGhost && point.x === ghostStone.point.x && point.y === ghostStone.point.y) {
-          return;
-        }
+    frame.board.each((point, intersection) => {
+      if (hasReplaceGhost && point.x === ghostStone.point.x && point.y === ghostStone.point.y) {
+        return;
+      }
 
-        if (intersection.stone !== STONE.BLACK && intersection.stone !== STONE.WHITE) {
-          return;
-        }
+      if (intersection.stone !== STONE.BLACK && intersection.stone !== STONE.WHITE) {
+        return;
+      }
 
-        const x = frame.geometry.gridLeft + (point.x - frame.viewport.xOffset) * frame.theme.grid.x;
-        const y = frame.geometry.gridTop + (point.y - frame.viewport.yOffset) * frame.theme.grid.y;
+      const x = frame.geometry.gridLeft + (point.x - frame.viewport.xOffset) * frame.theme.grid.x;
+      const y = frame.geometry.gridTop + (point.y - frame.viewport.yOffset) * frame.theme.grid.y;
 
-        this.stones.drawShadow(
-          ctx,
-          x + frame.theme.shadow.xOff,
-          y + frame.theme.shadow.yOff,
-          frame.assets
-        );
-      },
-      bounds
-    );
+      this.stones.drawShadow(
+        ctx,
+        x + frame.theme.shadow.xOff,
+        y + frame.theme.shadow.yOff,
+        frame.assets
+      );
+    }, bounds);
 
-    frame.board.each(
-      (point, intersection) => {
-        if (hasReplaceGhost && point.x === ghostStone.point.x && point.y === ghostStone.point.y) {
-          return;
-        }
+    frame.board.each((point, intersection) => {
+      if (hasReplaceGhost && point.x === ghostStone.point.x && point.y === ghostStone.point.y) {
+        return;
+      }
 
-        if (
-          intersection.stone !== STONE.BLACK &&
-          intersection.stone !== STONE.WHITE &&
-          intersection.stone !== STONE.GHOST_BLACK &&
-          intersection.stone !== STONE.GHOST_WHITE
-        ) {
-          return;
-        }
+      if (
+        intersection.stone !== STONE.BLACK &&
+        intersection.stone !== STONE.WHITE &&
+        intersection.stone !== STONE.GHOST_BLACK &&
+        intersection.stone !== STONE.GHOST_WHITE
+      ) {
+        return;
+      }
 
-        const x = frame.geometry.gridLeft + (point.x - frame.viewport.xOffset) * frame.theme.grid.x;
-        const y = frame.geometry.gridTop + (point.y - frame.viewport.yOffset) * frame.theme.grid.y;
+      const x = frame.geometry.gridLeft + (point.x - frame.viewport.xOffset) * frame.theme.grid.x;
+      const y = frame.geometry.gridTop + (point.y - frame.viewport.yOffset) * frame.theme.grid.y;
 
-        if (intersection.stone === STONE.GHOST_BLACK || intersection.stone === STONE.GHOST_WHITE) {
-          ctx.globalAlpha = frame.theme.stone.dimAlpha;
-        } else {
-          ctx.globalAlpha = 1;
-        }
-
-        this.stones.drawStone(ctx, intersection.stone, x, y, frame.assets);
+      if (intersection.stone === STONE.GHOST_BLACK || intersection.stone === STONE.GHOST_WHITE) {
+        ctx.globalAlpha = frame.theme.stone.dimAlpha;
+      } else {
         ctx.globalAlpha = 1;
-      },
-      bounds
-    );
+      }
+
+      this.stones.drawStone(ctx, intersection.stone, x, y, frame.assets);
+      ctx.globalAlpha = 1;
+    }, bounds);
   }
 
   /**
@@ -1267,20 +1271,17 @@ export class BoardRenderer {
       y2: frame.viewport.yOffset + frame.viewport.height - 1,
     };
 
-    frame.board.each(
-      (point, intersection) => {
-        if (!intersection.mark || isLabelMark(intersection.mark)) {
-          return;
-        }
+    frame.board.each((point, intersection) => {
+      if (!intersection.mark || isLabelMark(intersection.mark)) {
+        return;
+      }
 
-        const x = frame.geometry.gridLeft + (point.x - frame.viewport.xOffset) * frame.theme.grid.x;
-        const y = frame.geometry.gridTop + (point.y - frame.viewport.yOffset) * frame.theme.grid.y;
-        const markColor = resolveMarkColor(frame.theme, intersection.stone);
+      const x = frame.geometry.gridLeft + (point.x - frame.viewport.xOffset) * frame.theme.grid.x;
+      const y = frame.geometry.gridTop + (point.y - frame.viewport.yOffset) * frame.theme.grid.y;
+      const markColor = resolveMarkColor(frame.theme, intersection.stone);
 
-        this.stones.drawMark(ctx, intersection.mark, x, y, markColor, frame.assets);
-      },
-      bounds
-    );
+      this.stones.drawMark(ctx, intersection.mark, x, y, markColor, frame.assets);
+    }, bounds);
   }
 
   /**
@@ -1299,50 +1300,44 @@ export class BoardRenderer {
     const clearWidth = frame.theme.stone.radius * 1.5;
     const clearHeight = frame.theme.stone.radius * 1.2;
 
-    frame.board.each(
-      (point, intersection) => {
-        if (!isLabelMark(intersection.mark) || intersection.stone !== STONE.CLEAR) {
-          return;
-        }
+    frame.board.each((point, intersection) => {
+      if (!isLabelMark(intersection.mark) || intersection.stone !== STONE.CLEAR) {
+        return;
+      }
 
-        const x = frame.geometry.gridLeft + (point.x - frame.viewport.xOffset) * frame.theme.grid.x;
-        const y = frame.geometry.gridTop + (point.y - frame.viewport.yOffset) * frame.theme.grid.y;
+      const x = frame.geometry.gridLeft + (point.x - frame.viewport.xOffset) * frame.theme.grid.x;
+      const y = frame.geometry.gridTop + (point.y - frame.viewport.yOffset) * frame.theme.grid.y;
 
-        if (frame.assets.board) {
-          ctx.drawImage(
-            frame.assets.board,
-            x - frame.geometry.marginLeft - clearWidth / 2,
-            y - frame.geometry.marginTop - clearHeight / 2,
-            clearWidth,
-            clearHeight,
-            x - clearWidth / 2,
-            y - clearHeight / 2,
-            clearWidth,
-            clearHeight
-          );
-          return;
-        }
+      if (frame.assets.board) {
+        ctx.drawImage(
+          frame.assets.board,
+          x - frame.geometry.marginLeft - clearWidth / 2,
+          y - frame.geometry.marginTop - clearHeight / 2,
+          clearWidth,
+          clearHeight,
+          x - clearWidth / 2,
+          y - clearHeight / 2,
+          clearWidth,
+          clearHeight
+        );
+        return;
+      }
 
-        ctx.fillStyle = frame.theme.margin.color;
-        ctx.fillRect(x - clearWidth / 2, y - clearHeight / 2, clearWidth, clearHeight);
-      },
-      bounds
-    );
+      ctx.fillStyle = frame.theme.margin.color;
+      ctx.fillRect(x - clearWidth / 2, y - clearHeight / 2, clearWidth, clearHeight);
+    }, bounds);
 
-    frame.board.each(
-      (point, intersection) => {
-        if (!isLabelMark(intersection.mark)) {
-          return;
-        }
+    frame.board.each((point, intersection) => {
+      if (!isLabelMark(intersection.mark)) {
+        return;
+      }
 
-        const x = frame.geometry.gridLeft + (point.x - frame.viewport.xOffset) * frame.theme.grid.x;
-        const y = frame.geometry.gridTop + (point.y - frame.viewport.yOffset) * frame.theme.grid.y;
-        const markColor = resolveMarkColor(frame.theme, intersection.stone);
+      const x = frame.geometry.gridLeft + (point.x - frame.viewport.xOffset) * frame.theme.grid.x;
+      const y = frame.geometry.gridTop + (point.y - frame.viewport.yOffset) * frame.theme.grid.y;
+      const markColor = resolveMarkColor(frame.theme, intersection.stone);
 
-        this.stones.drawMark(ctx, intersection.mark, x, y, markColor, frame.assets);
-      },
-      bounds
-    );
+      this.stones.drawMark(ctx, intersection.mark, x, y, markColor, frame.assets);
+    }, bounds);
   }
 
   /**

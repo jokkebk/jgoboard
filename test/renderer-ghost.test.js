@@ -147,7 +147,10 @@ describe('setGhostStone / clearGhostStone', () => {
     const renderer = createTestRenderer(board);
 
     assert.throws(() => renderer.setGhostStone({ x: 9, y: 0 }, STONE.BLACK), /out of board bounds/);
-    assert.throws(() => renderer.setGhostStone({ x: 0, y: -1 }, STONE.BLACK), /out of board bounds/);
+    assert.throws(
+      () => renderer.setGhostStone({ x: 0, y: -1 }, STONE.BLACK),
+      /out of board bounds/
+    );
 
     renderer.destroy();
   });

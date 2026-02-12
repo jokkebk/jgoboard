@@ -255,7 +255,10 @@ class SgfParser {
     this._skipWhitespace();
 
     if (this.mode === 'permissive' && this._peek() !== '(') {
-      this._warn('missing_root_parentheses', 'Wrapped input in a root game tree for permissive parsing');
+      this._warn(
+        'missing_root_parentheses',
+        'Wrapped input in a root game tree for permissive parsing'
+      );
       this.text = `(${this.text})`;
       this.index = 0;
       this._skipWhitespace();
@@ -343,7 +346,9 @@ function parseSize(rootProperties, warnings, onWarning) {
 }
 
 function parseRules(rootProperties) {
-  const rawRules = String(rootProperties.RU?.[0] || '').trim().toLowerCase();
+  const rawRules = String(rootProperties.RU?.[0] || '')
+    .trim()
+    .toLowerCase();
 
   if (rawRules.includes('chinese')) {
     return rules.chinese();
@@ -357,7 +362,9 @@ function parseRules(rootProperties) {
 }
 
 function parseStartingPlayer(rootProperties) {
-  const player = String(rootProperties.PL?.[0] || '').trim().toUpperCase();
+  const player = String(rootProperties.PL?.[0] || '')
+    .trim()
+    .toUpperCase();
 
   if (player === 'W') {
     return STONE.WHITE;
@@ -523,9 +530,30 @@ function deriveNodeAction(nodeProperties, width, height, warnings, onWarning) {
     };
   }
 
-  const black = expandSgfPointList(nodeProperties.AB, width, height, warnings, onWarning, 'setup_ab');
-  const white = expandSgfPointList(nodeProperties.AW, width, height, warnings, onWarning, 'setup_aw');
-  const empty = expandSgfPointList(nodeProperties.AE, width, height, warnings, onWarning, 'setup_ae');
+  const black = expandSgfPointList(
+    nodeProperties.AB,
+    width,
+    height,
+    warnings,
+    onWarning,
+    'setup_ab'
+  );
+  const white = expandSgfPointList(
+    nodeProperties.AW,
+    width,
+    height,
+    warnings,
+    onWarning,
+    'setup_aw'
+  );
+  const empty = expandSgfPointList(
+    nodeProperties.AE,
+    width,
+    height,
+    warnings,
+    onWarning,
+    'setup_ae'
+  );
 
   if (black.length > 0 || white.length > 0 || empty.length > 0) {
     return {

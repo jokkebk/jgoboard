@@ -262,7 +262,9 @@ export const kayaLarge = deepFreeze(deepMerge(baseTheme, largeScale));
 /** @type {Theme} */
 export const walnutMedium = deepFreeze(deepMerge(baseTheme, walnutOverride));
 /** @type {Theme} */
-export const walnutLarge = deepFreeze(deepMerge(deepMerge(baseTheme, largeScale), walnutOverrideLarge));
+export const walnutLarge = deepFreeze(
+  deepMerge(deepMerge(baseTheme, largeScale), walnutOverrideLarge)
+);
 /** @type {Theme} */
 export const bwMedium = deepFreeze(deepMerge(baseTheme, bwOverride));
 /** @type {Theme} */

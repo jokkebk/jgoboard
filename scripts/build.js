@@ -26,7 +26,7 @@ async function buildSubpathBundles() {
       build: {
         lib: {
           entry: subpath.entry,
-          formats: ['es', 'cjs']
+          formats: ['es', 'cjs'],
         },
         rollupOptions: {
           external: [],
@@ -34,22 +34,22 @@ async function buildSubpathBundles() {
             {
               format: 'es',
               entryFileNames: `${subpath.name}.js`,
-              preserveModules: false
+              preserveModules: false,
             },
             {
               format: 'cjs',
               entryFileNames: `${subpath.name}.cjs`,
               exports: 'named',
               interop: 'auto',
-              preserveModules: false
-            }
-          ]
+              preserveModules: false,
+            },
+          ],
         },
         minify: false,
         sourcemap: true,
         emptyOutDir: false,
-        outDir: 'dist'
-      }
+        outDir: 'dist',
+      },
     });
 
     console.log(`✅ ${subpath.name} subpath complete`);
@@ -66,7 +66,7 @@ async function buildAll() {
       build: {
         lib: {
           entry,
-          formats: ['es', 'cjs']
+          formats: ['es', 'cjs'],
         },
         rollupOptions: {
           external: [],
@@ -74,21 +74,21 @@ async function buildAll() {
             {
               format: 'es',
               entryFileNames: 'jgoboard.js',
-              preserveModules: false
+              preserveModules: false,
             },
             {
               format: 'cjs',
               entryFileNames: 'jgoboard.cjs',
               exports: 'named',
               interop: 'auto',
-              preserveModules: false
-            }
-          ]
+              preserveModules: false,
+            },
+          ],
         },
         minify: false,
         sourcemap: true,
         emptyOutDir: true,
-        outDir: 'dist'
+        outDir: 'dist',
       },
       plugins: [
         dts({
@@ -96,9 +96,9 @@ async function buildAll() {
           outDir: 'dist',
           entryRoot: 'src',
           include: ['src/**/*.js'],
-          tsconfigPath
-        })
-      ]
+          tsconfigPath,
+        }),
+      ],
     });
 
     console.log('✅ ESM + CJS complete\n');
@@ -114,30 +114,29 @@ async function buildAll() {
           entry,
           name: 'JGO',
           formats: ['umd'],
-          fileName: () => 'jgoboard.umd.min.js'
+          fileName: () => 'jgoboard.umd.min.js',
         },
         rollupOptions: {
           external: [],
           output: {
-            globals: {}
-          }
+            globals: {},
+          },
         },
         minify: 'terser',
         terserOptions: {
           compress: {
             drop_console: false,
-            drop_debugger: true
+            drop_debugger: true,
           },
           format: {
             comments: false,
-            preamble:
-              '/*! jGoBoard - (c) Joonas Pihlajamaa - Licensed under CC-BY-NC-4.0 */'
-          }
+            preamble: '/*! jGoBoard - (c) Joonas Pihlajamaa - Licensed under CC-BY-NC-4.0 */',
+          },
         },
         sourcemap: true,
         emptyOutDir: false,
-        outDir: 'dist'
-      }
+        outDir: 'dist',
+      },
     });
 
     console.log('✅ UMD complete\n');

@@ -205,7 +205,10 @@ export class GameState {
       white = normalizeSetupPoints(setup.white || [], this.board);
       empty = normalizeSetupPoints(setup.empty || [], this.board);
     } catch {
-      return this._resultError('invalid_point', 'Setup contains invalid or out-of-bounds coordinates');
+      return this._resultError(
+        'invalid_point',
+        'Setup contains invalid or out-of-bounds coordinates'
+      );
     }
 
     const updates = new Map();

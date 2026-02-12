@@ -29,7 +29,11 @@ test('GameTree: appendNode adds a child', () => {
 
 test('GameTree: appendChild adds a child', () => {
   const tree = createGameTree({ size: 9 });
-  const child = tree.appendChild(tree.rootId, { type: 'play', vertex: 'E5' }, { player: STONE.BLACK });
+  const child = tree.appendChild(
+    tree.rootId,
+    { type: 'play', vertex: 'E5' },
+    { player: STONE.BLACK }
+  );
   assert.equal(tree.getNodeCount(), 2);
   assert.equal(child.action.vertex, 'E5');
 });
@@ -52,7 +56,11 @@ test('GameTree: getChildren returns children', () => {
 
 test('GameTree: getParent returns parent node', () => {
   const tree = createGameTree({ size: 9 });
-  const child = tree.appendChild(tree.rootId, { type: 'play', vertex: 'D4' }, { player: STONE.BLACK });
+  const child = tree.appendChild(
+    tree.rootId,
+    { type: 'play', vertex: 'D4' },
+    { player: STONE.BLACK }
+  );
   const parent = tree.getParent(child.id);
   assert.equal(parent.id, tree.rootId);
 });
@@ -129,7 +137,11 @@ test('GameTree: rejects play action without vertex', () => {
 
 test('GameCursor: next advances to first child', () => {
   const tree = createGameTree({ size: 9 });
-  tree.appendChild(tree.rootId, { type: 'play', vertex: 'D4' }, { player: STONE.BLACK, moveNumber: 1 });
+  tree.appendChild(
+    tree.rootId,
+    { type: 'play', vertex: 'D4' },
+    { player: STONE.BLACK, moveNumber: 1 }
+  );
   const cursor = createCursor(tree);
   const result = cursor.next();
   assert.equal(result.ok, true);
@@ -138,7 +150,11 @@ test('GameCursor: next advances to first child', () => {
 
 test('GameCursor: prev goes back to parent', () => {
   const tree = createGameTree({ size: 9 });
-  tree.appendChild(tree.rootId, { type: 'play', vertex: 'D4' }, { player: STONE.BLACK, moveNumber: 1 });
+  tree.appendChild(
+    tree.rootId,
+    { type: 'play', vertex: 'D4' },
+    { player: STONE.BLACK, moveNumber: 1 }
+  );
   const cursor = createCursor(tree);
   cursor.next();
   assert.equal(cursor.board.getStone({ x: 3, y: 5 }), STONE.BLACK);
@@ -175,7 +191,11 @@ test('GameCursor: play creates new tree node and advances', () => {
 
 test('GameCursor: play reuses existing child if action matches', () => {
   const tree = createGameTree({ size: 9 });
-  tree.appendChild(tree.rootId, { type: 'play', vertex: 'E5' }, { player: STONE.BLACK, moveNumber: 1 });
+  tree.appendChild(
+    tree.rootId,
+    { type: 'play', vertex: 'E5' },
+    { player: STONE.BLACK, moveNumber: 1 }
+  );
   const cursor = createCursor(tree);
   const result = cursor.play('E5');
   assert.equal(result.ok, true);
@@ -195,8 +215,16 @@ test('GameCursor: pass works', () => {
 
 test('GameCursor: gotoNode jumps to arbitrary node', () => {
   const tree = createGameTree({ size: 9 });
-  const n1 = tree.appendChild(tree.rootId, { type: 'play', vertex: 'D4' }, { player: STONE.BLACK, moveNumber: 1 });
-  const n2 = tree.appendChild(n1.id, { type: 'play', vertex: 'F6' }, { player: STONE.WHITE, moveNumber: 2 });
+  const n1 = tree.appendChild(
+    tree.rootId,
+    { type: 'play', vertex: 'D4' },
+    { player: STONE.BLACK, moveNumber: 1 }
+  );
+  const n2 = tree.appendChild(
+    n1.id,
+    { type: 'play', vertex: 'F6' },
+    { player: STONE.WHITE, moveNumber: 2 }
+  );
   const cursor = createCursor(tree);
 
   const result = cursor.gotoNode(n2.id);
@@ -208,8 +236,16 @@ test('GameCursor: gotoNode jumps to arbitrary node', () => {
 
 test('GameCursor: gotoNode replays from root correctly', () => {
   const tree = createGameTree({ size: 9 });
-  const n1 = tree.appendChild(tree.rootId, { type: 'play', vertex: 'D4' }, { player: STONE.BLACK, moveNumber: 1 });
-  const n2 = tree.appendChild(n1.id, { type: 'play', vertex: 'F6' }, { player: STONE.WHITE, moveNumber: 2 });
+  const n1 = tree.appendChild(
+    tree.rootId,
+    { type: 'play', vertex: 'D4' },
+    { player: STONE.BLACK, moveNumber: 1 }
+  );
+  const n2 = tree.appendChild(
+    n1.id,
+    { type: 'play', vertex: 'F6' },
+    { player: STONE.WHITE, moveNumber: 2 }
+  );
   const cursor = createCursor(tree);
 
   cursor.gotoNode(n2.id);
@@ -221,8 +257,16 @@ test('GameCursor: gotoNode replays from root correctly', () => {
 test('GameCursor: setVariation switches branch', () => {
   const tree = createGameTree({ size: 9 });
   // Two variations from root
-  tree.appendChild(tree.rootId, { type: 'play', vertex: 'D4' }, { player: STONE.BLACK, moveNumber: 1 });
-  tree.appendChild(tree.rootId, { type: 'play', vertex: 'E5' }, { player: STONE.BLACK, moveNumber: 1 });
+  tree.appendChild(
+    tree.rootId,
+    { type: 'play', vertex: 'D4' },
+    { player: STONE.BLACK, moveNumber: 1 }
+  );
+  tree.appendChild(
+    tree.rootId,
+    { type: 'play', vertex: 'E5' },
+    { player: STONE.BLACK, moveNumber: 1 }
+  );
 
   const cursor = createCursor(tree);
   cursor.next(); // goes to D4 (variation 0)
@@ -238,11 +282,23 @@ test('GameCursor: setVariation switches branch', () => {
 test('GameCursor: setVariation lands on sibling, not leaf of branch', () => {
   const tree = createGameTree({ size: 9 });
   // root → A (D4) → A1 (F6) → A2 (C3)
-  const a = tree.appendChild(tree.rootId, { type: 'play', vertex: 'D4' }, { player: STONE.BLACK, moveNumber: 1 });
-  const a1 = tree.appendChild(a.id, { type: 'play', vertex: 'F6' }, { player: STONE.WHITE, moveNumber: 2 });
+  const a = tree.appendChild(
+    tree.rootId,
+    { type: 'play', vertex: 'D4' },
+    { player: STONE.BLACK, moveNumber: 1 }
+  );
+  const a1 = tree.appendChild(
+    a.id,
+    { type: 'play', vertex: 'F6' },
+    { player: STONE.WHITE, moveNumber: 2 }
+  );
   tree.appendChild(a1.id, { type: 'play', vertex: 'C3' }, { player: STONE.BLACK, moveNumber: 3 });
   // root → B (E5) → B1 (G7)
-  const b = tree.appendChild(tree.rootId, { type: 'play', vertex: 'E5' }, { player: STONE.BLACK, moveNumber: 1 });
+  const b = tree.appendChild(
+    tree.rootId,
+    { type: 'play', vertex: 'E5' },
+    { player: STONE.BLACK, moveNumber: 1 }
+  );
   tree.appendChild(b.id, { type: 'play', vertex: 'G7' }, { player: STONE.WHITE, moveNumber: 2 });
 
   const cursor = createCursor(tree);
@@ -262,7 +318,11 @@ test('GameCursor: setVariation lands on sibling, not leaf of branch', () => {
 
 test('GameCursor: getState returns correct ply and path', () => {
   const tree = createGameTree({ size: 9 });
-  tree.appendChild(tree.rootId, { type: 'play', vertex: 'D4' }, { player: STONE.BLACK, moveNumber: 1 });
+  tree.appendChild(
+    tree.rootId,
+    { type: 'play', vertex: 'D4' },
+    { player: STONE.BLACK, moveNumber: 1 }
+  );
   const cursor = createCursor(tree);
 
   let state = cursor.getState();
@@ -277,7 +337,11 @@ test('GameCursor: getState returns correct ply and path', () => {
 
 test('GameCursor: getVariations lists child actions', () => {
   const tree = createGameTree({ size: 9 });
-  tree.appendChild(tree.rootId, { type: 'play', vertex: 'D4' }, { player: STONE.BLACK, moveNumber: 1 });
+  tree.appendChild(
+    tree.rootId,
+    { type: 'play', vertex: 'D4' },
+    { player: STONE.BLACK, moveNumber: 1 }
+  );
   tree.appendChild(tree.rootId, { type: 'pass' }, { player: STONE.BLACK, moveNumber: 1 });
   const cursor = createCursor(tree);
 

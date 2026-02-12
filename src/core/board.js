@@ -76,7 +76,9 @@ export class BoardState {
 
   setMark(pointOrVertex, mark) {
     if (typeof mark !== 'string') {
-      throw new Error(`invalid mark value: ${mark} (must be a string — use MARK constants or a label like "A")`);
+      throw new Error(
+        `invalid mark value: ${mark} (must be a string — use MARK constants or a label like "A")`
+      );
     }
 
     const point = this._resolvePoint(pointOrVertex);

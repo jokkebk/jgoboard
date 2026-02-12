@@ -76,7 +76,13 @@ export class StonePainter {
     const width = assets.shadow.width * scale;
     const height = assets.shadow.height * scale;
 
-    ctx.drawImage(assets.shadow, Math.round(x - width / 2), Math.round(y - height / 2), width, height);
+    ctx.drawImage(
+      assets.shadow,
+      Math.round(x - width / 2),
+      Math.round(y - height / 2),
+      width,
+      height
+    );
   }
 
   /**

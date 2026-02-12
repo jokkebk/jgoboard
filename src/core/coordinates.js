@@ -60,11 +60,7 @@ export function normalizePoint(pointOrVertex, boardHeight) {
     return parseVertex(pointOrVertex, boardHeight);
   }
 
-  if (
-    !pointOrVertex ||
-    !Number.isInteger(pointOrVertex.x) ||
-    !Number.isInteger(pointOrVertex.y)
-  ) {
+  if (!pointOrVertex || !Number.isInteger(pointOrVertex.x) || !Number.isInteger(pointOrVertex.y)) {
     throw new Error('point must be a {x, y} object or a vertex string');
   }
 
