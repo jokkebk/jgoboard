@@ -40,7 +40,7 @@ jobs:
         run: npm run build
 
       - name: Validate TypeScript definitions
-        run: npx tsc --noEmit dist/index.d.ts
+        run: npm run types:check
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

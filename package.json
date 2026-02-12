@@ -65,6 +65,7 @@
     "lint": "eslint src scripts",
     "format": "prettier --write \"src/**/*.js\" \"scripts/**/*.js\" \"test/**/*.js\"",
     "format:check": "prettier --check \"src/**/*.js\" \"scripts/**/*.js\" \"test/**/*.js\"",
+    "types:check": "tsc --noEmit --lib ES2020,DOM,DOM.Iterable dist/index.d.ts",
     "prepare": "husky",
     "test": "node --test"
   },
